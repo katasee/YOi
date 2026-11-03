@@ -9,10 +9,19 @@ struct BookClientRow: View {
             HStack(spacing: ScheduleMetrics.Spacing.bookRowContentSpacing) {
                 ClientAvatar(initial: option.initial, size: ScheduleMetrics.Size.bookAvatar)
 
-                Text(verbatim: option.title)
-                    .font(.elmsSans(.semiBold, ScheduleMetrics.Size.rowName))
-                    .foregroundStyle(Color.ink)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: ScheduleMetrics.Spacing.bookRowTextSpacing) {
+                    Text(verbatim: option.title)
+                        .font(.elmsSans(.semiBold, ScheduleMetrics.Size.rowName))
+                        .foregroundStyle(Color.ink)
+                        .lineLimit(1)
+
+                    if let subtitle = option.subtitle {
+                        Text(verbatim: subtitle)
+                            .font(.elmsSans(.regular, ScheduleMetrics.Size.bookRowSubtitle))
+                            .foregroundStyle(Color.textSecondary)
+                            .lineLimit(1)
+                    }
+                }
 
                 Spacer(minLength: 0)
 

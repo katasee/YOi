@@ -72,8 +72,8 @@ enum SchedulePreviewData {
     }
 
     static let options: [BookClientOption] = [
-        BookClientOption(id: "client-olya", title: "Оля", initial: "О", isSelected: true),
-        BookClientOption(id: "client-kate", title: "Катя", initial: "К", isSelected: false)
+        BookClientOption(id: "client-olya", title: "Оля", subtitle: "@olya.nails", initial: "О", isSelected: true),
+        BookClientOption(id: "client-kate", title: "Катя", subtitle: nil, initial: "К", isSelected: false)
     ]
 
     static let serviceChips: [ChoiceChip] = [

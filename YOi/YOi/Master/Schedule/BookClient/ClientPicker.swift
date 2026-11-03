@@ -39,6 +39,7 @@ struct ClientPicker {
         return BookClientOption(
             id: item.id,
             title: item.title,
+            subtitle: item.subtitle,
             initial: item.initial,
             isSelected: client.id == selectedId
         )

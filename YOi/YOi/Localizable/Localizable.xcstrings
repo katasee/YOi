@@ -2,7 +2,7 @@
   "sourceLanguage" : "uk",
   "strings" : {
     "" : {
-
+      "shouldTranslate" : false
     },
     "account.action.changePassword" : {
       "localizations" : {

@@ -13,10 +13,19 @@ struct ClientRow: View {
                 HStack(spacing: ClientsMetrics.Spacing.rowContentSpacing) {
                     ClientAvatar(initial: item.initial, size: ClientsMetrics.Size.rowAvatar)
 
-                    Text(verbatim: item.title)
-                        .font(.elmsSans(.semiBold, ClientsMetrics.Size.rowName))
-                        .foregroundStyle(Color.ink)
-                        .lineLimit(1)
+                    VStack(alignment: .leading, spacing: ClientsMetrics.Spacing.rowTextSpacing) {
+                        Text(verbatim: item.title)
+                            .font(.elmsSans(.semiBold, ClientsMetrics.Size.rowName))
+                            .foregroundStyle(Color.ink)
+                            .lineLimit(1)
+
+                        if let subtitle = item.subtitle {
+                            Text(verbatim: subtitle)
+                                .font(.elmsSans(.regular, ClientsMetrics.Size.rowSubtitle))
+                                .foregroundStyle(Color.textSecondary)
+                                .lineLimit(1)
+                        }
+                    }
 
                     Spacer(minLength: 0)
                 }

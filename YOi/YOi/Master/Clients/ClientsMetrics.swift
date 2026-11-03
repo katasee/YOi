@@ -5,6 +5,7 @@ enum ClientsMetrics {
         static let rowAvatar: CGFloat = 44
         static let rowCornerRadius: CGFloat = 24
         static let rowName: CGFloat = 16
+        static let rowSubtitle: CGFloat = 13
         static let dividerHeight: CGFloat = 1
         static let deleteTitle: CGFloat = 16
         static let deleteMinHeight: CGFloat = 44
@@ -28,6 +29,7 @@ enum ClientsMetrics {
         static let sectionLabelInset: CGFloat = 4
         static let rowSpacing: CGFloat = 10
         static let rowContentSpacing: CGFloat = 14
+        static let rowTextSpacing: CGFloat = 2
         static let rowHorizontalPadding: CGFloat = 16
         static let rowVerticalPadding: CGFloat = 12
         static let fieldLabelSpacing: CGFloat = 8

@@ -2358,6 +2358,28 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; all three site pages return 200; in the simulator the Profile row and
     the consent line both open the policy, the consent line hides on "Увійти".
 
+- **Y-47 — Collected data types in the privacy manifest** (committed straight after Y-45; this
+  entry was added with Y-48). `PrivacyInfo.xcprivacy` now declares `NSPrivacyCollectedDataTypes`:
+  email address, name, phone number, other contact info (the Instagram handle), user ID and other
+  user content — each linked to the user, not used for tracking, purpose App Functionality only.
+  Must stay in step with the App Privacy label (P2 item 1) and the policy (Y-45).
+
+- **Y-48 — Secondary line on client rows** (branch `feature/y-48-client-secondary-line`; decided
+  in chat on 2026-11-02, option 1 of four). Closes the backlog item "Clients with the same name
+  look identical when booking".
+  - Every client row shows a second line under the name: `@handle`, else the phone
+    (`PhoneFormat.display`, a legacy value verbatim), else nothing. A client with no name already
+    has `@handle` as the title, so her line is the phone only. An empty `instagram` never renders
+    a bare `@`.
+  - Built in the presentation model, `ClientItem.makeSubtitle(for:)` — not on `Client` in
+    `Models/`, because it goes through a display formatter (the `swiftui-pro` pass on the plan
+    moved it there). `BookClientOption` copies it, so "Записати" and the "Надіслати графік"
+    recipient step get it through `BookClientRow`; Клієнтки through `ClientRow`.
+  - Out of scope: the last-visit date as a fallback, a duplicate-name warning in the client form;
+    `ClientCard.details` keeps its own "@handle · phone".
+  - Verified: `xcodebuild`. `ClientsPreviewData` covers every shape (handle + phone, handle only,
+    phone only, no name, a long name, a legacy phone, an empty handle) for the preview check.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2598,10 +2620,9 @@ those items are referred to by name, so the list can grow without renumbering an
             say so in the description.
          5. Final device pass on iOS 18 and 26, light and dark, plus the beta masters' feedback.
        - **Not blocking, pick up if the beta asks for it:** "Error handling pass over the whole
-         app", "Clients with the same name look identical when booking", the one key missing a
-         translation in the String Catalog (228 of 229). "Sign-in / sign-up button reacts only on
-         its text" is probably closed by Y-42 (the button is a `CapsuleButton` now) — check on a
-         device and strike it. Everything else in the backlog waits until after the release.
+         app", the one key missing a translation in the String Catalog (228 of 229). Same-name
+         clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
+         the backlog waits until after the release.
 
 ## Backlog and tech debt (unordered)
 
@@ -2612,7 +2633,9 @@ numbering drifts every time an item is added or closed (it already did once: PR9
 
 - ~~**Gender-neutral wording for the master**~~ — **done as Y-44** (under "Done").
 
-- **Sign-in / sign-up button reacts only on its text** (found 2026-10-29). `AuthView.submitButton`
+- ~~**Sign-in / sign-up button reacts only on its text**~~ — **closed by Y-42** (checked in code
+  2026-11-02: the submit button is a `CapsuleButton`, which sets `.contentShape(.capsule)`; the
+  other Auth buttons set `.contentShape(.rect)`). Was (found 2026-10-29): `AuthView.submitButton`
   is a `.buttonStyle(.plain)` `Button` whose capsule fill is a `.background` *outside* the button,
   and a plain button hit-tests only its opaque content — so the transparent `maxWidth: .infinity`
   frame around the label is dead and only a tap on the words works. Fix: `.contentShape(.capsule)`
@@ -2620,7 +2643,8 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   other Auth buttons (`ModeSwapPrompt`, the "Забули пароль?" link, VerifyEmail's sign-out) in the
   same pass.
 
-- **Clients with the same name look identical when booking** (found 2026-10-30). Two clients
+- ~~**Clients with the same name look identical when booking**~~ — **done as Y-48** (under
+  "Done"). Was (found 2026-10-30): Two clients
   named "Катя" show up as two identical rows in the "Записати" client picker (`ClientPicker` →
   `BookClientOption` builds only `title` + `initial` from `ClientItem`), so the master cannot tell
   which one is being booked. Candidate fix: a secondary line on `BookClientRow` with what tells

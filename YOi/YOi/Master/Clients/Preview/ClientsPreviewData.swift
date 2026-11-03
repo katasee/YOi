@@ -9,7 +9,8 @@ enum ClientsPreviewData {
         Client(id: "client-sonya", instagram: "sonya.art", createdAt: daysAgo(12)),
         Client(id: "client-long", name: "Олександра-Вікторія Коваленко-Шевчук", instagram: "oleksandra.viktoria.kovalenko", phone: "+48733444555", createdAt: daysAgo(20)),
         Client(id: "client-legacy", name: "Ірина", phone: "600 12 34", createdAt: daysAgo(35)),
-        Client(id: "client-name-only", name: "Наталя", createdAt: daysAgo(40))
+        Client(id: "client-name-only", name: "Наталя", createdAt: daysAgo(40)),
+        Client(id: "client-empty-handle", name: "Катя", instagram: "", createdAt: daysAgo(45))
     ]
 
     static let visits: [Slot] = [

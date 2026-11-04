@@ -2678,6 +2678,20 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   to `FirestoreUserDataRepository.collections` if it is a new collection). Decide in its design
   whether the "Надіслати графік" text joins it.
 
+- **Reminders for tomorrow's clients** (requested 2026-11-04, option 1 of two). iOS lets no app
+  send an SMS or an Instagram message by itself, so the app reminds the *master* and she sends
+  each reminder with one tap. A local notification the evening before ("Завтра 3 клієнтки —
+  нагадати?") opens a list of tomorrow's booked slots, each with a ready text (day, time, service).
+  SMS opens the system composer with the text filled in (`MFMessageComposeViewController`);
+  Instagram cannot take a prefilled DM, so the text is copied and the profile opened — the same
+  contacts as `ClientContactMenu` and the copy-then-open flow of "Надіслати графік". No server,
+  nothing paid. To decide in its design: the notification time (fixed or a Profile setting),
+  rescheduling the notification when tomorrow's bookings change, whether a sent reminder is
+  marked on the slot, and whether its text joins "Editor for the texts sent to clients". The
+  rejected option 2 — a Cloud Function sending SMS through a provider (SMSAPI.pl) — needs the
+  Blaze plan, paid messages and GDPR consent; Instagram cannot be automated at all (Meta's API
+  allows replies only within 24 hours of the client's last message).
+
 - **"Надіслати прайс"** (moved out of M-35 on 2026-10-18). The price list as text (and later an
   image) from Мої послуги, copied or sent like the schedule — reuse the popup's recipient and
   contacts steps.

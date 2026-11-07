@@ -6,6 +6,7 @@ import Observation
 final class AddPlanViewModel {
     var days: MonthDaySelection
     var times = PlanTimes()
+    private(set) var isSingleDay = false
 
     private var templateChoice: TemplateChoice
 
@@ -27,6 +28,24 @@ final class AddPlanViewModel {
         templateChoice = TemplateChoice(templates: templates)
         self.slots = slots
         self.now = now
+    }
+
+    convenience init(
+        day: Date,
+        templates: [EventTemplate],
+        plannedDays: Set<String>,
+        slots: [Slot],
+        now: Date
+    ) {
+        self.init(
+            month: day,
+            templates: templates,
+            plannedDays: plannedDays,
+            slots: slots,
+            now: now
+        )
+        days.toggleDay(DateFormat.date.string(from: day))
+        isSingleDay = true
     }
 
     var templateChips: [ChoiceChip] {

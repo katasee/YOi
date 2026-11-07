@@ -12,7 +12,7 @@ struct FillMonthPopup: View {
 
     var body: some View {
         PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
-            FillMonthTabs(selection: $tab)
+            ScheduleTabs(selection: $tab)
 
             ScrollView {
                 sections

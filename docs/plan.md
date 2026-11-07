@@ -2380,6 +2380,20 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`. `ClientsPreviewData` covers every shape (handle + phone, handle only,
     phone only, no name, a long name, a legacy phone, an empty handle) for the preview check.
 
+- **Y-49 — Empty catalog key not translatable** (committed 2026-11-03). The String Catalog's `""`
+  key, extracted from an empty text field title, is `shouldTranslate: false`, so the catalog is
+  fully translated. Closes the "one key missing a translation" note of the release step.
+
+- **Y-50 — Bundle ID and first upload** (committed 2026-11-04). P0 item 4 of the release step.
+  `PRODUCT_BUNDLE_IDENTIFIER` `app.yoi.katrigin` → `app.yoi.kate` on the paid team
+  (`78HWZYA4DR`), Firebase SDK minimum 12.19.3, build number 2. The app record exists in App
+  Store Connect and the build is uploaded for internal TestFlight.
+
+- **Y-51 — Privacy manifest trimmed** (committed 2026-11-04). `NSPrivacyCollectedDataTypes` drops
+  phone number and other contact info, which Y-47 had added: those are the clients' data the
+  master enters, not data the app collects about its user. What stays: email, name, user ID and
+  other user content. The App Privacy label (P2 item 1) must match this list.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2595,8 +2609,8 @@ those items are referred to by name, so the list can grow without renumbering an
             stops asking about export compliance on every build.
          3. iPhone portrait only: `UISupportedInterfaceOrientations_iPhone` allows both landscapes
             today and no screen was ever laid out for them.
-         4. App record in App Store Connect for `app.yoi.katrigin`, Archive → Upload, internal
-            testing on the user's own device. Internal testing has no review.
+         4. ~~App record in App Store Connect~~ — **done 2026-11-04** (Y-50: bundle ID
+            `app.yoi.kate` on the paid team, build 2 uploaded). Internal testing has no review.
        - **P1 — external TestFlight** (masters invited by link; the first build goes through Beta
          App Review):
          1. ~~Own email sender~~ — **done 2026-10-31** in the Console, no code: see the struck
@@ -2620,7 +2634,7 @@ those items are referred to by name, so the list can grow without renumbering an
             say so in the description.
          5. Final device pass on iOS 18 and 26, light and dark, plus the beta masters' feedback.
        - **Not blocking, pick up if the beta asks for it:** "Error handling pass over the whole
-         app", the one key missing a translation in the String Catalog (228 of 229). Same-name
+         app". The missing translation is closed (Y-49); same-name
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
 

@@ -2657,6 +2657,16 @@ those items are referred to by name, so the list can grow without renumbering an
          app". The missing translation is closed (Y-49); same-name
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
+   13. **Y-56 Day list does not scroll on a long day** (next up — user, 2026-11-07; its own PR,
+       found during Y-53, older than Y-52). With many windows the Розклад day list mostly does
+       not scroll; it starts from some spots, then stops again. Hypothesis, not yet confirmed: the
+       `.simultaneousGesture(DragGesture(minimumDistance: 12))` that `SwipeToDelete` puts on every
+       row takes a vertical drag that starts on a row, so the `ScrollView` never pans; the "spots"
+       are the 10pt gaps between rows and the 16pt side margins. Check first: a drag from the side
+       margin always scrolls, one from the middle of a card never does. Likely fix, in
+       `SwipeToDelete` only (so Мої послуги gets it too): a `UIGestureRecognizerRepresentable` pan
+       (iOS 18+) that begins only when the horizontal velocity beats the vertical one. Recheck the
+       `.weekSwipe` rule (`architecture.md`, M-39) after the change.
 
 ## Backlog and tech debt (unordered)
 

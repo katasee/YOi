@@ -72,8 +72,11 @@ final class QuickBookViewModel: Identifiable {
 
         let booking = SlotBooking(clientId: clientId, service: choice.selectedService)
 
-        try? slotRepository.add([candidate])
-        try? slotRepository.book(slotId: candidateId, booking)
+        try? slotRepository.addBooked(
+            date: candidate.date,
+            time: candidate.time,
+            booking
+        )
     }
 
     private var candidate: Slot {

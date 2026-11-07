@@ -55,6 +55,14 @@ final class FakeSlotRepository: SlotRepository {
         changeSlot(slotId) { Self.apply(booking, to: &$0) }
     }
 
+    func addBooked(
+        date: String,
+        time: String,
+        _ booking: SlotBooking
+    ) throws {
+        change { Self.book(booking, date: date, time: time, in: &$0) }
+    }
+
     func clearBooking(slotId: String) throws {
         changeSlot(slotId) { Self.apply(nil, to: &$0) }
     }
@@ -70,20 +78,29 @@ final class FakeSlotRepository: SlotRepository {
                 Self.apply(nil, to: &stored[index])
             }
 
-            let targetId = Slot.documentId(date: date, time: time)
-
-            if let index = stored.firstIndex(where: { $0.id == targetId }) {
-                Self.apply(booking, to: &stored[index])
-            } else {
-                var slot = Slot(id: targetId, date: date, time: time)
-                Self.apply(booking, to: &slot)
-                stored.append(slot)
-            }
+            Self.book(booking, date: date, time: time, in: &stored)
         }
     }
 
     func delete(id: String) throws {
         change { $0.removeAll { $0.id == id } }
+    }
+
+    private static func book(
+        _ booking: SlotBooking,
+        date: String,
+        time: String,
+        in stored: inout [Slot]
+    ) {
+        let id = Slot.documentId(date: date, time: time)
+
+        if let index = stored.firstIndex(where: { $0.id == id }) {
+            apply(booking, to: &stored[index])
+        } else {
+            var slot = Slot(id: id, date: date, time: time)
+            apply(booking, to: &slot)
+            stored.append(slot)
+        }
     }
 
     private static func apply(_ booking: SlotBooking?, to slot: inout Slot) {

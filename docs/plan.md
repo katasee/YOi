@@ -2394,6 +2394,26 @@ this file is just "what's done, what's next," not a design doc.
   master enters, not data the app collects about its user. What stays: email, name, user ID and
   other user content. The App Privacy label (P2 item 1) must match this list.
 
+- **Y-52 — Quick add for the day (UI)** (branch `feature/y-52-quick-add-ui`; brainstormed
+  2026-11-07, mockup `.superpowers/brainstorm/mockups/quick-add-v1.html`). First half of the
+  backlog item "Quick add for the day on screen"; Y-53 is the logic.
+  - Розклад shows "+ Швидко додати" ("Quick add") under the last row of a day, and under "Немає
+    вікон" on an empty day — not on past days, while loading or after a failed load
+    (`ScheduleViewModel.canQuickAdd(now:)`, day id `>=` today's).
+  - It opens `QuickAddPopup` for that day, with a tab switch: "Клієнтка" (client search, "Нова
+    клієнтка", service, then the time on an inline wheel at the bottom — user) and "Мої справи"
+    (template + start–end, no calendar). No free-window option (user: only a booked window or a
+    plan). Both primary buttons only close the popup until Y-53.
+  - Shared pieces instead of copies: `FillMonthTabs` became `ScheduleTabs<Tab: ScheduleTab>`; the
+    client part of "Записати" became `ClientBookingChoice` + `ClientBookingSection` (with the new
+    client cover; search autofocus only in "Записати", so the keyboard does not cover the quick
+    popup); `AddPlanViewModel.init(day:…)` is a single-day mode that hides `MonthDayPicker`.
+  - The popup's height animates (`.snappy`) between tabs and as client rows appear, and the tabs
+    cross-fade (user: the height jump looked bad). "Заповнити місяць" still jumps — same fix if
+    wanted.
+  - Verified: `xcodebuild`; simulator pass of both button placements, past day, both tabs, new
+    client from the popup.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2712,7 +2732,7 @@ numbering drifts every time an item is added or closed (it already did once: PR9
 
 - ~~**System navigation bar and Liquid Glass for our buttons**~~ — **done in Y-42** (see its entry under "Done").
 
-- **Quick add for the day on screen** (user request, 2026-10-18 on an empty day; widened on
+- **Quick add for the day on screen** — **UI done as Y-52** (under "Done"); the logic is Y-53: write the booked slot (`add` + `book`, merge), block a time already booked, plan conflicts (M-37.7) for the new window, write the plan via `addPlans`. The design below was narrowed on 2026-11-07: no free-window option. Was (user request, 2026-10-18 on an empty day; widened on
   2026-10-30/31). Розклад gets an "add to this day" button that is **always there**: in the
   middle of an empty day (instead of, or under, the "Немає вікон" hint) and under the last row of
   a day that already has windows or plans, inside the scrolling list. It opens a quick popup for

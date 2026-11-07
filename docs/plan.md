@@ -2414,6 +2414,24 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; simulator pass of both button placements, past day, both tabs, new
     client from the popup.
 
+- **Y-53 — Quick add for the day (logic)** (branch `feature/y-53-quick-add-logic`). Second half
+  of "Quick add for the day on screen", which is now done.
+  - "Записати" writes one booked slot for the day and the wheel's time through the new
+    `SlotRepository.addBooked(date:time:_:)`: one `setData(merge: true)` with the booking fields
+    plus `date`/`time`, fire-and-forget like every slot write. It replaced an `add` + `book` pair
+    (code review): two writes could briefly show a free window and, if only the second landed,
+    leave a document with no `date`/`time`. On an existing free window the merge simply books it.
+  - `QuickBookViewModel` reads the snapshot taken when the popup opens (as `FillMonthViewModel`):
+    a time already booked shows "На %@ вже є запис" as an overlap `ConflictNotice` and disables
+    "Записати"; otherwise `WindowConflict.find` over the one candidate window gives the M-37.7
+    plan warnings. A time already past today is allowed (spec: record a visit that just happened)
+    and gets no plan warning, since `find` skips past windows.
+  - "Додати" on the plan tab goes through `ScheduleViewModel.addPlans`, as in "Заповнити місяць";
+    both tabs show their notice above the buttons.
+  - Verified: `xcodebuild`; simulator pass of a booked time, a free window, plan overlap and near,
+    a past time today, offline, and a plan from the popup.
+  - Found while testing, not caused by it: a long day list barely scrolls — Y-56 (item 13 below).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2742,7 +2760,7 @@ numbering drifts every time an item is added or closed (it already did once: PR9
 
 - ~~**System navigation bar and Liquid Glass for our buttons**~~ — **done in Y-42** (see its entry under "Done").
 
-- **Quick add for the day on screen** — **UI done as Y-52** (under "Done"); the logic is Y-53: write the booked slot (`add` + `book`, merge), block a time already booked, plan conflicts (M-37.7) for the new window, write the plan via `addPlans`. The design below was narrowed on 2026-11-07: no free-window option. Was (user request, 2026-10-18 on an empty day; widened on
+- ~~**Quick add for the day on screen**~~ — **done as Y-52 (UI) and Y-53 (logic)** (under "Done"). The design below was narrowed on 2026-11-07: no free-window option. Was (user request, 2026-10-18 on an empty day; widened on
   2026-10-30/31). Розклад gets an "add to this day" button that is **always there**: in the
   middle of an empty day (instead of, or under, the "Немає вікон" hint) and under the last row of
   a day that already has windows or plans, inside the scrolling list. It opens a quick popup for

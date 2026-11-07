@@ -3041,6 +3041,23 @@
         }
       }
     },
+    "schedule.quickAdd.taken %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is already booked"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На %@ вже є запис"
+          }
+        }
+      }
+    },
     "schedule.reschedule.action" : {
       "extractionState" : "manual",
       "localizations" : {

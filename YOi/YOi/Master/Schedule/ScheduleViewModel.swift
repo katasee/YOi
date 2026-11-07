@@ -149,11 +149,15 @@ final class ScheduleViewModel {
         areSlotsReady && DateFormat.date.string(from: selectedDate) >= DateFormat.date.string(from: now)
     }
 
-    func makeQuickBookViewModel() -> QuickBookViewModel {
+    func makeQuickBookViewModel(now: Date = .now) -> QuickBookViewModel {
         QuickBookViewModel(
             day: selectedDate,
+            slots: slots,
+            plans: plans,
             clients: directory.clients,
             services: services,
+            now: now,
+            slotRepository: slotRepository,
             clientRepository: clientRepository
         )
     }

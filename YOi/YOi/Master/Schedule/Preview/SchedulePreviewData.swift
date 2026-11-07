@@ -156,12 +156,16 @@ enum SchedulePreviewData {
     static var quickBook: QuickBookViewModel {
         let viewModel = QuickBookViewModel(
             day: .now,
+            slots: slots,
+            plans: plans,
             clients: ClientsPreviewData.clients,
             services: ServicesPreviewData.services,
+            now: noon,
+            slotRepository: FakeSlotRepository(slots: slots),
             clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
         )
 
-        viewModel.time = ClockTime(minutesOfDay: 21 * 60 + 30)
+        viewModel.time = ClockTime(minutesOfDay: 11 * 60)
         viewModel.choice.toggleClient("client-olya")
 
         return viewModel

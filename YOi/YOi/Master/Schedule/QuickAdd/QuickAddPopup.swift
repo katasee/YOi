@@ -3,6 +3,7 @@ import SwiftUI
 struct QuickAddPopup: View {
     let book: QuickBookViewModel
     let addPlan: AddPlanViewModel
+    let onAddPlans: ([PlanEvent]) -> Void
     let onDismiss: () -> Void
 
     @State private var tab = QuickAddTab.client
@@ -26,7 +27,20 @@ struct QuickAddPopup: View {
             .scrollIndicators(.hidden)
             .padding(-ScheduleMetrics.Spacing.scrollShadowInset)
 
+            if let conflictNotice {
+                ConflictNoticeView(notice: conflictNotice)
+                    .id(tab)
+            }
+
             actions(dismiss: dismiss)
+        }
+        .animation(PopupContainerLayout.fade, value: conflictNotice)
+    }
+
+    private var conflictNotice: ConflictNotice? {
+        switch tab {
+        case .client: book.notice
+        case .plan: addPlan.conflictNotice
         }
     }
 
@@ -70,17 +84,27 @@ struct QuickAddPopup: View {
                     titleKey: "schedule.book.submit",
                     role: .primary,
                     isEnabled: book.canBook,
-                    action: dismiss
+                    action: { book(then: dismiss) }
                 )
             case .plan:
                 CapsuleButton(
                     titleKey: "schedule.plan.add",
                     role: .primary,
                     isEnabled: addPlan.canAdd,
-                    action: dismiss
+                    action: { addPlans(then: dismiss) }
                 )
             }
         }
+    }
+
+    private func book(then dismiss: () -> Void) {
+        book.book()
+        dismiss()
+    }
+
+    private func addPlans(then dismiss: () -> Void) {
+        onAddPlans(addPlan.makePlans())
+        dismiss()
     }
 }
 
@@ -91,6 +115,7 @@ struct QuickAddPopup: View {
             QuickAddPopup(
                 book: SchedulePreviewData.quickBook,
                 addPlan: SchedulePreviewData.quickAddPlan,
+                onAddPlans: { _ in },
                 onDismiss: {}
             )
         }

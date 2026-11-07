@@ -5,7 +5,6 @@ struct BookClientPopup: View {
     let onDismiss: () -> Void
 
     @State private var contentHeight: CGFloat?
-    @State private var newClientForm: ClientFormViewModel?
 
     var body: some View {
         PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
@@ -26,56 +25,13 @@ struct BookClientPopup: View {
 
             actions(dismiss: dismiss)
         }
-        .fullScreenCover(item: $newClientForm) { form in
-            @Bindable var form = form
-
-            ClientFormPopup(
-                fields: $form.fields,
-                errors: form.errors,
-                isSaving: form.isSaving,
-                onSubmit: form.submit,
-                onDismiss: closeNewClientForm
-            )
-            .onChange(of: form.fields) {
-                form.applyMasks()
-            }
-            .presentationBackground(.clear)
-        }
     }
 
     private var sections: some View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
             SchedulePopupHeader(title: String(localized: "schedule.book.title"), subtitle: viewModel.subtitle)
 
-            SearchField(
-                text: $viewModel.searchText,
-                placeholderKey: "schedule.book.search.placeholder",
-                focusesOnAppear: true
-            )
-
-            if viewModel.options.isEmpty == false {
-                VStack(spacing: ScheduleMetrics.Spacing.bookOptionSpacing) {
-                    ForEach(viewModel.options) { option in
-                        BookClientRow(option: option) {
-                            viewModel.toggleClient(option.id)
-                        }
-                    }
-                }
-            }
-
-            CapsuleButton(
-                titleKey: "schedule.book.newClient",
-                role: .secondary,
-                systemImage: "plus",
-                fillsWidth: true,
-                action: openNewClientForm
-            )
-
-            if viewModel.services.isEmpty == false {
-                SectionLabel(titleKey: "schedule.book.service")
-
-                ChoiceChips(chips: viewModel.services, onToggle: viewModel.toggleService)
-            }
+            ClientBookingSection(choice: viewModel.choice, focusesSearchOnAppear: true)
         }
     }
 
@@ -97,22 +53,6 @@ struct BookClientPopup: View {
     private func book(then dismiss: () -> Void) {
         viewModel.book()
         dismiss()
-    }
-
-    private func openNewClientForm() {
-        withoutPresentationAnimation {
-            newClientForm = viewModel.makeNewClientForm()
-        }
-    }
-
-    private func closeNewClientForm() {
-        if let client = newClientForm?.savedClient {
-            viewModel.select(newClient: client)
-        }
-
-        withoutPresentationAnimation {
-            newClientForm = nil
-        }
     }
 }
 

@@ -4,6 +4,8 @@ struct ClientAvatar: View {
     let initial: String
     let size: CGFloat
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private enum Layout {
         static let glyphRatio: CGFloat = 0.36
     }
@@ -12,6 +14,7 @@ struct ClientAvatar: View {
         if #available(iOS 26, *) {
             letter
                 .glassEffect(.regular.tint(Color.wineSoft), in: .circle)
+                .id(colorScheme)
         } else {
             letter
                 .background(Color.wineSoft, in: .circle)

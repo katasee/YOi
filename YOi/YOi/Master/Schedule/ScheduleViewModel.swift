@@ -145,6 +145,29 @@ final class ScheduleViewModel {
         )
     }
 
+    func canQuickAdd(now: Date) -> Bool {
+        areSlotsReady && DateFormat.date.string(from: selectedDate) >= DateFormat.date.string(from: now)
+    }
+
+    func makeQuickBookViewModel() -> QuickBookViewModel {
+        QuickBookViewModel(
+            day: selectedDate,
+            clients: directory.clients,
+            services: services,
+            clientRepository: clientRepository
+        )
+    }
+
+    func makeQuickAddPlanViewModel(now: Date = .now) -> AddPlanViewModel {
+        AddPlanViewModel(
+            day: selectedDate,
+            templates: templates,
+            plannedDays: Set(plans.map(\.date)),
+            slots: slots,
+            now: now
+        )
+    }
+
     func makeBookClientViewModel(slotId: String) -> BookClientViewModel? {
         guard let slot = slots.first(where: { $0.id == slotId }), slot.isBooked == false else { return nil }
 

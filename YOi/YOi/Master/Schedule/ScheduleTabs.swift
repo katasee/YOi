@@ -1,20 +1,6 @@
 import SwiftUI
 
-enum FillMonthTab: CaseIterable, Identifiable {
-    case slots
-    case plans
-
-    var id: Self { self }
-
-    var titleKey: LocalizedStringKey {
-        switch self {
-        case .slots: "schedule.tab.slots"
-        case .plans: "schedule.tab.plans"
-        }
-    }
-}
-
-private struct FillMonthTabLens: View {
+private struct ScheduleTabLens: View {
     var body: some View {
         if #available(iOS 26, *) {
             Color.clear
@@ -28,14 +14,14 @@ private struct FillMonthTabLens: View {
     }
 }
 
-struct FillMonthTabs: View {
-    @Binding var selection: FillMonthTab
+struct ScheduleTabs<Tab: ScheduleTab>: View {
+    @Binding var selection: Tab
 
     @Namespace private var lens
 
     var body: some View {
         HStack(spacing: ScheduleMetrics.Spacing.tabTrackPadding) {
-            ForEach(FillMonthTab.allCases) { tab in
+            ForEach(Tab.allCases) { tab in
                 Button {
                     select(tab)
                 } label: {
@@ -45,7 +31,7 @@ struct FillMonthTabs: View {
                         .frame(maxWidth: .infinity, minHeight: ScheduleMetrics.Size.tabHeight)
                         .background {
                             if tab == selection {
-                                FillMonthTabLens()
+                                ScheduleTabLens()
                                     .matchedGeometryEffect(id: "lens", in: lens)
                             }
                         }
@@ -59,7 +45,7 @@ struct FillMonthTabs: View {
         .raisedSurface(.capsule)
     }
 
-    private func select(_ tab: FillMonthTab) {
+    private func select(_ tab: Tab) {
         withAnimation(.snappy) {
             selection = tab
         }
@@ -70,7 +56,7 @@ struct FillMonthTabs: View {
 #Preview {
     @Previewable @State var selection = FillMonthTab.plans
 
-    FillMonthTabs(selection: $selection)
+    ScheduleTabs(selection: $selection)
         .padding()
         .background(Color.card)
 }

@@ -3009,6 +3009,38 @@
         }
       }
     },
+    "schedule.quickAdd.action" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick add"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Швидко додати"
+          }
+        }
+      }
+    },
+    "schedule.quickAdd.planTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Own plan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Своя справа"
+          }
+        }
+      }
+    },
     "schedule.reschedule.action" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3253,6 +3285,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вільно"
+          }
+        }
+      }
+    },
+    "schedule.tab.client" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Client"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клієнтка"
           }
         }
       }

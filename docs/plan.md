@@ -2380,6 +2380,40 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`. `ClientsPreviewData` covers every shape (handle + phone, handle only,
     phone only, no name, a long name, a legacy phone, an empty handle) for the preview check.
 
+- **Y-49 — Empty catalog key not translatable** (committed 2026-11-03). The String Catalog's `""`
+  key, extracted from an empty text field title, is `shouldTranslate: false`, so the catalog is
+  fully translated. Closes the "one key missing a translation" note of the release step.
+
+- **Y-50 — Bundle ID and first upload** (committed 2026-11-04). P0 item 4 of the release step.
+  `PRODUCT_BUNDLE_IDENTIFIER` `app.yoi.katrigin` → `app.yoi.kate` on the paid team
+  (`78HWZYA4DR`), Firebase SDK minimum 12.19.3, build number 2. The app record exists in App
+  Store Connect and the build is uploaded for internal TestFlight.
+
+- **Y-51 — Privacy manifest trimmed** (committed 2026-11-04). `NSPrivacyCollectedDataTypes` drops
+  phone number and other contact info, which Y-47 had added: those are the clients' data the
+  master enters, not data the app collects about its user. What stays: email, name, user ID and
+  other user content. The App Privacy label (P2 item 1) must match this list.
+
+- **Y-52 — Quick add for the day (UI)** (branch `feature/y-52-quick-add-ui`; brainstormed
+  2026-11-07, mockup `.superpowers/brainstorm/mockups/quick-add-v1.html`). First half of the
+  backlog item "Quick add for the day on screen"; Y-53 is the logic.
+  - Розклад shows "+ Швидко додати" ("Quick add") under the last row of a day, and under "Немає
+    вікон" on an empty day — not on past days, while loading or after a failed load
+    (`ScheduleViewModel.canQuickAdd(now:)`, day id `>=` today's).
+  - It opens `QuickAddPopup` for that day, with a tab switch: "Клієнтка" (client search, "Нова
+    клієнтка", service, then the time on an inline wheel at the bottom — user) and "Мої справи"
+    (template + start–end, no calendar). No free-window option (user: only a booked window or a
+    plan). Both primary buttons only close the popup until Y-53.
+  - Shared pieces instead of copies: `FillMonthTabs` became `ScheduleTabs<Tab: ScheduleTab>`; the
+    client part of "Записати" became `ClientBookingChoice` + `ClientBookingSection` (with the new
+    client cover; search autofocus only in "Записати", so the keyboard does not cover the quick
+    popup); `AddPlanViewModel.init(day:…)` is a single-day mode that hides `MonthDayPicker`.
+  - The popup's height animates (`.snappy`) between tabs and as client rows appear, and the tabs
+    cross-fade (user: the height jump looked bad). "Заповнити місяць" still jumps — same fix if
+    wanted.
+  - Verified: `xcodebuild`; simulator pass of both button placements, past day, both tabs, new
+    client from the popup.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2595,8 +2629,8 @@ those items are referred to by name, so the list can grow without renumbering an
             stops asking about export compliance on every build.
          3. iPhone portrait only: `UISupportedInterfaceOrientations_iPhone` allows both landscapes
             today and no screen was ever laid out for them.
-         4. App record in App Store Connect for `app.yoi.katrigin`, Archive → Upload, internal
-            testing on the user's own device. Internal testing has no review.
+         4. ~~App record in App Store Connect~~ — **done 2026-11-04** (Y-50: bundle ID
+            `app.yoi.kate` on the paid team, build 2 uploaded). Internal testing has no review.
        - **P1 — external TestFlight** (masters invited by link; the first build goes through Beta
          App Review):
          1. ~~Own email sender~~ — **done 2026-10-31** in the Console, no code: see the struck
@@ -2620,7 +2654,7 @@ those items are referred to by name, so the list can grow without renumbering an
             say so in the description.
          5. Final device pass on iOS 18 and 26, light and dark, plus the beta masters' feedback.
        - **Not blocking, pick up if the beta asks for it:** "Error handling pass over the whole
-         app", the one key missing a translation in the String Catalog (228 of 229). Same-name
+         app". The missing translation is closed (Y-49); same-name
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
 
@@ -2698,7 +2732,7 @@ numbering drifts every time an item is added or closed (it already did once: PR9
 
 - ~~**System navigation bar and Liquid Glass for our buttons**~~ — **done in Y-42** (see its entry under "Done").
 
-- **Quick add for the day on screen** (user request, 2026-10-18 on an empty day; widened on
+- **Quick add for the day on screen** — **UI done as Y-52** (under "Done"); the logic is Y-53: write the booked slot (`add` + `book`, merge), block a time already booked, plan conflicts (M-37.7) for the new window, write the plan via `addPlans`. The design below was narrowed on 2026-11-07: no free-window option. Was (user request, 2026-10-18 on an empty day; widened on
   2026-10-30/31). Розклад gets an "add to this day" button that is **always there**: in the
   middle of an empty day (instead of, or under, the "Немає вікон" hint) and under the last row of
   a day that already has windows or plans, inside the scrolling list. It opens a quick popup for

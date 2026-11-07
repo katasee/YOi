@@ -97,5 +97,7 @@ enum ScheduleMetrics {
         static let conflictPadding: CGFloat = 12
         static let conflictGlyphSpacing: CGFloat = 8
         static let conflictLineSpacing: CGFloat = 6
+        static let quickAddSpacing: CGFloat = 8
+        static let quickAddTopPadding: CGFloat = 14
     }
 }

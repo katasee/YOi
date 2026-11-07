@@ -4,10 +4,13 @@ struct RoundIconLabel: View {
     let systemImage: String
     var size: RoundIconButton.Size = .regular
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         if #available(iOS 26, *) {
             glyph
                 .glassEffect(.regular.interactive(), in: .circle)
+                .id(colorScheme)
         } else {
             glyph
                 .raisedSurface(.circle)

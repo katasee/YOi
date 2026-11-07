@@ -91,9 +91,9 @@ enum SchedulePreviewData {
             clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
         )
 
-        viewModel.searchText = "о"
-        viewModel.toggleClient("client-olya")
-        viewModel.toggleService("svc-classic")
+        viewModel.choice.searchText = "о"
+        viewModel.choice.toggleClient("client-olya")
+        viewModel.choice.toggleService("svc-classic")
 
         return viewModel
     }
@@ -148,6 +148,36 @@ enum SchedulePreviewData {
         viewModel.times.start = ClockTime(minutesOfDay: 10 * 60 + 30)
         viewModel.times.end = ClockTime(minutesOfDay: 11 * 60 + 30)
         viewModel.times.editing = .end
+
+        return viewModel
+    }
+
+    @MainActor
+    static var quickBook: QuickBookViewModel {
+        let viewModel = QuickBookViewModel(
+            day: .now,
+            clients: ClientsPreviewData.clients,
+            services: ServicesPreviewData.services,
+            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
+        )
+
+        viewModel.time = ClockTime(minutesOfDay: 21 * 60 + 30)
+        viewModel.choice.toggleClient("client-olya")
+
+        return viewModel
+    }
+
+    @MainActor
+    static var quickAddPlan: AddPlanViewModel {
+        let viewModel = AddPlanViewModel(
+            day: .now,
+            templates: templates,
+            plannedDays: [today],
+            slots: dailySlots("11:00"),
+            now: .now
+        )
+
+        viewModel.selectTemplate("tpl-boxing")
 
         return viewModel
     }

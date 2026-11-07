@@ -57,7 +57,7 @@ final class ScheduleViewModel {
 
         do {
             try eventRepository.add(newPlans)
-            return AddedNotice(kind: .plans, outcome: .saved(count: newPlans.count))
+            return AddedNotice(kind: .plans, outcome: .saved(dates: newPlans.map(\.date)))
         } catch {
             return AddedNotice(kind: .plans, outcome: .failed)
         }

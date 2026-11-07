@@ -7,16 +7,22 @@ struct AddedNotice: Equatable {
     }
 
     enum Outcome: Equatable {
-        case saved(count: Int)
+        case saved(dates: [String])
         case failed
     }
 
     let kind: Kind
     let outcome: Outcome
 
+    var dayId: String? {
+        guard case .saved(let dates) = outcome, Set(dates).count == 1 else { return nil }
+
+        return dates.first
+    }
+
     var toast: ToastMessage {
         switch outcome {
-        case .saved(let count): ToastMessage(text: savedText(count), style: .success)
+        case .saved(let dates): ToastMessage(text: savedText(dates.count), style: .success)
         case .failed: ToastMessage(text: failedText, style: .failure)
         }
     }

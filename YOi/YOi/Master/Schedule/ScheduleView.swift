@@ -153,7 +153,13 @@ struct ScheduleView: View {
                 onDismiss: closePopup
             )
         case .quickAdd(let book, let addPlan):
-            QuickAddPopup(book: book, addPlan: addPlan, onDismiss: closePopup)
+            QuickAddPopup(
+                book: book,
+                addPlan: addPlan,
+                onAddPlans: viewModel.addPlans,
+                onAdded: { pendingNotice = $0 },
+                onDismiss: closePopup
+            )
         }
     }
 

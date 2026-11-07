@@ -47,11 +47,11 @@
   face value) — the async-operations warning is a genuine compiler diagnostic about the code as
   written and won't go away on its own.
 - **The deliberate fire-and-forget writes are `FirestoreClientRepository`'s `add`, `update` and
-  `delete`, `FirestoreSlotRepository`'s `add`, `book`, `clearBooking` and `delete`,
+  `delete`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
   `FirestoreMonthlySummaryRepository`'s `add`** (user decisions: `add` in
-  M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, templates in M-37.2,
+  M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
   plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
@@ -69,7 +69,10 @@
   be booked at once, offline too. Booking writes are `setData(merge: true)` on the slot document;
   a cleared field is `FieldValue.delete()`, never `null`. "Заповнити місяць" merges only `date` and
   `time`, which is what keeps a booking alive when a filled month covers it — don't turn either
-  write into a plain `setData`, it would replace the whole document. A plan's `update` (M-37.6)
+  write into a plain `setData`, it would replace the whole document. A new booked window
+  (`addBooked`, Y-53 quick add) is one merged write of the booking fields together with `date`
+  and `time` — never `add` then `book`: `book` alone creates a document without them, which the
+  bounded `slots` query never reads. A plan's `update` (M-37.6)
   is `updateData` with all six fields: a plan deleted while its popup was open fails the write
   instead of being recreated, which both `setData` forms would do.
 - Realtime data uses **async/await + `AsyncStream`** (`observeServices()`), not

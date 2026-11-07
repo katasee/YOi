@@ -45,6 +45,18 @@ final class FirestoreSlotRepository: SlotRepository {
         )
     }
 
+    func addBooked(
+        date: String,
+        time: String,
+        _ booking: SlotBooking
+    ) throws {
+        try db.userCollection("slots").document(Slot.documentId(date: date, time: time)).setData(
+            bookingFields(booking).merging(["date": date, "time": time]) { $1 },
+            merge: true,
+            completion: nil
+        )
+    }
+
     func clearBooking(slotId: String) throws {
         try db.userCollection("slots").document(slotId).setData(
             clearedBookingFields,

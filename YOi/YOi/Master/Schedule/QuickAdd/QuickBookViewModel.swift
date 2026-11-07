@@ -67,16 +67,22 @@ final class QuickBookViewModel: Identifiable {
         choice.selectedClientId != nil && notice?.blocksConfirm != true
     }
 
-    func book() {
-        guard canBook, let clientId = choice.selectedClientId else { return }
+    func book() -> AddedNotice? {
+        guard canBook, let clientId = choice.selectedClientId else { return nil }
 
+        let slot = candidate
         let booking = SlotBooking(clientId: clientId, service: choice.selectedService)
 
-        try? slotRepository.addBooked(
-            date: candidate.date,
-            time: candidate.time,
-            booking
-        )
+        do {
+            try slotRepository.addBooked(
+                date: slot.date,
+                time: slot.time,
+                booking
+            )
+            return AddedNotice(kind: .booking, outcome: .saved(dates: [slot.date]))
+        } catch {
+            return AddedNotice(kind: .booking, outcome: .failed)
+        }
     }
 
     private var candidate: Slot {

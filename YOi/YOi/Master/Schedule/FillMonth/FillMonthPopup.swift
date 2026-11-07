@@ -4,7 +4,7 @@ struct FillMonthPopup: View {
     @Bindable var viewModel: FillMonthViewModel
     let addPlan: AddPlanViewModel
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
-    let onAdded: (AddedNotice) -> Void
+    let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
     @State private var tab = FillMonthTab.slots
@@ -89,15 +89,8 @@ struct FillMonthPopup: View {
     }
 
     private func add(then dismiss: () -> Void) {
-        report(viewModel.add())
+        onAdded(viewModel.add())
         dismiss()
-    }
-
-    private func report(_ notice: AddedNotice?) {
-        guard let notice else { return }
-
-        UINotificationFeedbackGenerator().notificationOccurred(notice.toast.style.feedback)
-        onAdded(notice)
     }
 
     private func scrollToTime() {
@@ -107,7 +100,7 @@ struct FillMonthPopup: View {
     }
 
     private func addPlans(then dismiss: () -> Void) {
-        report(onAddPlans(addPlan.makePlans()))
+        onAdded(onAddPlans(addPlan.makePlans()))
         dismiss()
     }
 }

@@ -153,6 +153,36 @@ enum SchedulePreviewData {
     }
 
     @MainActor
+    static var quickBook: QuickBookViewModel {
+        let viewModel = QuickBookViewModel(
+            day: .now,
+            clients: ClientsPreviewData.clients,
+            services: ServicesPreviewData.services,
+            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
+        )
+
+        viewModel.time = ClockTime(minutesOfDay: 21 * 60 + 30)
+        viewModel.choice.toggleClient("client-olya")
+
+        return viewModel
+    }
+
+    @MainActor
+    static var quickAddPlan: AddPlanViewModel {
+        let viewModel = AddPlanViewModel(
+            day: .now,
+            templates: templates,
+            plannedDays: [today],
+            slots: dailySlots("11:00"),
+            now: .now
+        )
+
+        viewModel.selectTemplate("tpl-boxing")
+
+        return viewModel
+    }
+
+    @MainActor
     static var planActions: PlanActionsViewModel {
         var plan = plans[1]
         plan.id = "plan-1"

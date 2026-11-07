@@ -52,8 +52,15 @@ final class ScheduleViewModel {
         )
     }
 
-    func addPlans(_ newPlans: [PlanEvent]) {
-        try? eventRepository.add(newPlans)
+    func addPlans(_ newPlans: [PlanEvent]) -> AddedNotice? {
+        guard newPlans.isEmpty == false else { return nil }
+
+        do {
+            try eventRepository.add(newPlans)
+            return AddedNotice(kind: .plans, outcome: .saved(count: newPlans.count))
+        } catch {
+            return AddedNotice(kind: .plans, outcome: .failed)
+        }
     }
 
     func updatePlan(_ plan: PlanEvent) {

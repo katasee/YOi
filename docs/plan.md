@@ -2414,6 +2414,27 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; simulator pass of both button placements, past day, both tabs, new
     client from the popup.
 
+- **Y-54 — Confirmation toast and haptic after adding** (committed 2026-11-07). After "Додати"
+  in "Заповнити місяць" nothing showed that the add had worked (user).
+  - A reusable `.toast(_:)` in `UICommons` (`ToastMessage`: text + `.success`/`.failure`, green
+    `StatusConfirmed` check or red `Destructive` mark, auto-hide after 2 s, touches pass through)
+    and a success or error haptic on the tap.
+  - `FillMonthViewModel.add()` and `ScheduleViewModel.addPlans(_:)` return `AddedNotice?` (nil
+    when nothing was added, `.saved` or `.failed`) instead of swallowing write errors with `try?`;
+    a failed write shows "Не вдалося додати вікна" / "…плани" (user: show the failure, not
+    nothing). Fire-and-forget writes still never see a server rejection.
+  - `ScheduleView` parks the notice and shows the toast from the cover's `onDismiss`.
+  - Verified: `xcodebuild`; swiftui-pro, /code-review and /simplify passes; simulator pass of
+    windows, plans, Cancel, tab switch mid-toast, dark theme, English plurals.
+
+- **Y-55 — Jump to the day after adding to one day** (committed 2026-11-07). When everything
+  added in "Заповнити місяць" (windows or plans) lands on one date, Розклад selects that day
+  before the Y-54 toast; several days keep the current day. `AddedNotice.dayId` derives it from
+  `.saved(dates:)`; a failure never jumps.
+  - Verified: `xcodebuild`; a throwaway `swiftc` check of `dayId` (one date repeated, two dates,
+    one, none, failed); simulator pass.
+  - Not done: Y-53's quick-add writes will need the same toast when they land.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

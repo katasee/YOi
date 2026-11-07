@@ -308,6 +308,10 @@ struct ScheduleView: View {
         }
 
         if let pendingNotice {
+            if let dayId = pendingNotice.dayId {
+                viewModel.select(dayId: dayId)
+            }
+
             toast = pendingNotice.toast
             self.pendingNotice = nil
         }

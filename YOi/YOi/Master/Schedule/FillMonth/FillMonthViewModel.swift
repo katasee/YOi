@@ -79,7 +79,7 @@ final class FillMonthViewModel: Identifiable {
 
         do {
             try slotRepository.add(slots)
-            return AddedNotice(kind: .windows, outcome: .saved(count: slots.count))
+            return AddedNotice(kind: .windows, outcome: .saved(dates: slots.map(\.date)))
         } catch {
             return AddedNotice(kind: .windows, outcome: .failed)
         }

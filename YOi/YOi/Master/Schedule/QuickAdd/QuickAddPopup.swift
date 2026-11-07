@@ -18,7 +18,7 @@ struct QuickAddPopup: View {
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.size.height
                     } action: { height in
-                        contentHeight = height
+                        resize(to: height)
                     }
             }
             .frame(maxHeight: contentHeight)
@@ -35,12 +35,25 @@ struct QuickAddPopup: View {
         switch tab {
         case .client:
             QuickBookSection(viewModel: book)
+                .transition(.opacity)
         case .plan:
             VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
                 SchedulePopupHeader(title: String(localized: "schedule.quickAdd.planTitle"), subtitle: book.subtitle)
 
                 AddPlanSection(viewModel: addPlan)
             }
+            .transition(.opacity)
+        }
+    }
+
+    private func resize(to height: CGFloat) {
+        guard contentHeight != nil else {
+            contentHeight = height
+            return
+        }
+
+        withAnimation(.snappy) {
+            contentHeight = height
         }
     }
 

@@ -7,6 +7,7 @@ private enum SchedulePopup: Identifiable {
     case bookClient(BookClientViewModel)
     case bookingActions(BookingActionsViewModel)
     case planActions(PlanActionsViewModel)
+    case quickAdd(QuickBookViewModel, AddPlanViewModel)
 
     var id: ObjectIdentifier {
         switch self {
@@ -16,6 +17,7 @@ private enum SchedulePopup: Identifiable {
         case .bookClient(let viewModel): viewModel.id
         case .bookingActions(let viewModel): viewModel.id
         case .planActions(let viewModel): viewModel.id
+        case .quickAdd(let viewModel, _): viewModel.id
         }
     }
 }
@@ -59,7 +61,10 @@ struct ScheduleView: View {
                     .padding(.vertical, ScheduleMetrics.Spacing.stripVerticalPadding)
 
                 TimelineView(.everyMinute) { context in
-                    content(viewModel.items(now: context.date))
+                    content(
+                        viewModel.items(now: context.date),
+                        canQuickAdd: viewModel.canQuickAdd(now: context.date)
+                    )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -143,23 +148,39 @@ struct ScheduleView: View {
                 onDelete: viewModel.deletePlan(id:),
                 onDismiss: closePopup
             )
+        case .quickAdd(let book, let addPlan):
+            QuickAddPopup(book: book, addPlan: addPlan, onDismiss: closePopup)
         }
     }
 
-    private func content(_ items: [ScheduleItem]) -> some View {
+    private func content(_ items: [ScheduleItem], canQuickAdd: Bool) -> some View {
         ZStack {
             if items.isEmpty == false {
-                list(items)
+                list(items, canQuickAdd: canQuickAdd)
             }
 
-            ListStatusOverlay(
-                hasLoaded: viewModel.hasLoaded,
-                isEmpty: items.isEmpty,
-                titleKey: emptyTitleKey,
-                messageKey: emptyMessageKey
-            )
+            if items.isEmpty && canQuickAdd {
+                VStack(spacing: ScheduleMetrics.Spacing.quickAddSpacing) {
+                    statusOverlay(isEmpty: true)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    QuickAddDayButton(action: openQuickAdd)
+                }
+                .padding(.horizontal, ScheduleMetrics.Spacing.horizontalPadding)
+            } else {
+                statusOverlay(isEmpty: items.isEmpty)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func statusOverlay(isEmpty: Bool) -> some View {
+        ListStatusOverlay(
+            hasLoaded: viewModel.hasLoaded,
+            isEmpty: isEmpty,
+            titleKey: emptyTitleKey,
+            messageKey: emptyMessageKey
+        )
     }
 
     private var emptyTitleKey: LocalizedStringKey {
@@ -170,7 +191,7 @@ struct ScheduleView: View {
         viewModel.hasFailed ? "schedule.loadFailed.message" : "schedule.empty.message"
     }
 
-    private func list(_ items: [ScheduleItem]) -> some View {
+    private func list(_ items: [ScheduleItem], canQuickAdd: Bool) -> some View {
         ScrollView {
             LazyVStack(spacing: ScheduleMetrics.Spacing.rowSpacing) {
                 ForEach(items) { item in
@@ -180,6 +201,11 @@ struct ScheduleView: View {
                     case .plan(let plan):
                         planRow(plan)
                     }
+                }
+
+                if canQuickAdd {
+                    QuickAddDayButton(action: openQuickAdd)
+                        .padding(.top, ScheduleMetrics.Spacing.quickAddTopPadding)
                 }
             }
             .padding(.horizontal, ScheduleMetrics.Spacing.horizontalPadding)
@@ -228,6 +254,10 @@ struct ScheduleView: View {
 
     private func openFillMonth() {
         open(.fillMonth(viewModel.makeFillMonthViewModel(), viewModel.makeAddPlanViewModel()))
+    }
+
+    private func openQuickAdd() {
+        open(.quickAdd(viewModel.makeQuickBookViewModel(), viewModel.makeQuickAddPlanViewModel()))
     }
 
     private func openSendSchedule() {

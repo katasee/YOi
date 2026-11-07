@@ -3014,13 +3014,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add to this day"
+            "value" : "Quick add"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Додати на цей день"
+            "value" : "Швидко додати"
           }
         }
       }

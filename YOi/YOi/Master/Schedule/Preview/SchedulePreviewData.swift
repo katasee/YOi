@@ -91,9 +91,9 @@ enum SchedulePreviewData {
             clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
         )
 
-        viewModel.searchText = "о"
-        viewModel.toggleClient("client-olya")
-        viewModel.toggleService("svc-classic")
+        viewModel.choice.searchText = "о"
+        viewModel.choice.toggleClient("client-olya")
+        viewModel.choice.toggleService("svc-classic")
 
         return viewModel
     }

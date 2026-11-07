@@ -122,7 +122,7 @@ struct ScheduleView: View {
                 viewModel: fillMonth,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
-                onAdded: { pendingNotice = $0 },
+                onAdded: noteAdded,
                 onDismiss: closePopup
             )
         case .jumpToDate(let jumpToDate):
@@ -152,12 +152,12 @@ struct ScheduleView: View {
                 onDelete: viewModel.deletePlan(id:),
                 onDismiss: closePopup
             )
-        case .quickAdd(let book, let addPlan):
+        case .quickAdd(let quickBook, let addPlan):
             QuickAddPopup(
-                book: book,
+                quickBook: quickBook,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
-                onAdded: { pendingNotice = $0 },
+                onAdded: noteAdded,
                 onDismiss: closePopup
             )
         }
@@ -321,6 +321,13 @@ struct ScheduleView: View {
             toast = pendingNotice.toast
             self.pendingNotice = nil
         }
+    }
+
+    private func noteAdded(_ notice: AddedNotice?) {
+        guard let notice else { return }
+
+        UINotificationFeedbackGenerator().notificationOccurred(notice.toast.style.feedback)
+        pendingNotice = notice
     }
 
     private func requestDelete(_ item: SlotItem) {

@@ -2297,6 +2297,40 @@
         }
       }
     },
+    "schedule.added.booking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Booking added"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запис додано"
+          }
+        }
+      }
+    },
+    "schedule.added.bookingFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't add the booking"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося додати запис"
+          }
+        }
+      }
+    },
     "schedule.added.plans %lld" : {
       "extractionState" : "manual",
       "localizations" : {

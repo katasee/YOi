@@ -4,6 +4,7 @@ struct AddedNotice: Equatable {
     enum Kind {
         case windows
         case plans
+        case booking
     }
 
     enum Outcome: Equatable {
@@ -31,6 +32,7 @@ struct AddedNotice: Equatable {
         switch kind {
         case .windows: String(localized: "schedule.added.windows \(count)")
         case .plans: String(localized: "schedule.added.plans \(count)")
+        case .booking: String(localized: "schedule.added.booking")
         }
     }
 
@@ -38,6 +40,7 @@ struct AddedNotice: Equatable {
         switch kind {
         case .windows: String(localized: "schedule.added.windowsFailed")
         case .plans: String(localized: "schedule.added.plansFailed")
+        case .booking: String(localized: "schedule.added.bookingFailed")
         }
     }
 }

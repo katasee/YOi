@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct QuickAddPopup: View {
-    let book: QuickBookViewModel
+    let quickBook: QuickBookViewModel
     let addPlan: AddPlanViewModel
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
-    let onAdded: (AddedNotice) -> Void
+    let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
     @State private var tab = QuickAddTab.client
@@ -40,7 +40,7 @@ struct QuickAddPopup: View {
 
     private var conflictNotice: ConflictNotice? {
         switch tab {
-        case .client: book.notice
+        case .client: quickBook.notice
         case .plan: addPlan.conflictNotice
         }
     }
@@ -49,11 +49,11 @@ struct QuickAddPopup: View {
     private var sections: some View {
         switch tab {
         case .client:
-            QuickBookSection(viewModel: book)
+            QuickBookSection(viewModel: quickBook)
                 .transition(.opacity)
         case .plan:
             VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
-                SchedulePopupHeader(title: String(localized: "schedule.quickAdd.planTitle"), subtitle: book.subtitle)
+                SchedulePopupHeader(title: String(localized: "schedule.quickAdd.planTitle"), subtitle: quickBook.subtitle)
 
                 AddPlanSection(viewModel: addPlan)
             }
@@ -84,7 +84,7 @@ struct QuickAddPopup: View {
                 CapsuleButton(
                     titleKey: "schedule.book.submit",
                     role: .primary,
-                    isEnabled: book.canBook,
+                    isEnabled: quickBook.canBook,
                     action: { book(then: dismiss) }
                 )
             case .plan:
@@ -99,20 +99,13 @@ struct QuickAddPopup: View {
     }
 
     private func book(then dismiss: () -> Void) {
-        book.book()
+        onAdded(quickBook.book())
         dismiss()
     }
 
     private func addPlans(then dismiss: () -> Void) {
-        report(onAddPlans(addPlan.makePlans()))
+        onAdded(onAddPlans(addPlan.makePlans()))
         dismiss()
-    }
-
-    private func report(_ notice: AddedNotice?) {
-        guard let notice else { return }
-
-        UINotificationFeedbackGenerator().notificationOccurred(notice.toast.style.feedback)
-        onAdded(notice)
     }
 }
 
@@ -121,7 +114,7 @@ struct QuickAddPopup: View {
     Color.background
         .overlay {
             QuickAddPopup(
-                book: SchedulePreviewData.quickBook,
+                quickBook: SchedulePreviewData.quickBook,
                 addPlan: SchedulePreviewData.quickAddPlan,
                 onAddPlans: { _ in nil },
                 onAdded: { _ in },

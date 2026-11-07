@@ -2433,7 +2433,7 @@ this file is just "what's done, what's next," not a design doc.
   `.saved(dates:)`; a failure never jumps.
   - Verified: `xcodebuild`; a throwaway `swiftc` check of `dayId` (one date repeated, two dates,
     one, none, failed); simulator pass.
-  - Not done: Y-53's quick-add writes will need the same toast when they land.
+  - Y-53's quick-add writes got the same toast in Y-53.1.
 
 - **Y-53 — Quick add for the day (logic)** (branch `feature/y-53-quick-add-logic`). Second half
   of "Quick add for the day on screen", which is now done.
@@ -2449,10 +2449,22 @@ this file is just "what's done, what's next," not a design doc.
     and gets no plan warning, since `find` skips past windows.
   - "Додати" on the plan tab goes through `ScheduleViewModel.addPlans` and reports its
     `AddedNotice` like "Заповнити місяць" (Y-54 toast and haptic, merged from `main`); both tabs
-    show their notice above the buttons. "Записати" has no toast yet.
+    show their notice above the buttons. "Записати" got its toast in Y-53.1.
   - Verified: `xcodebuild`; simulator pass of a booked time, a free window, plan overlap and near,
     a past time today, offline, and a plan from the popup.
   - Found while testing, not caused by it: a long day list barely scrolls — Y-56 (item 13 below).
+
+- **Y-53.1 — Toast after a quick-add booking** (branch `feature/y-53.1-quick-book-toast`).
+  "Записати" in the quick-add popup now gives the Y-54 feedback: a haptic and "Запис додано" /
+  "Не вдалося додати запис" (neutral wording, no count — always one booking).
+  - `AddedNotice.Kind.booking`; `QuickBookViewModel.book()` returns `AddedNotice?` with
+    `do`/`catch` around `addBooked`, as `FillMonthViewModel.add()` does, instead of `try?`.
+  - The haptic moved from a `report(_:)` copied into `FillMonthPopup` and `QuickAddPopup` to one
+    `ScheduleView.noteAdded(_:)`; popups pass `onAdded: (AddedNotice?) -> Void` straight through.
+    It still fires on the tap, since `onAdded` runs synchronously in the button action.
+  - `QuickAddPopup.book` was renamed `quickBook` (`book.book()` read badly).
+  - Verified: `xcodebuild`. The failure toast is checked by reading the `catch` path only — the
+    Firestore write cannot be made to throw from the UI.
 
 ## Screens (in order)
 

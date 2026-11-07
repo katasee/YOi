@@ -28,6 +28,8 @@ struct ScheduleView: View {
     @State private var popup: SchedulePopup?
     @State private var pendingCardClientId: String?
     @State private var pendingDayId: String?
+    @State private var pendingNotice: AddedNotice?
+    @State private var toast: ToastMessage?
     @State private var openCardClientId: String?
     @State private var pendingDelete: SlotItem?
     @State private var isConfirmingDelete = false
@@ -69,6 +71,7 @@ struct ScheduleView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.background)
+            .toast($toast)
             .weekSwipe(selectedDate: $viewModel.selectedDate)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $openCardClientId) { clientId in
@@ -119,6 +122,7 @@ struct ScheduleView: View {
                 viewModel: fillMonth,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
+                onAdded: { pendingNotice = $0 },
                 onDismiss: closePopup
             )
         case .jumpToDate(let jumpToDate):
@@ -153,6 +157,7 @@ struct ScheduleView: View {
                 book: book,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
+                onAdded: { pendingNotice = $0 },
                 onDismiss: closePopup
             )
         }
@@ -306,6 +311,15 @@ struct ScheduleView: View {
         if let pendingCardClientId {
             openCardClientId = pendingCardClientId
             self.pendingCardClientId = nil
+        }
+
+        if let pendingNotice {
+            if let dayId = pendingNotice.dayId {
+                viewModel.select(dayId: dayId)
+            }
+
+            toast = pendingNotice.toast
+            self.pendingNotice = nil
         }
     }
 

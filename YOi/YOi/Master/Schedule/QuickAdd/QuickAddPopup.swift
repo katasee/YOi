@@ -3,7 +3,8 @@ import SwiftUI
 struct QuickAddPopup: View {
     let book: QuickBookViewModel
     let addPlan: AddPlanViewModel
-    let onAddPlans: ([PlanEvent]) -> Void
+    let onAddPlans: ([PlanEvent]) -> AddedNotice?
+    let onAdded: (AddedNotice) -> Void
     let onDismiss: () -> Void
 
     @State private var tab = QuickAddTab.client
@@ -103,8 +104,15 @@ struct QuickAddPopup: View {
     }
 
     private func addPlans(then dismiss: () -> Void) {
-        onAddPlans(addPlan.makePlans())
+        report(onAddPlans(addPlan.makePlans()))
         dismiss()
+    }
+
+    private func report(_ notice: AddedNotice?) {
+        guard let notice else { return }
+
+        UINotificationFeedbackGenerator().notificationOccurred(notice.toast.style.feedback)
+        onAdded(notice)
     }
 }
 
@@ -115,7 +123,8 @@ struct QuickAddPopup: View {
             QuickAddPopup(
                 book: SchedulePreviewData.quickBook,
                 addPlan: SchedulePreviewData.quickAddPlan,
-                onAddPlans: { _ in },
+                onAddPlans: { _ in nil },
+                onAdded: { _ in },
                 onDismiss: {}
             )
         }

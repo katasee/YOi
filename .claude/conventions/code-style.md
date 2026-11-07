@@ -137,6 +137,7 @@ what broke when `Ink` was text *and* fill *and* shadow):
 | `HeaderFill` | `BookingHeader` block — unused since M-30 removed it | `#0A0A0B` / `#1F1A1F` (card tone) |
 | `Warning` / `WarningSoft` | a window too close before a plan (M-37.7): glyph, text and outline / the flat fill under the warning line | `#9A5200` / `#FFB340`; `#FFF4E0` / `#33261A` |
 | `DestructiveSoft` | the flat fill under a red conflict line (text on it is `Destructive`) | `#FDECEC` / `#3A1F22` |
+| `StatusConfirmed` | positive / success: the Stats up-trend and the success toast's check (Y-54); the name predates that role | `#0B7A1A` / `#4CD964` |
 
 Never name a colorset after an existing SwiftUI `Color` member — the generated symbol collides
 (`Primary` would be `Color.primary`, hence `PrimaryFill`).

@@ -97,6 +97,12 @@
   M-36.0: a case per popup carrying its view model, `id` from that view model) and one
   `fullScreenCover` with a `switch`, not a `@State` and a cover per popup. The cover's `onDismiss`
   then runs for every popup, so anything it does must check its own pending state first.
+  A confirmation after a popup's action is a **toast**, `.toast(_:)` (`Assets/UICommons/View+Toast.swift`,
+  Y-54): a `ToastMessage` (text + `.success`/`.failure`, whose style also picks the haptic) shown
+  at the top of the screen for 2 s, touches passing through. The popup only reports what happened
+  (`AddedNotice` in Розклад, built by the view model that did the write, never by the view); the
+  screen parks it in a pending state and shows the toast from `onDismiss`, so it appears over the
+  screen once the popup is gone. A failed write shows a failure toast — never a success one.
 - **The routers are a system `TabView`** (`Tab(_:systemImage:value:)` over `MasterTab`),
   which renders Liquid Glass on iOS 26 and the standard bar on 18 from the same code, with no
   `#available`. It owns the bottom safe area, including inside a screen's own `NavigationStack`, so

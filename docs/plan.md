@@ -2414,6 +2414,27 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; simulator pass of both button placements, past day, both tabs, new
     client from the popup.
 
+- **Y-54 — Confirmation toast and haptic after adding** (committed 2026-11-07). After "Додати"
+  in "Заповнити місяць" nothing showed that the add had worked (user).
+  - A reusable `.toast(_:)` in `UICommons` (`ToastMessage`: text + `.success`/`.failure`, green
+    `StatusConfirmed` check or red `Destructive` mark, auto-hide after 2 s, touches pass through)
+    and a success or error haptic on the tap.
+  - `FillMonthViewModel.add()` and `ScheduleViewModel.addPlans(_:)` return `AddedNotice?` (nil
+    when nothing was added, `.saved` or `.failed`) instead of swallowing write errors with `try?`;
+    a failed write shows "Не вдалося додати вікна" / "…плани" (user: show the failure, not
+    nothing). Fire-and-forget writes still never see a server rejection.
+  - `ScheduleView` parks the notice and shows the toast from the cover's `onDismiss`.
+  - Verified: `xcodebuild`; swiftui-pro, /code-review and /simplify passes; simulator pass of
+    windows, plans, Cancel, tab switch mid-toast, dark theme, English plurals.
+
+- **Y-55 — Jump to the day after adding to one day** (committed 2026-11-07). When everything
+  added in "Заповнити місяць" (windows or plans) lands on one date, Розклад selects that day
+  before the Y-54 toast; several days keep the current day. `AddedNotice.dayId` derives it from
+  `.saved(dates:)`; a failure never jumps.
+  - Verified: `xcodebuild`; a throwaway `swiftc` check of `dayId` (one date repeated, two dates,
+    one, none, failed); simulator pass.
+  - Not done: Y-53's quick-add writes will need the same toast when they land.
+
 - **Y-53 — Quick add for the day (logic)** (branch `feature/y-53-quick-add-logic`). Second half
   of "Quick add for the day on screen", which is now done.
   - "Записати" writes one booked slot for the day and the wheel's time through the new
@@ -2426,8 +2447,9 @@ this file is just "what's done, what's next," not a design doc.
     "Записати"; otherwise `WindowConflict.find` over the one candidate window gives the M-37.7
     plan warnings. A time already past today is allowed (spec: record a visit that just happened)
     and gets no plan warning, since `find` skips past windows.
-  - "Додати" on the plan tab goes through `ScheduleViewModel.addPlans`, as in "Заповнити місяць";
-    both tabs show their notice above the buttons.
+  - "Додати" on the plan tab goes through `ScheduleViewModel.addPlans` and reports its
+    `AddedNotice` like "Заповнити місяць" (Y-54 toast and haptic, merged from `main`); both tabs
+    show their notice above the buttons. "Записати" has no toast yet.
   - Verified: `xcodebuild`; simulator pass of a booked time, a free window, plan overlap and near,
     a past time today, offline, and a plan from the popup.
   - Found while testing, not caused by it: a long day list barely scrolls — Y-56 (item 13 below).

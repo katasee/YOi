@@ -72,12 +72,17 @@ final class FillMonthViewModel: Identifiable {
         fillTimes.removeCustom(id)
     }
 
-    func add(now: Date = .now) {
+    func add(now: Date = .now) -> AddedNotice? {
         let slots = missingSlots(now: now)
 
-        guard slots.isEmpty == false else { return }
+        guard slots.isEmpty == false else { return nil }
 
-        try? slotRepository.add(slots)
+        do {
+            try slotRepository.add(slots)
+            return AddedNotice(kind: .windows, outcome: .saved(dates: slots.map(\.date)))
+        } catch {
+            return AddedNotice(kind: .windows, outcome: .failed)
+        }
     }
 
     private var conflicts: [WindowConflict] {

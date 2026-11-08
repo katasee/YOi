@@ -2,7 +2,7 @@ import SwiftUI
 
 struct QuickAddPopup: View {
     let quickBook: QuickBookViewModel
-    let addPlan: AddPlanViewModel
+    let addPlan: AddPlanViewModel?
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
     let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
@@ -12,7 +12,9 @@ struct QuickAddPopup: View {
 
     var body: some View {
         PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
-            ScheduleTabs(selection: $tab)
+            if addPlan != nil {
+                ScheduleTabs(selection: $tab)
+            }
 
             ScrollView {
                 sections
@@ -41,7 +43,7 @@ struct QuickAddPopup: View {
     private var conflictNotice: ConflictNotice? {
         switch tab {
         case .client: quickBook.notice
-        case .plan: addPlan.conflictNotice
+        case .plan: addPlan?.conflictNotice
         }
     }
 
@@ -55,7 +57,9 @@ struct QuickAddPopup: View {
             VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
                 SchedulePopupHeader(title: String(localized: "schedule.quickAdd.planTitle"), subtitle: quickBook.subtitle)
 
-                AddPlanSection(viewModel: addPlan)
+                if let addPlan {
+                    AddPlanSection(viewModel: addPlan)
+                }
             }
             .transition(.opacity)
         }
@@ -91,7 +95,7 @@ struct QuickAddPopup: View {
                 CapsuleButton(
                     titleKey: "schedule.plan.add",
                     role: .primary,
-                    isEnabled: addPlan.canAdd,
+                    isEnabled: addPlan?.canAdd == true,
                     action: { addPlans(then: dismiss) }
                 )
             }
@@ -104,6 +108,8 @@ struct QuickAddPopup: View {
     }
 
     private func addPlans(then dismiss: () -> Void) {
+        guard let addPlan else { return }
+
         onAdded(onAddPlans(addPlan.makePlans()))
         dismiss()
     }

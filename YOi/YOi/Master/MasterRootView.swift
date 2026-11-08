@@ -39,7 +39,7 @@ struct MasterRootView: View {
         }
         .tint(Color.ink)
         .task {
-            await statsViewModel.archiveFinishedMonths()
+            await statsViewModel.syncMonthArchive()
         }
     }
 }

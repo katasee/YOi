@@ -7,7 +7,7 @@ private enum SchedulePopup: Identifiable {
     case bookClient(BookClientViewModel)
     case bookingActions(BookingActionsViewModel)
     case planActions(PlanActionsViewModel)
-    case quickAdd(QuickBookViewModel, AddPlanViewModel)
+    case quickAdd(QuickBookViewModel, AddPlanViewModel?)
 
     var id: ObjectIdentifier {
         switch self {

@@ -2538,6 +2538,21 @@ this file is just "what's done, what's next," not a design doc.
     both chip kinds became `.choiceChipLabel()` (`View+ChoiceChipLabel.swift`).
   - Verified: `xcodebuild`. No device or simulator pass yet.
 
+- **Y-61 — Book a client on a past day** (branch `feature/y-61-past-day-booking`; user,
+  2026-11-08: started using the app mid-month and could not count the month's revenue).
+  - "+ Швидко додати" now shows on past days too, back to `Slot.liveMonthsStartDate(now:)` (the
+    1st of the oldest whole month the bounded `slots` listener reads; 1 September on
+    2026-11-08). Moved from `StatsCalculator.earliestMonthStart` into `Models/Slot/Slot+History.swift`,
+    since Розклад and Статистика must agree on it. On a past day the popup has no tabs — booking
+    only; `makeQuickAddPlanViewModel` returns `nil`. Plans and "Заповнити місяць" stay future-only.
+  - The `monthlyStats` archive no longer freezes a month when it ends: it writes a month only
+    after it leaves the live window, and deletes summaries stored for months still inside it
+    (`StatsCalculator.staleMonthIds`, `MonthlySummaryRepository.delete(ids:)`, fire-and-forget).
+    No `firestore.rules` change — delete was already allowed.
+  - Verified: `xcodebuild`; `liveMonthsStartDate`, `missingMonths` and `staleMonthIds` with a
+    throwaway `swiftc` script against stubs (empty archive, a gap of several months, stale
+    September/October). No simulator pass yet.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

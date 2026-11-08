@@ -85,22 +85,29 @@ final class StatsViewModel {
         } catch {}
     }
 
-    func archiveFinishedMonths() async {
+    func syncMonthArchive() async {
         let now = Date.now
 
         do {
             let storedIds = try await summaryRepository.fetchSummaryIds()
+            let staleIds = StatsCalculator.staleMonthIds(storedIds: storedIds, now: now)
+
+            if staleIds.isEmpty == false {
+                try Task.checkCancellation()
+                try summaryRepository.delete(ids: staleIds)
+            }
+
             let missing = StatsCalculator.missingMonths(storedIds: storedIds, now: now)
 
             guard let firstMissing = missing.first else { return }
 
             let slots = try await slotRepository.fetchSlots(
                 from: DateFormat.date.string(from: firstMissing),
-                to: DateFormat.date.string(from: StatsCalculator.monthStart(containing: now))
+                to: DateFormat.date.string(from: Slot.liveMonthsStartDate(now: now))
             )
-            let summaries = StatsCalculator.summariesToArchive(
+            let summaries = StatsCalculator.summaries(
+                months: missing,
                 slots: slots,
-                storedIds: storedIds,
                 now: now
             )
 
@@ -140,7 +147,7 @@ final class StatsViewModel {
     }
 
     private var oldestMonthStart: Date {
-        let earliest = StatsCalculator.earliestMonthStart(now: .now)
+        let earliest = Slot.liveMonthsStartDate(now: .now)
 
         guard let oldestStoredMonth else { return earliest }
 
@@ -153,7 +160,7 @@ final class StatsViewModel {
             .date(byAdding: .month, value: -1, to: monthStart)
             .flatMap { summaries[StatsCalculator.monthId($0)] }
 
-        if monthStart >= StatsCalculator.earliestMonthStart(now: now) {
+        if monthStart >= Slot.liveMonthsStartDate(now: now) {
             stats = MonthlyStats(
                 totals: StatsCalculator.totals(
                     slots: slots,

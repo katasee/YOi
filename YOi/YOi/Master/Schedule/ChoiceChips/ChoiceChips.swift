@@ -43,10 +43,19 @@ struct ChoiceChips: View {
                         .font(.elmsSans(.semiBold, ScheduleMetrics.Size.chipTime))
                         .lineLimit(1)
                         .minimumScaleFactor(ScheduleMetrics.Size.chipTextScale)
-                        .foregroundStyle(Color.ink)
+                        .foregroundStyle(Color.textSecondary)
                         .padding(.horizontal, ScheduleMetrics.Spacing.bookRowPadding)
                         .frame(maxWidth: .infinity, minHeight: ScheduleMetrics.Size.chipHeight)
-                        .selectableSurface(isSelected: false, in: .capsule)
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(
+                                    Color.stroke,
+                                    style: StrokeStyle(
+                                        lineWidth: ScheduleMetrics.Size.rowBorderWidth,
+                                        dash: ScheduleMetrics.Size.rowDash
+                                    )
+                                )
+                        }
                         .contentShape(.capsule)
                 }
                 .buttonStyle(.plain)

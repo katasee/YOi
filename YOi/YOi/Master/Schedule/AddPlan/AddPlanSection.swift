@@ -13,11 +13,9 @@ struct AddPlanSection: View {
 
             if viewModel.hasTemplates {
                 ChoiceChips(chips: viewModel.templateChips, onToggle: viewModel.selectTemplate)
-            } else {
-                Text("schedule.plan.noTemplates")
-                    .font(.elmsSans(.regular, ScheduleMetrics.Size.planHint))
-                    .foregroundStyle(Color.textSecondary)
             }
+
+            OwnPlanRow(plan: $viewModel.ownPlan)
 
             SectionLabel(titleKey: "schedule.plan.time")
 

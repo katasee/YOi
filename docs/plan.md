@@ -2466,6 +2466,24 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`. The failure toast is checked by reading the `catch` path only — the
     Firestore write cannot be made to throw from the UI.
 
+- **Y-57 — Inline service and one-off plan (UI)** (branch
+  `feature/y-57-inline-service-and-plan-ui`; brainstormed 2026-11-08, mockup on a Claude Design
+  canvas). New masters book straight away and found empty pickers: the "Послуга" block was hidden
+  with no services, "Додати справу" showed only a "no templates" hint. First half; Y-58 is the
+  logic.
+  - "+ Нова послуга" is the last chip of every service grid (`ChoiceChipsAdd`, an optional
+    trailing chip on `ChoiceChips`): the booking popup, quick add's "Записати" and "Змінити
+    послугу". The "Послуга" block always shows; "Змінити послугу" is always in the booking
+    actions (`canChangeService` deleted). The chip does nothing until Y-58.
+  - A one-off plan: `OwnPlanRow` (an emoji tile + a name field; the tile opens `PlanEmojiGrid`
+    under the row, a pick closes it) under the template chips in `AddPlanSection` (single day,
+    "Заповнити місяць", quick add) and in "Змінити справу". `ChoiceChipsEditor` became generic
+    over an `accessory` view for it. `OwnPlan` lives in `TemplateChoice`, whose `didSet` makes
+    template and own name exclusive: a typed name deselects the chip, a chip clears the name.
+    "Змінити справу" is always offered (`canChangeTemplate` deleted). `schedule.plan.noTemplates`
+    is gone. Saving stays template-only until Y-58 — a one-off name alone enables nothing.
+  - Verified: `xcodebuild`; the exclusion rule with a throwaway `swiftc` script.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2719,6 +2737,14 @@ those items are referred to by name, so the list can grow without renumbering an
        `SwipeToDelete` only (so Мої послуги gets it too): a `UIGestureRecognizerRepresentable` pan
        (iOS 18+) that begins only when the horizontal velocity beats the vertical one. Recheck the
        `.weekSwipe` rule (`architecture.md`, M-39) after the change.
+   14. **Y-58 Inline service and one-off plan (logic)** (after Y-57's UI; user, 2026-11-08; design
+       in `docs/superpowers/specs/2026-11-08-inline-service-and-one-off-plan-design.md`).
+       "+ Нова послуга" opens `ServiceFormPopup`; `ServiceRepository.add` returns the new id
+       (like `ClientRepository.add`) so the service is selected at once, offline too. A one-off
+       plan saves: `PlanEvent.templateId` becomes optional, `TemplateChoice` pins a one-off plan
+       into the own row, a plan changed to one-off deletes the field (`FieldValue.delete()`), and
+       `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
+       hand in Firebase Console, or one-off plans are silently rejected.
 
 ## Backlog and tech debt (unordered)
 

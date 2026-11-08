@@ -59,8 +59,9 @@ final class PlanActionsViewModel: Identifiable {
         }
     }
 
-    var canChangeTemplate: Bool {
-        initialChoice.chips.contains { $0.id != plan.templateId }
+    var ownPlan: OwnPlan {
+        get { templateChoice.own }
+        set { templateChoice.own = newValue }
     }
 
     var templateChips: [ChoiceChip] {

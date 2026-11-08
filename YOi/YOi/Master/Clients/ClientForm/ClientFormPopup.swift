@@ -15,6 +15,7 @@ struct ClientFormPopup: View {
     let isSaving: Bool
     let onSubmit: () async -> Bool
     let onDelete: (() async -> Bool)?
+    let blursBackground: Bool
     let onDismiss: () -> Void
 
     init(
@@ -24,6 +25,7 @@ struct ClientFormPopup: View {
         isSaving: Bool,
         onSubmit: @escaping () async -> Bool,
         onDelete: (() async -> Bool)? = nil,
+        blursBackground: Bool = false,
         onDismiss: @escaping () -> Void
     ) {
         _fields = fields
@@ -32,6 +34,7 @@ struct ClientFormPopup: View {
         self.isSaving = isSaving
         self.onSubmit = onSubmit
         self.onDelete = onDelete
+        self.blursBackground = blursBackground
         self.onDismiss = onDismiss
     }
 
@@ -39,6 +42,7 @@ struct ClientFormPopup: View {
         PopupContainer(
             dismissLabel: "common.action.cancel",
             isDismissDisabled: isSaving,
+            blursBackground: blursBackground,
             onDismiss: onDismiss
         ) { dismiss in
             title

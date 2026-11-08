@@ -23,7 +23,8 @@ final class QuickBookViewModel: Identifiable {
         services: [Service],
         now: Date,
         slotRepository: SlotRepository,
-        clientRepository: ClientRepository
+        clientRepository: ClientRepository,
+        serviceRepository: ServiceRepository
     ) {
         self.day = day
         dayId = DateFormat.date.string(from: day)
@@ -38,7 +39,8 @@ final class QuickBookViewModel: Identifiable {
         choice = ClientBookingChoice(
             clients: clients,
             services: services,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
     }
 

@@ -9,16 +9,23 @@ struct ServiceFormPopup: View {
     @State private var viewModel: ServiceFormViewModel
     @FocusState private var focusedField: Field?
 
+    let blursBackground: Bool
     let onDismiss: () -> Void
 
-    init(viewModel: ServiceFormViewModel, onDismiss: @escaping () -> Void) {
+    init(
+        viewModel: ServiceFormViewModel,
+        blursBackground: Bool = false,
+        onDismiss: @escaping () -> Void
+    ) {
         _viewModel = State(initialValue: viewModel)
+        self.blursBackground = blursBackground
         self.onDismiss = onDismiss
     }
 
     var body: some View {
         PopupContainer(
             dismissLabel: "common.action.cancel",
+            blursBackground: blursBackground,
             onDismiss: onDismiss
         ) { dismiss in
             title

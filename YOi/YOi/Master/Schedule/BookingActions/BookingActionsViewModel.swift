@@ -19,11 +19,12 @@ final class BookingActionsViewModel: Identifiable {
 
     private let slot: Slot
     private let client: Client?
-    private let initialChoice: ServiceChoice
+    private var initialChoice: ServiceChoice
     private let initialReschedule: RescheduleChoice
     private let plans: [PlanEvent]
     private let now: Date
     private let slotRepository: SlotRepository
+    private let serviceRepository: ServiceRepository
 
     init(
         slot: Slot,
@@ -32,15 +33,18 @@ final class BookingActionsViewModel: Identifiable {
         slots: [Slot],
         plans: [PlanEvent],
         now: Date,
-        slotRepository: SlotRepository
+        slotRepository: SlotRepository,
+        serviceRepository: ServiceRepository
     ) {
         self.slot = slot
         self.plans = plans
         self.now = now
         self.client = client
         self.slotRepository = slotRepository
-        initialChoice = ServiceChoice(services: services, pinning: slot)
-        serviceChoice = initialChoice
+        self.serviceRepository = serviceRepository
+        let choice = ServiceChoice(services: services, pinning: slot)
+        initialChoice = choice
+        serviceChoice = choice
         initialReschedule = RescheduleChoice(booking: slot, slots: slots, now: now)
         rescheduleChoice = initialReschedule
     }
@@ -92,6 +96,15 @@ final class BookingActionsViewModel: Identifiable {
 
     func toggleService(_ id: String) {
         serviceChoice.toggle(id)
+    }
+
+    func makeNewServiceForm() -> ServiceFormViewModel {
+        ServiceFormViewModel(mode: .add, serviceRepository: serviceRepository)
+    }
+
+    func select(newService: Service) {
+        initialChoice.add(newService)
+        serviceChoice.select(newService: newService)
     }
 
     func saveService() {

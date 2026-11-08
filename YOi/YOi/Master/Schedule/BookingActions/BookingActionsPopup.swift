@@ -7,6 +7,7 @@ struct BookingActionsPopup: View {
     let onDismiss: () -> Void
 
     @State private var isConfirmingCancel = false
+    @State private var newServiceForm: ServiceFormViewModel?
 
     var body: some View {
         PopupContainer(dismissLabel: "common.action.close", onDismiss: onDismiss) { dismiss in
@@ -53,6 +54,7 @@ struct BookingActionsPopup: View {
                 )
             }
         }
+        .newServiceForm($newServiceForm, onSaved: viewModel.select(newService:))
     }
 
     private func openCard(then dismiss: () -> Void) {
@@ -80,7 +82,11 @@ struct BookingActionsPopup: View {
         onRescheduled(dayId)
     }
 
-    private func addService() {}
+    private func addService() {
+        withoutPresentationAnimation {
+            newServiceForm = viewModel.makeNewServiceForm()
+        }
+    }
 
     private func saveService(then dismiss: () -> Void) {
         viewModel.saveService()

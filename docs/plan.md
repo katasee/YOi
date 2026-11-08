@@ -2474,7 +2474,9 @@ this file is just "what's done, what's next," not a design doc.
   - "+ Нова послуга" is the last chip of every service grid (`ChoiceChipsAdd`, an optional
     trailing chip on `ChoiceChips`): the booking popup, quick add's "Записати" and "Змінити
     послугу". The "Послуга" block always shows; "Змінити послугу" is always in the booking
-    actions (`canChangeService` deleted). The chip does nothing until Y-58.
+    actions (`canChangeService` deleted). The chip does nothing until Y-58. It is a dashed
+    `Stroke` capsule with `TextSecondary` text: drawn as a raised chip it merged with the services
+    on the simulator (user).
   - A one-off plan: `OwnPlanRow` (an emoji tile + a name field; the tile opens `PlanEmojiGrid`
     under the row, a pick closes it) under the template chips in `AddPlanSection` (single day,
     "Заповнити місяць", quick add) and in "Змінити справу". `ChoiceChipsEditor` became generic
@@ -2482,6 +2484,11 @@ this file is just "what's done, what's next," not a design doc.
     template and own name exclusive: a typed name deselects the chip, a chip clears the name.
     "Змінити справу" is always offered (`canChangeTemplate` deleted). `schedule.plan.noTemplates`
     is gone. Saving stays template-only until Y-58 — a one-off name alone enables nothing.
+  - Copy is formal: the placeholder is «Або впишіть свою справу», and `plans.empty.message`, the
+    only «ти» string in the catalog, became «Натисніть «+», …» (rule added to `code-style.md`).
+  - swiftui-pro and YAGNI/SOLID reviews: the nested emoji-grid scroll works on the simulator;
+    an unused `Equatable` on `OwnPlan` was dropped; the `TemplateChoice` → `PlanChoice` rename
+    waits for Y-58.
   - Verified: `xcodebuild`; the exclusion rule with a throwaway `swiftc` script.
 
 ## Screens (in order)
@@ -2744,7 +2751,8 @@ those items are referred to by name, so the list can grow without renumbering an
        plan saves: `PlanEvent.templateId` becomes optional, `TemplateChoice` pins a one-off plan
        into the own row, a plan changed to one-off deletes the field (`FieldValue.delete()`), and
        `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
-       hand in Firebase Console, or one-off plans are silently rejected.
+       hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
+       to `PlanChoice` here.
 
 ## Backlog and tech debt (unordered)
 

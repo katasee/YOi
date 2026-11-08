@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PlanActionsPopup: View {
-    let viewModel: PlanActionsViewModel
+    @Bindable var viewModel: PlanActionsViewModel
     let onUpdate: (PlanEvent) -> Void
     let onDelete: (String) -> Void
     let onDismiss: () -> Void
@@ -13,7 +13,6 @@ struct PlanActionsPopup: View {
             switch viewModel.mode {
             case .actions:
                 PlanActionsList(
-                    canChangeTemplate: viewModel.canChangeTemplate,
                     onChangeTemplate: viewModel.startChangingTemplate,
                     onReschedule: viewModel.startRescheduling,
                     onDelete: { delete(then: dismiss) }
@@ -28,7 +27,9 @@ struct PlanActionsPopup: View {
                     onToggle: viewModel.selectTemplate,
                     onBack: viewModel.stopChangingTemplate,
                     onSave: { saveTemplate(then: dismiss) }
-                )
+                ) {
+                    OwnPlanRow(plan: $viewModel.ownPlan)
+                }
             case .reschedule:
                 PlanRescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
             }

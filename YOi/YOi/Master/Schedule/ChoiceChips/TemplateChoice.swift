@@ -2,6 +2,13 @@ import Foundation
 
 struct TemplateChoice {
     private(set) var selectedId: String?
+    var own = OwnPlan() {
+        didSet {
+            if own.isFilled {
+                selectedId = nil
+            }
+        }
+    }
 
     private let offered: [EventTemplate]
     private let pinned: EventTemplate?
@@ -36,6 +43,7 @@ struct TemplateChoice {
 
     mutating func select(_ id: String) {
         selectedId = id
+        own.name = ""
     }
 
     private static func snapshot(of plan: PlanEvent, outside offered: [EventTemplate]) -> EventTemplate? {

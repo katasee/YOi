@@ -1,8 +1,14 @@
 import SwiftUI
 
+struct ChoiceChipsAdd {
+    let titleKey: LocalizedStringKey
+    let action: () -> Void
+}
+
 struct ChoiceChips: View {
     let chips: [ChoiceChip]
     let onToggle: (String) -> Void
+    var add: ChoiceChipsAdd?
 
     private let columns = [
         GridItem(
@@ -30,6 +36,30 @@ struct ChoiceChips: View {
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(chip.isSelected ? .isSelected : [])
             }
+
+            if let add {
+                Button(action: add.action) {
+                    Label(add.titleKey, systemImage: "plus")
+                        .font(.elmsSans(.semiBold, ScheduleMetrics.Size.chipTime))
+                        .lineLimit(1)
+                        .minimumScaleFactor(ScheduleMetrics.Size.chipTextScale)
+                        .foregroundStyle(Color.textSecondary)
+                        .padding(.horizontal, ScheduleMetrics.Spacing.bookRowPadding)
+                        .frame(maxWidth: .infinity, minHeight: ScheduleMetrics.Size.chipHeight)
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(
+                                    Color.stroke,
+                                    style: StrokeStyle(
+                                        lineWidth: ScheduleMetrics.Size.rowBorderWidth,
+                                        dash: ScheduleMetrics.Size.rowDash
+                                    )
+                                )
+                        }
+                        .contentShape(.capsule)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .glassEffectGroup()
     }
@@ -37,7 +67,11 @@ struct ChoiceChips: View {
 
 #if DEBUG
 #Preview {
-    ChoiceChips(chips: SchedulePreviewData.serviceChips, onToggle: { _ in })
+    ChoiceChips(
+        chips: SchedulePreviewData.serviceChips,
+        onToggle: { _ in },
+        add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: {})
+    )
         .padding()
         .background(Color.card)
 }

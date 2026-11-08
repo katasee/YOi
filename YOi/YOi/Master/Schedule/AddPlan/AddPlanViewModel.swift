@@ -48,6 +48,11 @@ final class AddPlanViewModel {
         isSingleDay = true
     }
 
+    var ownPlan: OwnPlan {
+        get { templateChoice.own }
+        set { templateChoice.own = newValue }
+    }
+
     var templateChips: [ChoiceChip] {
         templateChoice.chips
     }

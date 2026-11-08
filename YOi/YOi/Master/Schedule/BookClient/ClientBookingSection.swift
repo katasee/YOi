@@ -32,11 +32,13 @@ struct ClientBookingSection: View {
                 action: openNewClientForm
             )
 
-            if choice.services.isEmpty == false {
-                SectionLabel(titleKey: "schedule.book.service")
+            SectionLabel(titleKey: "schedule.book.service")
 
-                ChoiceChips(chips: choice.services, onToggle: choice.toggleService)
-            }
+            ChoiceChips(
+                chips: choice.services,
+                onToggle: choice.toggleService,
+                add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: openNewServiceForm)
+            )
         }
         .fullScreenCover(item: $newClientForm) { form in
             @Bindable var form = form
@@ -60,6 +62,8 @@ struct ClientBookingSection: View {
             newClientForm = choice.makeNewClientForm()
         }
     }
+
+    private func openNewServiceForm() {}
 
     private func closeNewClientForm() {
         if let client = newClientForm?.savedClient {

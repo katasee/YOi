@@ -73,10 +73,6 @@ final class BookingActionsViewModel: Identifiable {
         client?.id
     }
 
-    var canChangeService: Bool {
-        serviceChoice.chips.isEmpty == false
-    }
-
     var services: [ChoiceChip] {
         serviceChoice.chips
     }

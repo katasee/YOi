@@ -2522,6 +2522,19 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; `PlanChoice`/`PlanPick` with a throwaway `swiftc` script compiling the
     real files against stubs; a one-off plan from quick add on the simulator (user).
 
+- **Y-59 — Uniform service chips** (branch `feature/y-59-service-chips-uniform`; user,
+  2026-11-08, from a simulator screenshot). Service chips in the booking popup had different
+  font sizes and showed the price.
+  - Each chip shrank its own text (`minimumScaleFactor(0.75)`), so short names stayed 15pt and
+    long ones dropped to ~11pt. Now every `ChoiceChips` chip (services, plan templates,
+    "+ Нова послуга") uses one fixed size, `ScheduleMetrics.Size.choiceChipTitle` (14pt); a
+    name too long even for a full row truncates with "…".
+  - The service chip title is the name only — the price is gone (`ServiceChoice.chips`).
+  - `ChoiceChipsLayout` (a custom `Layout`) replaced the adaptive `LazyVGrid`: two columns, a
+    chip whose ideal width does not fit a column takes a full row, and the next short chip fills
+    an open half row, so there are no gaps — at the cost of strict alphabetical order there.
+  - Verified: `xcodebuild`. No device or simulator pass yet.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

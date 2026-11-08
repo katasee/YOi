@@ -77,8 +77,8 @@ enum SchedulePreviewData {
     ]
 
     static let serviceChips: [ChoiceChip] = [
-        ChoiceChip(id: "svc-classic", title: "Класичний манікюр · 500 zł", isSelected: true),
-        ChoiceChip(id: "svc-hybrid", title: "Манікюр гібридний (гель-лак) · 800 zł", isSelected: false)
+        ChoiceChip(id: "svc-classic", title: "Класичний манікюр", isSelected: true),
+        ChoiceChip(id: "svc-hybrid", title: "Манікюр гібридний (гель-лак) з укріпленням", isSelected: false)
     ]
 
     @MainActor

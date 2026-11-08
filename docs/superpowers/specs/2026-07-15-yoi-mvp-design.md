@@ -72,6 +72,10 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
    "Записати". "+ Нова клієнтка" is always there and opens the client form over the popup;
    "+ Нова послуга", the last service chip (dashed), opens the "Мої послуги" form the same way and
    selects the new service — so a new master can book before filling "Мої послуги" (Y-57/Y-58).
+   "+ Швидко додати" under a day books a client at a typed time without a window first; it works
+   on past days too, back to the 1st of the oldest month the 3-month query loads in full, so a
+   master who starts mid-month can enter the visits she already had (Y-61). On a past day it
+   offers booking only — plans and free windows are for today and later.
 5. **Booking actions** — tap a booked slot → Написати, Змінити послугу (always offered, with
    "+ Нова послуга" among the chips), Перенести, Картка
    клієнтки (opens inside Розклад), Скасувати запис (asks first). Перенести (past bookings too):
@@ -97,7 +101,8 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
 - **Comparison with the previous month** — money (percent) and clients (count), full calendar
   months; hidden when the previous month earned nothing or is not fully loaded.
 - **How far back** — the first month the 3-month slot query loads in full; older months come from
-  stored monthly summaries in M-38.1.
+  stored monthly summaries in M-38.1. A month's summary is written only once it leaves that
+  window, since until then it can still be booked into (Y-61).
 - No "hours worked": visits have no duration.
 
 ## Out of scope

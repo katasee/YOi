@@ -2533,6 +2533,9 @@ this file is just "what's done, what's next," not a design doc.
   - `ChoiceChipsLayout` (a custom `Layout`) replaced the adaptive `LazyVGrid`: two columns, a
     chip whose ideal width does not fit a column takes a full row, and the next short chip fills
     an open half row, so there are no gaps — at the cost of strict alphabetical order there.
+  - swiftui-pro and SOLID/clean-code reviews: row grouping moved out of the frame math into
+    `rows(for:columnWidth:)` with an explicit `Row.isWide`, and the label modifiers shared by
+    both chip kinds became `.choiceChipLabel()` (`View+ChoiceChipLabel.swift`).
   - Verified: `xcodebuild`. No device or simulator pass yet.
 
 ## Screens (in order)

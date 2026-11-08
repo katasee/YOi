@@ -17,11 +17,8 @@ struct ChoiceChips: View {
                     onToggle(chip.id)
                 } label: {
                     Text(verbatim: chip.title)
-                        .font(.elmsSans(.semiBold, ScheduleMetrics.Size.choiceChipTitle))
-                        .lineLimit(1)
+                        .choiceChipLabel()
                         .foregroundStyle(chip.isSelected ? Color.onPrimary : Color.ink)
-                        .padding(.horizontal, ScheduleMetrics.Spacing.bookRowPadding)
-                        .frame(maxWidth: .infinity, minHeight: ScheduleMetrics.Size.chipHeight)
                         .selectableSurface(isSelected: chip.isSelected, in: .capsule)
                         .contentShape(.capsule)
                 }
@@ -32,11 +29,8 @@ struct ChoiceChips: View {
             if let add {
                 Button(action: add.action) {
                     Label(add.titleKey, systemImage: "plus")
-                        .font(.elmsSans(.semiBold, ScheduleMetrics.Size.choiceChipTitle))
-                        .lineLimit(1)
+                        .choiceChipLabel()
                         .foregroundStyle(Color.textSecondary)
-                        .padding(.horizontal, ScheduleMetrics.Spacing.bookRowPadding)
-                        .frame(maxWidth: .infinity, minHeight: ScheduleMetrics.Size.chipHeight)
                         .overlay {
                             Capsule()
                                 .strokeBorder(

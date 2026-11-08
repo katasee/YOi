@@ -1,6 +1,11 @@
 import SwiftUI
 
 struct ChoiceChipsLayout: Layout {
+    private struct Row {
+        var indices: [Int]
+        let isWide: Bool
+    }
+
     var spacing: CGFloat
 
     func sizeThatFits(
@@ -33,31 +38,15 @@ struct ChoiceChipsLayout: Layout {
 
     private func frames(for subviews: Subviews, width: CGFloat) -> [CGRect] {
         let columnWidth = (width - spacing) / 2
-        var rows: [[Int]] = []
-        var openRow: Int?
-
-        for index in subviews.indices {
-            if subviews[index].sizeThatFits(.unspecified).width > columnWidth {
-                rows.append([index])
-            } else if let row = openRow {
-                rows[row].append(index)
-                openRow = nil
-            } else {
-                rows.append([index])
-                openRow = rows.count - 1
-            }
-        }
-
         var frames = Array(repeating: CGRect.zero, count: subviews.count)
         var y: CGFloat = 0
 
-        for (rowIndex, row) in rows.enumerated() {
-            let isWide = row.count == 1 && rowIndex != openRow
-            let itemWidth = isWide ? width : columnWidth
+        for row in rows(for: subviews, columnWidth: columnWidth) {
+            let itemWidth = row.isWide ? width : columnWidth
             let itemProposal = ProposedViewSize(width: itemWidth, height: nil)
-            let rowHeight = row.map { subviews[$0].sizeThatFits(itemProposal).height }.max() ?? 0
+            let rowHeight = row.indices.map { subviews[$0].sizeThatFits(itemProposal).height }.max() ?? 0
 
-            for (column, index) in row.enumerated() {
+            for (column, index) in row.indices.enumerated() {
                 frames[index] = CGRect(
                     x: CGFloat(column) * (columnWidth + spacing),
                     y: y,
@@ -70,5 +59,24 @@ struct ChoiceChipsLayout: Layout {
         }
 
         return frames
+    }
+
+    private func rows(for subviews: Subviews, columnWidth: CGFloat) -> [Row] {
+        var rows: [Row] = []
+        var openRow: Int?
+
+        for index in subviews.indices {
+            if subviews[index].sizeThatFits(.unspecified).width > columnWidth {
+                rows.append(Row(indices: [index], isWide: true))
+            } else if let row = openRow {
+                rows[row].indices.append(index)
+                openRow = nil
+            } else {
+                rows.append(Row(indices: [index], isWide: false))
+                openRow = rows.count - 1
+            }
+        }
+
+        return rows
     }
 }

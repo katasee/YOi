@@ -33,7 +33,10 @@ final class FirestoreEventRepository: EventRepository {
                 userInfo: [NSLocalizedDescriptionKey: "Cannot update a plan without an id"]
             )
         }
-        let encoded = try Firestore.Encoder().encode(event)
+        var encoded = try Firestore.Encoder().encode(event)
+        if event.templateId == nil {
+            encoded["templateId"] = FieldValue.delete()
+        }
         try db.userCollection("events").document(id).updateData(encoded, completion: nil)
     }
 

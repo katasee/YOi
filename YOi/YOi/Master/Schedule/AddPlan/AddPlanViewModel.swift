@@ -8,7 +8,7 @@ final class AddPlanViewModel {
     var times = PlanTimes()
     private(set) var isSingleDay = false
 
-    private var templateChoice: TemplateChoice
+    private var planChoice: PlanChoice
 
     private let slots: [Slot]
     private let now: Date
@@ -25,7 +25,7 @@ final class AddPlanViewModel {
             now: now,
             markedDays: plannedDays
         )
-        templateChoice = TemplateChoice(templates: templates)
+        planChoice = PlanChoice(templates: templates)
         self.slots = slots
         self.now = now
     }
@@ -49,20 +49,20 @@ final class AddPlanViewModel {
     }
 
     var ownPlan: OwnPlan {
-        get { templateChoice.own }
-        set { templateChoice.own = newValue }
+        get { planChoice.own }
+        set { planChoice.own = newValue }
     }
 
     var templateChips: [ChoiceChip] {
-        templateChoice.chips
+        planChoice.chips
     }
 
     var hasTemplates: Bool {
-        templateChoice.isEmpty == false
+        planChoice.isEmpty == false
     }
 
     var selectedTemplateId: String? {
-        templateChoice.selectedId
+        planChoice.selectedId
     }
 
     var conflictNotice: ConflictNotice? {
@@ -75,13 +75,13 @@ final class AddPlanViewModel {
 
     var canAdd: Bool {
         days.selected.isEmpty == false
-            && templateChoice.selectedTemplate != nil
+            && planChoice.pick != nil
             && times.isValid
             && conflictNotice?.blocksConfirm != true
     }
 
     func selectTemplate(_ id: String) {
-        templateChoice.select(id)
+        planChoice.select(id)
     }
 
     func makePlans() -> [PlanEvent] {
@@ -97,20 +97,16 @@ final class AddPlanViewModel {
     }
 
     private var candidatePlans: [PlanEvent] {
-        guard
-            times.isValid,
-            let template = templateChoice.selectedTemplate,
-            let templateId = template.id
-        else { return [] }
+        guard times.isValid, let pick = planChoice.pick else { return [] }
 
         return days.selected.sorted().map { date in
             PlanEvent(
                 date: date,
                 startTime: times.startTime,
                 endTime: times.endTime,
-                templateId: templateId,
-                emoji: template.emoji,
-                name: template.name
+                templateId: pick.templateId,
+                emoji: pick.emoji,
+                name: pick.name
             )
         }
     }

@@ -2491,6 +2491,37 @@ this file is just "what's done, what's next," not a design doc.
     waits for Y-58.
   - Verified: `xcodebuild`; the exclusion rule with a throwaway `swiftc` script.
 
+- **Y-58 — Inline service and one-off plan (logic)** (branch
+  `feature/y-58-inline-service-and-plan-logic`). Second half of Y-57: the drawn chip and own row
+  now save.
+  - `ServiceRepository.add` returns the new id and is fire-and-forget (`completion: nil`), like
+    `ClientRepository.add`: the id is built on the device, so a service added from a picker is
+    selected at once, offline too, and the "Мої послуги" form no longer spins offline on add
+    (update and delete still await). `ServiceFormViewModel` keeps `savedService`.
+  - "+ Нова послуга" opens `ServiceFormPopup` over the booking popup, quick add's "Записати" and
+    "Змінити послугу" through one `newServiceForm(_:onSaved:)` modifier
+    (`Services/ServiceForm/View+NewServiceForm.swift`). `ServiceChoice.select(newService:)` adds
+    and selects it; "Змінити послугу" also adds it to `initialChoice`, so it survives "Назад".
+  - The new client and new service forms blur the popup under them (`blursBackground`, as
+    `CustomTimePopup` does): two cards with shadows on top of each other cluttered the screen
+    (user).
+  - `PlanEvent.templateId` is optional; a one-off plan has no such key. A plan's `update` writes
+    `FieldValue.delete()` for a `nil` id — `Firestore.Encoder` drops it and `updateData` would
+    keep the old one. `hasValidEventFormat()` accepts a missing `templateId` and still rejects
+    `""`; published in Firebase Console on 2026-11-08 (before that, one-off plans were rolled
+    back with "Permission denied" — seen on the simulator).
+  - `TemplateChoice` → `PlanChoice`, which hands out one `PlanPick` (template id or none, emoji,
+    name): the selected template, else a filled own row, else nothing. A one-off plan opens
+    "Змінити справу" with its name and emoji in the own row. `PlanPick.changes(_:)` compares a
+    templated plan by id only (a renamed template is no change) and a one-off one by emoji and
+    trimmed name. The change family followed the rename: `.changePlan`, `start/stopChangingPlan`,
+    `onChangePlan`, `hasPlanChanged`.
+  - swiftui-pro, swift-concurrency-pro and SOLID reviews of the plan: `??` between `String?` and
+    `FieldValue` would not compile; the change rule moved from the view model to `PlanPick` so
+    the check runs the real type; the modifier sits next to the form it presents.
+  - Verified: `xcodebuild`; `PlanChoice`/`PlanPick` with a throwaway `swiftc` script compiling the
+    real files against stubs; a one-off plan from quick add on the simulator (user).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2744,7 +2775,7 @@ those items are referred to by name, so the list can grow without renumbering an
        `SwipeToDelete` only (so Мої послуги gets it too): a `UIGestureRecognizerRepresentable` pan
        (iOS 18+) that begins only when the horizontal velocity beats the vertical one. Recheck the
        `.weekSwipe` rule (`architecture.md`, M-39) after the change.
-   14. **Y-58 Inline service and one-off plan (logic)** (after Y-57's UI; user, 2026-11-08; design
+   14. ~~**Y-58 Inline service and one-off plan (logic)**~~ — **done** (under "Done"). (after Y-57's UI; user, 2026-11-08; design
        in `docs/superpowers/specs/2026-11-08-inline-service-and-one-off-plan-design.md`).
        "+ Нова послуга" opens `ServiceFormPopup`; `ServiceRepository.add` returns the new id
        (like `ClientRepository.add`) so the service is selected at once, offline too. A one-off

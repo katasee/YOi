@@ -5,6 +5,7 @@ struct ClientBookingSection: View {
     var focusesSearchOnAppear = false
 
     @State private var newClientForm: ClientFormViewModel?
+    @State private var newServiceForm: ServiceFormViewModel?
 
     var body: some View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
@@ -48,6 +49,7 @@ struct ClientBookingSection: View {
                 errors: form.errors,
                 isSaving: form.isSaving,
                 onSubmit: form.submit,
+                blursBackground: true,
                 onDismiss: closeNewClientForm
             )
             .onChange(of: form.fields) {
@@ -55,6 +57,7 @@ struct ClientBookingSection: View {
             }
             .presentationBackground(.clear)
         }
+        .newServiceForm($newServiceForm, onSaved: choice.select(newService:))
     }
 
     private func openNewClientForm() {
@@ -63,7 +66,11 @@ struct ClientBookingSection: View {
         }
     }
 
-    private func openNewServiceForm() {}
+    private func openNewServiceForm() {
+        withoutPresentationAnimation {
+            newServiceForm = choice.makeNewServiceForm()
+        }
+    }
 
     private func closeNewClientForm() {
         if let client = newClientForm?.savedClient {

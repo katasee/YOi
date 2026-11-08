@@ -9,15 +9,18 @@ final class ClientBookingChoice {
     private var serviceChoice: ServiceChoice
 
     private let clientRepository: ClientRepository
+    private let serviceRepository: ServiceRepository
 
     init(
         clients: [Client],
         services: [Service],
-        clientRepository: ClientRepository
+        clientRepository: ClientRepository,
+        serviceRepository: ServiceRepository
     ) {
         self.clients = clients
         serviceChoice = ServiceChoice(services: services)
         self.clientRepository = clientRepository
+        self.serviceRepository = serviceRepository
     }
 
     var searchText: String {
@@ -58,5 +61,13 @@ final class ClientBookingChoice {
 
         clients.append(newClient)
         picker.select(id)
+    }
+
+    func makeNewServiceForm() -> ServiceFormViewModel {
+        ServiceFormViewModel(mode: .add, serviceRepository: serviceRepository)
+    }
+
+    func select(newService: Service) {
+        serviceChoice.select(newService: newService)
     }
 }

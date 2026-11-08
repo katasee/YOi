@@ -3,7 +3,7 @@ import Foundation
 struct ServiceChoice {
     private(set) var selectedId: String?
 
-    private let offered: [Service]
+    private var offered: [Service]
     private let pinned: Service?
 
     init(services: [Service], pinning slot: Slot? = nil) {
@@ -32,6 +32,17 @@ struct ServiceChoice {
 
     mutating func toggle(_ id: String) {
         selectedId = selectedId == id ? nil : id
+    }
+
+    mutating func add(_ service: Service) {
+        guard let id = service.id, offered.contains(where: { $0.id == id }) == false else { return }
+
+        offered = (offered + [service]).sortedByName()
+    }
+
+    mutating func select(newService: Service) {
+        add(newService)
+        selectedId = newService.id
     }
 
     private static func snapshot(of slot: Slot, outside offered: [Service]) -> Service? {

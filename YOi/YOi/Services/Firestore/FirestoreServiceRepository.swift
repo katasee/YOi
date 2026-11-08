@@ -18,9 +18,10 @@ final class FirestoreServiceRepository: ServiceRepository {
         }
     }
 
-    func add(_ service: Service) async throws {
+    func add(_ service: Service) throws -> String {
         let encoded = try Firestore.Encoder().encode(service)
-        _ = try await db.userCollection("services").addDocument(data: encoded)
+
+        return try db.userCollection("services").addDocument(data: encoded, completion: nil).documentID
     }
 
     func update(_ service: Service) async throws {

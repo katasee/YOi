@@ -165,7 +165,8 @@ final class ScheduleViewModel {
             services: services,
             now: now,
             slotRepository: slotRepository,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
     }
 
@@ -187,7 +188,8 @@ final class ScheduleViewModel {
             clients: directory.clients,
             services: services,
             slotRepository: slotRepository,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
     }
 
@@ -205,7 +207,8 @@ final class ScheduleViewModel {
             slots: slots,
             plans: plans,
             now: now,
-            slotRepository: slotRepository
+            slotRepository: slotRepository,
+            serviceRepository: serviceRepository
         )
     }
 

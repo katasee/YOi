@@ -30,4 +30,15 @@ final class FirestoreMonthlySummaryRepository: MonthlySummaryRepository {
 
         batch.commit(completion: nil)
     }
+
+    func delete(ids: [String]) throws {
+        let collection = try db.userCollection("monthlyStats")
+        let batch = db.batch()
+
+        for id in ids {
+            batch.deleteDocument(collection.document(id))
+        }
+
+        batch.commit(completion: nil)
+    }
 }

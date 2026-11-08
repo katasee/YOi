@@ -10,4 +10,15 @@ extension Slot {
     static func historyStart(now: Date) -> String {
         DateFormat.date.string(from: historyStartDate(now: now))
     }
+
+    static func liveMonthsStartDate(now: Date) -> Date {
+        let calendar = DateFormat.salonCalendar
+        let historyStart = historyStartDate(now: now)
+        let components = calendar.dateComponents([.year, .month], from: historyStart)
+        let start = calendar.date(from: components) ?? historyStart
+
+        guard start < historyStart else { return start }
+
+        return calendar.date(byAdding: .month, value: 1, to: start) ?? start
+    }
 }

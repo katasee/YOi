@@ -5,7 +5,7 @@ struct PlanEvent: Identifiable, Codable {
     var date: String
     var startTime: String
     var endTime: String
-    var templateId: String
+    var templateId: String?
     var emoji: String
     var name: String
 }

@@ -13,20 +13,20 @@ struct PlanActionsPopup: View {
             switch viewModel.mode {
             case .actions:
                 PlanActionsList(
-                    onChangeTemplate: viewModel.startChangingTemplate,
+                    onChangePlan: viewModel.startChangingPlan,
                     onReschedule: viewModel.startRescheduling,
                     onDelete: { delete(then: dismiss) }
                 )
 
                 PopupDismissButton(titleKey: "common.action.close", action: dismiss)
-            case .changeTemplate:
+            case .changePlan:
                 ChoiceChipsEditor(
                     titleKey: "schedule.plan.template",
                     chips: viewModel.templateChips,
-                    canSave: viewModel.hasTemplateChanged,
+                    canSave: viewModel.hasPlanChanged,
                     onToggle: viewModel.selectTemplate,
-                    onBack: viewModel.stopChangingTemplate,
-                    onSave: { saveTemplate(then: dismiss) }
+                    onBack: viewModel.stopChangingPlan,
+                    onSave: { savePlan(then: dismiss) }
                 ) {
                     OwnPlanRow(plan: $viewModel.ownPlan)
                 }
@@ -44,7 +44,7 @@ struct PlanActionsPopup: View {
         dismiss()
     }
 
-    private func saveTemplate(then dismiss: () -> Void) {
+    private func savePlan(then dismiss: () -> Void) {
         if let plan = viewModel.changedPlan() {
             onUpdate(plan)
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct TemplateChoice {
+struct PlanChoice {
     private(set) var selectedId: String?
     var own = OwnPlan() {
         didSet {
@@ -19,6 +19,10 @@ struct TemplateChoice {
         self.offered = offered
         selectedId = plan?.templateId
         pinned = plan.flatMap { Self.snapshot(of: $0, outside: offered) }
+
+        if let plan, plan.templateId == nil {
+            own = OwnPlan(emoji: plan.emoji, name: plan.name)
+        }
     }
 
     var chips: [ChoiceChip] {
@@ -33,8 +37,14 @@ struct TemplateChoice {
         }
     }
 
-    var selectedTemplate: EventTemplate? {
-        offered.first { $0.id == selectedId }
+    var pick: PlanPick? {
+        if let template = selectedTemplate, let id = template.id {
+            PlanPick(templateId: id, emoji: template.emoji, name: template.name)
+        } else if own.isFilled {
+            PlanPick(templateId: nil, emoji: own.emoji, name: own.trimmedName)
+        } else {
+            nil
+        }
     }
 
     var isEmpty: Bool {
@@ -46,11 +56,18 @@ struct TemplateChoice {
         own.name = ""
     }
 
+    private var selectedTemplate: EventTemplate? {
+        offered.first { $0.id == selectedId }
+    }
+
     private static func snapshot(of plan: PlanEvent, outside offered: [EventTemplate]) -> EventTemplate? {
-        guard offered.contains(where: { $0.id == plan.templateId }) == false else { return nil }
+        guard
+            let id = plan.templateId,
+            offered.contains(where: { $0.id == id }) == false
+        else { return nil }
 
         return EventTemplate(
-            id: plan.templateId,
+            id: id,
             emoji: plan.emoji,
             name: plan.name,
             isActive: false

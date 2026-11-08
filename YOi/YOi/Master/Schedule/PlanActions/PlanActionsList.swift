@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PlanActionsList: View {
-    let onChangeTemplate: () -> Void
+    let onChangePlan: () -> Void
     let onReschedule: () -> Void
     let onDelete: () -> Void
 
@@ -10,7 +10,7 @@ struct PlanActionsList: View {
             ActionRowButton(
                 titleKey: "schedule.plan.actions.change",
                 systemImage: "arrow.triangle.2.circlepath",
-                action: onChangeTemplate
+                action: onChangePlan
             )
 
             ActionRowButton(
@@ -32,7 +32,7 @@ struct PlanActionsList: View {
 #if DEBUG
 #Preview {
     PlanActionsList(
-        onChangeTemplate: {},
+        onChangePlan: {},
         onReschedule: {},
         onDelete: {}
     )

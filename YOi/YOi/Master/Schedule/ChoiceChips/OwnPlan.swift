@@ -4,7 +4,11 @@ struct OwnPlan {
     var emoji = EventTemplate.defaultEmoji
     var name = ""
 
+    var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var isFilled: Bool {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        trimmedName.isEmpty == false
     }
 }

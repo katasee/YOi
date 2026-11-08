@@ -1,6 +1,6 @@
 import Foundation
 
-struct OwnPlan: Equatable {
+struct OwnPlan {
     var emoji = EventTemplate.defaultEmoji
     var name = ""
 

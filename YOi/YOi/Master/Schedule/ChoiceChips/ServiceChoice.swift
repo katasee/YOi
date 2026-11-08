@@ -19,7 +19,7 @@ struct ServiceChoice {
             service.id.map { id in
                 ChoiceChip(
                     id: id,
-                    title: "\(service.name) · \(ServiceFormat.price(service.price))",
+                    title: service.name,
                     isSelected: id == selectedId
                 )
             }

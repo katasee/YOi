@@ -34,7 +34,7 @@ enum ScheduleMetrics {
         static let bookRowSubtitle: CGFloat = 12
         static let bookRowCornerRadius: CGFloat = 14
         static let bookCheck: CGFloat = 14
-        static let choiceChipMinWidth: CGFloat = 140
+        static let choiceChipTitle: CGFloat = 14
         static let actionRowHeight: CGFloat = 56
         static let actionRowCornerRadius: CGFloat = 16
         static let actionTitle: CGFloat = 16

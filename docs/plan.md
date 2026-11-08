@@ -2553,6 +2553,18 @@ this file is just "what's done, what's next," not a design doc.
     throwaway `swiftc` script against stubs (empty archive, a gap of several months, stale
     September/October). No simulator pass yet.
 
+- **Y-62 — Keep popups open on a backdrop tap** (branch `feature/y-62-popup-backdrop-no-dismiss`;
+  user, 2026-11-08). A tap outside a popup no longer closes it; every popup closes only through
+  its own Cancel / Close / Done button.
+  - `PopupContainer`'s backdrop is a plain `Rectangle` instead of a `Button`; it still takes the
+    touch, so nothing reaches the screen below.
+  - `dismissLabel` and `isDismissDisabled` existed only for that button and were removed from
+    `PopupContainer` and its 14 callers. Saving and deleting popups still disable their own
+    Cancel buttons.
+  - Every popup and every step inside one (reschedule, change service, notify) was checked for its
+    own way out; the rule is in `architecture.md`.
+  - Verified: `xcodebuild`. No simulator pass yet.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

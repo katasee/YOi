@@ -23,11 +23,7 @@ struct ServiceFormPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            blursBackground: blursBackground,
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(blursBackground: blursBackground, onDismiss: onDismiss) { dismiss in
             title
             nameField
             priceField

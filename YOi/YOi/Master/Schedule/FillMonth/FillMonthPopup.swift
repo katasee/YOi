@@ -12,7 +12,7 @@ struct FillMonthPopup: View {
     @State private var scrollPosition = ScrollPosition()
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             ScheduleTabs(selection: $tab)
 
             ScrollView {

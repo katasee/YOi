@@ -39,12 +39,7 @@ struct ClientFormPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            isDismissDisabled: isSaving,
-            blursBackground: blursBackground,
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(blursBackground: blursBackground, onDismiss: onDismiss) { dismiss in
             title
             instagramInput
             nameInput

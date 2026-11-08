@@ -93,6 +93,9 @@
   the router. To keep a custom fade instead of the system slide-up, wrap the *state mutation* in a
   `Transaction` with `disablesAnimations = true` and animate inside the popup; never put
   `.transaction { }` on the modifier, which disables animations for the whole subtree.
+  A tap on the backdrop does nothing (Y-62, user decision): `PopupContainer`'s backdrop is a plain
+  shape, so a popup closes only through its own Cancel / Close / Done button, and every step of a
+  popup must offer one.
   A screen with several popups holds **one** optional enum (`SchedulePopup` in `ScheduleView`,
   M-36.0: a case per popup carrying its view model, `id` from that view model) and one
   `fullScreenCover` with a `switch`, not a `@State` and a cover per popup. The cover's `onDismiss`

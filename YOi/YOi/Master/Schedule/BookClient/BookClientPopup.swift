@@ -7,7 +7,7 @@ struct BookClientPopup: View {
     @State private var contentHeight: CGFloat?
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             ScrollView {
                 sections
                     .padding(ScheduleMetrics.Spacing.scrollShadowInset)

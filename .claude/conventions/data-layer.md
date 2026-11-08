@@ -128,7 +128,7 @@
 - **A month is archived only once it leaves the live window** (Y-61). Розклад books back to
   `Slot.liveMonthsStartDate(now:)` (`Slot+History.swift`, the 1st of the oldest whole month the
   bounded listener reads), and Статистика computes every month from there on live. So
-  `archiveFinishedMonths()` writes a summary only for months before that date — from the newest
+  `syncMonthArchive()` writes a summary only for months before that date — from the newest
   stored one before it, or just the month before it when none is — and deletes any summary stored
   for a month still inside (written by the pre-Y-61 rule, at the month's end). Never archive a
   month that can still be booked: the rules have no `update`, so its summary would stay stale.

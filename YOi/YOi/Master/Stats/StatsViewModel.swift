@@ -85,7 +85,7 @@ final class StatsViewModel {
         } catch {}
     }
 
-    func archiveFinishedMonths() async {
+    func syncMonthArchive() async {
         let now = Date.now
 
         do {
@@ -105,9 +105,9 @@ final class StatsViewModel {
                 from: DateFormat.date.string(from: firstMissing),
                 to: DateFormat.date.string(from: Slot.liveMonthsStartDate(now: now))
             )
-            let summaries = StatsCalculator.summariesToArchive(
+            let summaries = StatsCalculator.summaries(
+                months: missing,
                 slots: slots,
-                storedIds: storedIds,
                 now: now
             )
 

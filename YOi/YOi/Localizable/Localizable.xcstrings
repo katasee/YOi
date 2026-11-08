@@ -2503,6 +2503,22 @@
         }
       }
     },
+    "schedule.book.newService" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New service"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нова послуга"
+          }
+        }
+      }
+    },
     "schedule.book.search.placeholder" : {
       "localizations" : {
         "en" : {

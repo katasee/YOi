@@ -16,7 +16,6 @@ struct BookingActionsPopup: View {
             case .actions:
                 BookingActionsList(
                     contacts: viewModel.contacts,
-                    canChangeService: viewModel.canChangeService,
                     canOpenCard: viewModel.cardClientId != nil,
                     onChangeService: viewModel.startChangingService,
                     onReschedule: viewModel.startRescheduling,
@@ -38,6 +37,7 @@ struct BookingActionsPopup: View {
                 ChoiceChipsEditor(
                     titleKey: "schedule.book.service",
                     chips: viewModel.services,
+                    add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: addService),
                     canSave: viewModel.hasServiceChanged,
                     onToggle: viewModel.toggleService,
                     onBack: viewModel.stopChangingService,
@@ -79,6 +79,8 @@ struct BookingActionsPopup: View {
 
         onRescheduled(dayId)
     }
+
+    private func addService() {}
 
     private func saveService(then dismiss: () -> Void) {
         viewModel.saveService()

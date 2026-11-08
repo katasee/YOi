@@ -10,7 +10,7 @@ struct BookingActionsPopup: View {
     @State private var newServiceForm: ServiceFormViewModel?
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.close", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
 
             switch viewModel.mode {

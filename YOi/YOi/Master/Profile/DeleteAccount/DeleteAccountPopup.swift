@@ -18,11 +18,7 @@ struct DeleteAccountPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            isDismissDisabled: viewModel.isDeleting,
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             Text("account.delete.title")
                 .font(.elmsSans(.bold, 18))
                 .foregroundStyle(Color.ink)

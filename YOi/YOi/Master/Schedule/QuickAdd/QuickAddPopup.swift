@@ -11,7 +11,7 @@ struct QuickAddPopup: View {
     @State private var contentHeight: CGFloat?
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.cancel", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             if addPlan != nil {
                 ScheduleTabs(selection: $tab)
             }

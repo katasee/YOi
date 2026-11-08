@@ -2775,8 +2775,7 @@ those items are referred to by name, so the list can grow without renumbering an
        `SwipeToDelete` only (so Мої послуги gets it too): a `UIGestureRecognizerRepresentable` pan
        (iOS 18+) that begins only when the horizontal velocity beats the vertical one. Recheck the
        `.weekSwipe` rule (`architecture.md`, M-39) after the change.
-   14. ~~**Y-58 Inline service and one-off plan (logic)**~~ — **done** (under "Done"). (after Y-57's UI; user, 2026-11-08; design
-       in `docs/superpowers/specs/2026-11-08-inline-service-and-one-off-plan-design.md`).
+   14. ~~**Y-58 Inline service and one-off plan (logic)**~~ — **done** (under "Done"). (after Y-57's UI; user, 2026-11-08).
        "+ Нова послуга" opens `ServiceFormPopup`; `ServiceRepository.add` returns the new id
        (like `ClientRepository.add`) so the service is selected at once, offline too. A one-off
        plan saves: `PlanEvent.templateId` becomes optional, `TemplateChoice` pins a one-off plan

@@ -4,10 +4,46 @@ private enum SwipeToDeleteLayout {
     static let actionWidth: CGFloat = 72
     static let iconSize: CGFloat = 22
     static let openThreshold: CGFloat = 36
-    static let minimumDrag: CGFloat = 12
     static let shadowAllowance: CGFloat = 24
     static let snap = Animation.spring(response: 0.3, dampingFraction: 0.8)
     static let reducedMotionSnap = Animation.easeOut(duration: 0.15)
+}
+
+private struct HorizontalPan: UIGestureRecognizerRepresentable {
+    let onChanged: (CGFloat) -> Void
+    let onEnded: (CGFloat) -> Void
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let recognizer = UIPanGestureRecognizer()
+        recognizer.delegate = context.coordinator
+        return recognizer
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator()
+    }
+
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        let width = context.converter.localTranslation?.x ?? 0
+
+        switch recognizer.state {
+        case .changed:
+            onChanged(width)
+        case .ended, .cancelled:
+            onEnded(width)
+        default:
+            break
+        }
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return false }
+
+            let velocity = pan.velocity(in: pan.view)
+            return abs(velocity.x) > abs(velocity.y)
+        }
+    }
 }
 
 struct SwipeToDelete<Content: View>: View {
@@ -25,7 +61,7 @@ struct SwipeToDelete<Content: View>: View {
             deleteAction
             content
                 .offset(x: offsetX)
-                .simultaneousGesture(dragGesture)
+                .gesture(HorizontalPan(onChanged: drag, onEnded: release))
         }
         .background(
             Color.destructiveFill.opacity(isRevealed ? 1 : 0),
@@ -61,23 +97,18 @@ struct SwipeToDelete<Content: View>: View {
         .accessibilityHidden(isRevealed == false)
     }
 
-    private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: SwipeToDeleteLayout.minimumDrag)
-            .onChanged { value in
-                guard abs(value.translation.width) > abs(value.translation.height) else { return }
+    private func drag(_ width: CGFloat) {
+        offsetX = clamped(restingOffset + width)
+    }
 
-                offsetX = clamped(restingOffset + value.translation.width)
-            }
-            .onEnded { value in
-                let released = clamped(restingOffset + value.translation.width)
-                let shouldOpen = released < -SwipeToDeleteLayout.openThreshold
+    private func release(_ width: CGFloat) {
+        let shouldOpen = clamped(restingOffset + width) < -SwipeToDeleteLayout.openThreshold
 
-                withAnimation(snap) {
-                    offsetX = shouldOpen ? -SwipeToDeleteLayout.actionWidth : 0
-                }
+        withAnimation(snap) {
+            offsetX = shouldOpen ? -SwipeToDeleteLayout.actionWidth : 0
+        }
 
-                openId = shouldOpen ? id : nil
-            }
+        openId = shouldOpen ? id : nil
     }
 
     private var isOpen: Bool {

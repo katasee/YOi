@@ -12,10 +12,7 @@ struct ResetPasswordPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             if viewModel.isSent {
                 sentContent(dismiss: dismiss)
             } else {

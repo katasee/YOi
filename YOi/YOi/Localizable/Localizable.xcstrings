@@ -1760,7 +1760,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Натисни «+», щоб додати першу — бокс, зал чи стоматолога"
+            "value" : "Натисніть «+», щоб додати першу — бокс, зал чи стоматолога"
           }
         }
       }
@@ -2503,6 +2503,22 @@
         }
       }
     },
+    "schedule.book.newService" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New service"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нова послуга"
+          }
+        }
+      }
+    },
     "schedule.book.search.placeholder" : {
       "localizations" : {
         "en" : {
@@ -3087,18 +3103,18 @@
         }
       }
     },
-    "schedule.plan.noTemplates" : {
+    "schedule.plan.own.placeholder" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add plans under My plans in Stats"
+            "value" : "Or type your own plan"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Додайте справи в «Мої справи» у Статистиці"
+            "value" : "Або впишіть свою справу"
           }
         }
       }

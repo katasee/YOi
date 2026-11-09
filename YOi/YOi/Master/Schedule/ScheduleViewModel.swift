@@ -28,6 +28,10 @@ final class ScheduleViewModel {
         hasLoaded && hasFailed == false
     }
 
+    private var selectedDayId: String {
+        DateFormat.date.string(from: selectedDate)
+    }
+
     init(
         slotRepository: SlotRepository = FirestoreSlotRepository(),
         clientRepository: ClientRepository = FirestoreClientRepository(),
@@ -44,7 +48,7 @@ final class ScheduleViewModel {
 
     func items(now: Date) -> [ScheduleItem] {
         ScheduleDayItems.make(
-            day: DateFormat.date.string(from: selectedDate),
+            day: selectedDayId,
             slots: slots,
             plans: plans,
             clientName: directory.name(for:),
@@ -153,7 +157,7 @@ final class ScheduleViewModel {
     }
 
     func canQuickAdd(now: Date) -> Bool {
-        areSlotsReady && DateFormat.date.string(from: selectedDate) >= DateFormat.date.string(from: now)
+        areSlotsReady && selectedDayId >= DateFormat.date.string(from: Slot.liveMonthsStartDate(now: now))
     }
 
     func makeQuickBookViewModel(now: Date = .now) -> QuickBookViewModel {
@@ -165,12 +169,15 @@ final class ScheduleViewModel {
             services: services,
             now: now,
             slotRepository: slotRepository,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
     }
 
-    func makeQuickAddPlanViewModel(now: Date = .now) -> AddPlanViewModel {
-        AddPlanViewModel(
+    func makeQuickAddPlanViewModel(now: Date = .now) -> AddPlanViewModel? {
+        guard selectedDayId >= DateFormat.date.string(from: now) else { return nil }
+
+        return AddPlanViewModel(
             day: selectedDate,
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
@@ -187,7 +194,8 @@ final class ScheduleViewModel {
             clients: directory.clients,
             services: services,
             slotRepository: slotRepository,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
     }
 
@@ -205,7 +213,8 @@ final class ScheduleViewModel {
             slots: slots,
             plans: plans,
             now: now,
-            slotRepository: slotRepository
+            slotRepository: slotRepository,
+            serviceRepository: serviceRepository
         )
     }
 

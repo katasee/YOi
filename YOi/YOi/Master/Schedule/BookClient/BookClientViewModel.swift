@@ -15,13 +15,15 @@ final class BookClientViewModel: Identifiable {
         clients: [Client],
         services: [Service],
         slotRepository: SlotRepository,
-        clientRepository: ClientRepository
+        clientRepository: ClientRepository,
+        serviceRepository: ServiceRepository
     ) {
         self.slot = slot
         choice = ClientBookingChoice(
             clients: clients,
             services: services,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            serviceRepository: serviceRepository
         )
         self.slotRepository = slotRepository
     }

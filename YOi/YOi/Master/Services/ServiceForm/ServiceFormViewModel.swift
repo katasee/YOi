@@ -3,7 +3,7 @@ import Observation
 
 @MainActor
 @Observable
-final class ServiceFormViewModel {
+final class ServiceFormViewModel: Identifiable {
     var name = ""
     var priceText = ""
 
@@ -11,6 +11,7 @@ final class ServiceFormViewModel {
 
     private(set) var errorMessage: String?
     private(set) var isSaving = false
+    private(set) var savedService: Service?
 
     private let serviceRepository: ServiceRepository
 
@@ -48,14 +49,14 @@ final class ServiceFormViewModel {
     private func save(price: Int) async throws {
         switch mode {
         case .add:
-            try await serviceRepository.add(
-                Service(
-                    id: nil,
-                    name: trimmedName,
-                    price: price,
-                    isActive: true
-                )
+            var service = Service(
+                id: nil,
+                name: trimmedName,
+                price: price,
+                isActive: true
             )
+            service.id = try await serviceRepository.add(service)
+            savedService = service
 
         case .edit(let service):
             try await serviceRepository.update(

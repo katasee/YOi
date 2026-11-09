@@ -5,6 +5,7 @@ struct ClientBookingSection: View {
     var focusesSearchOnAppear = false
 
     @State private var newClientForm: ClientFormViewModel?
+    @State private var newServiceForm: ServiceFormViewModel?
 
     var body: some View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
@@ -32,11 +33,13 @@ struct ClientBookingSection: View {
                 action: openNewClientForm
             )
 
-            if choice.services.isEmpty == false {
-                SectionLabel(titleKey: "schedule.book.service")
+            SectionLabel(titleKey: "schedule.book.service")
 
-                ChoiceChips(chips: choice.services, onToggle: choice.toggleService)
-            }
+            ChoiceChips(
+                chips: choice.services,
+                onToggle: choice.toggleService,
+                add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: openNewServiceForm)
+            )
         }
         .fullScreenCover(item: $newClientForm) { form in
             @Bindable var form = form
@@ -46,6 +49,7 @@ struct ClientBookingSection: View {
                 errors: form.errors,
                 isSaving: form.isSaving,
                 onSubmit: form.submit,
+                blursBackground: true,
                 onDismiss: closeNewClientForm
             )
             .onChange(of: form.fields) {
@@ -53,11 +57,18 @@ struct ClientBookingSection: View {
             }
             .presentationBackground(.clear)
         }
+        .newServiceForm($newServiceForm, onSaved: choice.select(newService:))
     }
 
     private func openNewClientForm() {
         withoutPresentationAnimation {
             newClientForm = choice.makeNewClientForm()
+        }
+    }
+
+    private func openNewServiceForm() {
+        withoutPresentationAnimation {
+            newServiceForm = choice.makeNewServiceForm()
         }
     }
 

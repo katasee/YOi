@@ -2481,6 +2481,105 @@ this file is just "what's done, what's next," not a design doc.
     is hard to land (the same before Y-56; a short day is fine) — backlog, "Week swipe on a long
     day".
 
+- **Y-57 — Inline service and one-off plan (UI)** (branch
+  `feature/y-57-inline-service-and-plan-ui`; brainstormed 2026-11-08, mockup on a Claude Design
+  canvas). New masters book straight away and found empty pickers: the "Послуга" block was hidden
+  with no services, "Додати справу" showed only a "no templates" hint. First half; Y-58 is the
+  logic.
+  - "+ Нова послуга" is the last chip of every service grid (`ChoiceChipsAdd`, an optional
+    trailing chip on `ChoiceChips`): the booking popup, quick add's "Записати" and "Змінити
+    послугу". The "Послуга" block always shows; "Змінити послугу" is always in the booking
+    actions (`canChangeService` deleted). The chip does nothing until Y-58. It is a dashed
+    `Stroke` capsule with `TextSecondary` text: drawn as a raised chip it merged with the services
+    on the simulator (user).
+  - A one-off plan: `OwnPlanRow` (an emoji tile + a name field; the tile opens `PlanEmojiGrid`
+    under the row, a pick closes it) under the template chips in `AddPlanSection` (single day,
+    "Заповнити місяць", quick add) and in "Змінити справу". `ChoiceChipsEditor` became generic
+    over an `accessory` view for it. `OwnPlan` lives in `TemplateChoice`, whose `didSet` makes
+    template and own name exclusive: a typed name deselects the chip, a chip clears the name.
+    "Змінити справу" is always offered (`canChangeTemplate` deleted). `schedule.plan.noTemplates`
+    is gone. Saving stays template-only until Y-58 — a one-off name alone enables nothing.
+  - Copy is formal: the placeholder is «Або впишіть свою справу», and `plans.empty.message`, the
+    only «ти» string in the catalog, became «Натисніть «+», …» (rule added to `code-style.md`).
+  - swiftui-pro and YAGNI/SOLID reviews: the nested emoji-grid scroll works on the simulator;
+    an unused `Equatable` on `OwnPlan` was dropped; the `TemplateChoice` → `PlanChoice` rename
+    waits for Y-58.
+  - Verified: `xcodebuild`; the exclusion rule with a throwaway `swiftc` script.
+
+- **Y-58 — Inline service and one-off plan (logic)** (branch
+  `feature/y-58-inline-service-and-plan-logic`). Second half of Y-57: the drawn chip and own row
+  now save.
+  - `ServiceRepository.add` returns the new id and is fire-and-forget (`completion: nil`), like
+    `ClientRepository.add`: the id is built on the device, so a service added from a picker is
+    selected at once, offline too, and the "Мої послуги" form no longer spins offline on add
+    (update and delete still await). `ServiceFormViewModel` keeps `savedService`.
+  - "+ Нова послуга" opens `ServiceFormPopup` over the booking popup, quick add's "Записати" and
+    "Змінити послугу" through one `newServiceForm(_:onSaved:)` modifier
+    (`Services/ServiceForm/View+NewServiceForm.swift`). `ServiceChoice.select(newService:)` adds
+    and selects it; "Змінити послугу" also adds it to `initialChoice`, so it survives "Назад".
+  - The new client and new service forms blur the popup under them (`blursBackground`, as
+    `CustomTimePopup` does): two cards with shadows on top of each other cluttered the screen
+    (user).
+  - `PlanEvent.templateId` is optional; a one-off plan has no such key. A plan's `update` writes
+    `FieldValue.delete()` for a `nil` id — `Firestore.Encoder` drops it and `updateData` would
+    keep the old one. `hasValidEventFormat()` accepts a missing `templateId` and still rejects
+    `""`; published in Firebase Console on 2026-11-08 (before that, one-off plans were rolled
+    back with "Permission denied" — seen on the simulator).
+  - `TemplateChoice` → `PlanChoice`, which hands out one `PlanPick` (template id or none, emoji,
+    name): the selected template, else a filled own row, else nothing. A one-off plan opens
+    "Змінити справу" with its name and emoji in the own row. `PlanPick.changes(_:)` compares a
+    templated plan by id only (a renamed template is no change) and a one-off one by emoji and
+    trimmed name. The change family followed the rename: `.changePlan`, `start/stopChangingPlan`,
+    `onChangePlan`, `hasPlanChanged`.
+  - swiftui-pro, swift-concurrency-pro and SOLID reviews of the plan: `??` between `String?` and
+    `FieldValue` would not compile; the change rule moved from the view model to `PlanPick` so
+    the check runs the real type; the modifier sits next to the form it presents.
+  - Verified: `xcodebuild`; `PlanChoice`/`PlanPick` with a throwaway `swiftc` script compiling the
+    real files against stubs; a one-off plan from quick add on the simulator (user).
+
+- **Y-59 — Uniform service chips** (branch `feature/y-59-service-chips-uniform`; user,
+  2026-11-08, from a simulator screenshot). Service chips in the booking popup had different
+  font sizes and showed the price.
+  - Each chip shrank its own text (`minimumScaleFactor(0.75)`), so short names stayed 15pt and
+    long ones dropped to ~11pt. Now every `ChoiceChips` chip (services, plan templates,
+    "+ Нова послуга") uses one fixed size, `ScheduleMetrics.Size.choiceChipTitle` (14pt); a
+    name too long even for a full row truncates with "…".
+  - The service chip title is the name only — the price is gone (`ServiceChoice.chips`).
+  - `ChoiceChipsLayout` (a custom `Layout`) replaced the adaptive `LazyVGrid`: two columns, a
+    chip whose ideal width does not fit a column takes a full row, and the next short chip fills
+    an open half row, so there are no gaps — at the cost of strict alphabetical order there.
+  - swiftui-pro and SOLID/clean-code reviews: row grouping moved out of the frame math into
+    `rows(for:columnWidth:)` with an explicit `Row.isWide`, and the label modifiers shared by
+    both chip kinds became `.choiceChipLabel()` (`View+ChoiceChipLabel.swift`).
+  - Verified: `xcodebuild`. No device or simulator pass yet.
+
+- **Y-61 — Book a client on a past day** (branch `feature/y-61-past-day-booking`; user,
+  2026-11-08: started using the app mid-month and could not count the month's revenue).
+  - "+ Швидко додати" now shows on past days too, back to `Slot.liveMonthsStartDate(now:)` (the
+    1st of the oldest whole month the bounded `slots` listener reads; 1 September on
+    2026-11-08). Moved from `StatsCalculator.earliestMonthStart` into `Models/Slot/Slot+History.swift`,
+    since Розклад and Статистика must agree on it. On a past day the popup has no tabs — booking
+    only; `makeQuickAddPlanViewModel` returns `nil`. Plans and "Заповнити місяць" stay future-only.
+  - The `monthlyStats` archive no longer freezes a month when it ends: it writes a month only
+    after it leaves the live window, and deletes summaries stored for months still inside it
+    (`StatsCalculator.staleMonthIds`, `MonthlySummaryRepository.delete(ids:)`, fire-and-forget).
+    No `firestore.rules` change — delete was already allowed.
+  - Verified: `xcodebuild`; `liveMonthsStartDate`, `missingMonths` and `staleMonthIds` with a
+    throwaway `swiftc` script against stubs (empty archive, a gap of several months, stale
+    September/October). No simulator pass yet.
+
+- **Y-62 — Keep popups open on a backdrop tap** (branch `feature/y-62-popup-backdrop-no-dismiss`;
+  user, 2026-11-08). A tap outside a popup no longer closes it; every popup closes only through
+  its own Cancel / Close / Done button.
+  - `PopupContainer`'s backdrop is a plain `Rectangle` instead of a `Button`; it still takes the
+    touch, so nothing reaches the screen below.
+  - `dismissLabel` and `isDismissDisabled` existed only for that button and were removed from
+    `PopupContainer` and its 14 callers. Saving and deleting popups still disable their own
+    Cancel buttons.
+  - Every popup and every step inside one (reschedule, change service, notify) was checked for its
+    own way out; the rule is in `architecture.md`.
+  - Verified: `xcodebuild`. No simulator pass yet.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2725,6 +2824,14 @@ those items are referred to by name, so the list can grow without renumbering an
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
    13. ~~**Y-56 Day list does not scroll on a long day**~~ — **done** (under "Done").
+   14. ~~**Y-58 Inline service and one-off plan (logic)**~~ — **done** (under "Done"). (after Y-57's UI; user, 2026-11-08).
+       "+ Нова послуга" opens `ServiceFormPopup`; `ServiceRepository.add` returns the new id
+       (like `ClientRepository.add`) so the service is selected at once, offline too. A one-off
+       plan saves: `PlanEvent.templateId` becomes optional, `TemplateChoice` pins a one-off plan
+       into the own row, a plan changed to one-off deletes the field (`FieldValue.delete()`), and
+       `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
+       hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
+       to `PlanChoice` here.
 
 ## Backlog and tech debt (unordered)
 

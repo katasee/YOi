@@ -77,8 +77,8 @@ enum SchedulePreviewData {
     ]
 
     static let serviceChips: [ChoiceChip] = [
-        ChoiceChip(id: "svc-classic", title: "Класичний манікюр · 500 zł", isSelected: true),
-        ChoiceChip(id: "svc-hybrid", title: "Манікюр гібридний (гель-лак) · 800 zł", isSelected: false)
+        ChoiceChip(id: "svc-classic", title: "Класичний манікюр", isSelected: true),
+        ChoiceChip(id: "svc-hybrid", title: "Манікюр гібридний (гель-лак) з укріпленням", isSelected: false)
     ]
 
     @MainActor
@@ -88,7 +88,8 @@ enum SchedulePreviewData {
             clients: ClientsPreviewData.clients,
             services: ServicesPreviewData.services,
             slotRepository: FakeSlotRepository(slots: slots),
-            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
+            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients),
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
         )
 
         viewModel.choice.searchText = "о"
@@ -107,7 +108,8 @@ enum SchedulePreviewData {
             slots: slots,
             plans: plans,
             now: .now,
-            slotRepository: FakeSlotRepository(slots: slots)
+            slotRepository: FakeSlotRepository(slots: slots),
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
         )
 
         viewModel.addCustomRescheduleTime(ClockTime(minutesOfDay: 13 * 60 + 30))
@@ -162,7 +164,8 @@ enum SchedulePreviewData {
             services: ServicesPreviewData.services,
             now: noon,
             slotRepository: FakeSlotRepository(slots: slots),
-            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients)
+            clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients),
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
         )
 
         viewModel.time = ClockTime(minutesOfDay: 11 * 60)

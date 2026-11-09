@@ -47,12 +47,12 @@
   face value) — the async-operations warning is a genuine compiler diagnostic about the code as
   written and won't go away on its own.
 - **The deliberate fire-and-forget writes are `FirestoreClientRepository`'s `add`, `update` and
-  `delete`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
+  `delete`, `FirestoreServiceRepository`'s `add`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
-  `FirestoreMonthlySummaryRepository`'s `add`** (user decisions: `add` in
+  `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`** (user decisions: `add` in
   M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
-  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1,
+  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
   although the change was already in the local cache and on screen. They now pass
@@ -62,11 +62,11 @@
   "not signed in" errors still throw. `update` and `delete` are declared `throws` without `async`
   (a sync method satisfies the protocol's `async throws`): calling a completion-handler API inside
   an `async` function raises "consider using asynchronous alternative function". Every other
-  write still awaits; don't copy this without the same reasoning (services have the same offline
-  spinner, not yet changed).
-  `ClientRepository.add` returns the new document id: `addDocument` builds the reference — and its
-  auto id — on the device before anything is sent, so a client created from the booking popup can
-  be booked at once, offline too. Booking writes are `setData(merge: true)` on the slot document;
+  write still awaits; don't copy this without the same reasoning (a service's `update` and
+  `delete` still spin offline in "Мої послуги", not yet changed).
+  `ClientRepository.add` and `ServiceRepository.add` return the new document id: `addDocument`
+  builds the reference — and its auto id — on the device before anything is sent, so a client or
+  service created from the booking popup can be picked at once, offline too. Booking writes are `setData(merge: true)` on the slot document;
   a cleared field is `FieldValue.delete()`, never `null`. "Заповнити місяць" merges only `date` and
   `time`, which is what keeps a booking alive when a filled month covers it — don't turn either
   write into a plain `setData`, it would replace the whole document. A new booked window
@@ -74,7 +74,9 @@
   and `time` — never `add` then `book`: `book` alone creates a document without them, which the
   bounded `slots` query never reads. A plan's `update` (M-37.6)
   is `updateData` with all six fields: a plan deleted while its popup was open fails the write
-  instead of being recreated, which both `setData` forms would do.
+  instead of being recreated, which both `setData` forms would do. `templateId` is optional (a
+  one-off plan has none, Y-58), and `Firestore.Encoder` omits a `nil`, so `update` writes
+  `FieldValue.delete()` for it — otherwise a plan changed to one-off would keep its old id.
 - Realtime data uses **async/await + `AsyncStream`** (`observeServices()`), not
   Combine. Each Firestore `addSnapshotListener` callback yields the full current array for that
   query; `continuation.onTermination` removes the listener. Listener errors are currently swallowed
@@ -122,7 +124,14 @@
   to `create, update` with `delete` allowed separately — `allow write: if isOwner(uid) &&
   hasValidServiceFormat()` silently breaks deletion. `services`, `clients`, `slots`,
   `eventTemplates` and `events` are all split this way. `monthlyStats` (M-38.1) has `create` and
-  `delete` but no `update`: a finished month's summary is written once and never rewritten.
+  `delete` but no `update`: a month's summary is written once and never rewritten.
+- **A month is archived only once it leaves the live window** (Y-61). Розклад books back to
+  `Slot.liveMonthsStartDate(now:)` (`Slot+History.swift`, the 1st of the oldest whole month the
+  bounded listener reads), and Статистика computes every month from there on live. So
+  `syncMonthArchive()` writes a summary only for months before that date — from the newest
+  stored one before it, or just the month before it when none is — and deletes any summary stored
+  for a month still inside (written by the pre-Y-61 rule, at the month's end). Never archive a
+  month that can still be booked: the rules have no `update`, so its summary would stay stale.
 - **A write that freezes data reads from the server, not the cache.** The `monthlyStats` archive
   reads ids and slots with `getDocuments(source: .server)`: a listener's first snapshot comes from
   the local cache, which is empty after a fresh install, and a summary written from it would be a

@@ -6,11 +6,7 @@ struct CustomTimePopup: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            blursBackground: true,
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(blursBackground: true, onDismiss: onDismiss) { dismiss in
             Text("schedule.fill.customTime")
                 .font(.elmsSans(.bold, ScheduleMetrics.Size.fillTitle))
                 .foregroundStyle(Color.ink)

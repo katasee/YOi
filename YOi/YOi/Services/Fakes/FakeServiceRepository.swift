@@ -17,11 +17,14 @@ final class FakeServiceRepository: ServiceRepository {
         }
     }
 
-    func add(_ service: Service) async throws {
+    func add(_ service: Service) async throws -> String {
+        let id = service.id ?? UUID().uuidString
         var stored = service
-        stored.id = service.id ?? UUID().uuidString
+        stored.id = id
         services.append(stored)
         broadcast()
+
+        return id
     }
 
     func update(_ service: Service) async throws {

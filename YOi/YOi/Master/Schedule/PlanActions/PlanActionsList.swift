@@ -1,20 +1,17 @@
 import SwiftUI
 
 struct PlanActionsList: View {
-    let canChangeTemplate: Bool
-    let onChangeTemplate: () -> Void
+    let onChangePlan: () -> Void
     let onReschedule: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
         VStack(spacing: ScheduleMetrics.Spacing.actionSpacing) {
-            if canChangeTemplate {
-                ActionRowButton(
-                    titleKey: "schedule.plan.actions.change",
-                    systemImage: "arrow.triangle.2.circlepath",
-                    action: onChangeTemplate
-                )
-            }
+            ActionRowButton(
+                titleKey: "schedule.plan.actions.change",
+                systemImage: "arrow.triangle.2.circlepath",
+                action: onChangePlan
+            )
 
             ActionRowButton(
                 titleKey: "schedule.actions.reschedule",
@@ -35,8 +32,7 @@ struct PlanActionsList: View {
 #if DEBUG
 #Preview {
     PlanActionsList(
-        canChangeTemplate: SchedulePreviewData.planActions.canChangeTemplate,
-        onChangeTemplate: {},
+        onChangePlan: {},
         onReschedule: {},
         onDelete: {}
     )

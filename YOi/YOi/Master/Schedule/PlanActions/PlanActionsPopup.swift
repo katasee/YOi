@@ -1,34 +1,35 @@
 import SwiftUI
 
 struct PlanActionsPopup: View {
-    let viewModel: PlanActionsViewModel
+    @Bindable var viewModel: PlanActionsViewModel
     let onUpdate: (PlanEvent) -> Void
     let onDelete: (String) -> Void
     let onDismiss: () -> Void
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.close", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
 
             switch viewModel.mode {
             case .actions:
                 PlanActionsList(
-                    canChangeTemplate: viewModel.canChangeTemplate,
-                    onChangeTemplate: viewModel.startChangingTemplate,
+                    onChangePlan: viewModel.startChangingPlan,
                     onReschedule: viewModel.startRescheduling,
                     onDelete: { delete(then: dismiss) }
                 )
 
                 PopupDismissButton(titleKey: "common.action.close", action: dismiss)
-            case .changeTemplate:
+            case .changePlan:
                 ChoiceChipsEditor(
                     titleKey: "schedule.plan.template",
                     chips: viewModel.templateChips,
-                    canSave: viewModel.hasTemplateChanged,
+                    canSave: viewModel.hasPlanChanged,
                     onToggle: viewModel.selectTemplate,
-                    onBack: viewModel.stopChangingTemplate,
-                    onSave: { saveTemplate(then: dismiss) }
-                )
+                    onBack: viewModel.stopChangingPlan,
+                    onSave: { savePlan(then: dismiss) }
+                ) {
+                    OwnPlanRow(plan: $viewModel.ownPlan)
+                }
             case .reschedule:
                 PlanRescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
             }
@@ -43,7 +44,7 @@ struct PlanActionsPopup: View {
         dismiss()
     }
 
-    private func saveTemplate(then dismiss: () -> Void) {
+    private func savePlan(then dismiss: () -> Void) {
         if let plan = viewModel.changedPlan() {
             onUpdate(plan)
         }

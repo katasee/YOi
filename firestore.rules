@@ -58,7 +58,7 @@ service cloud.firestore {
         data.startTime is string && data.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
         data.endTime is string && data.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
         data.startTime < data.endTime &&
-        data.templateId is string && data.templateId.size() > 0 &&
+        (!('templateId' in data) || (data.templateId is string && data.templateId.size() > 0)) &&
         data.emoji is string && data.emoji.size() > 0 &&
         data.name is string && data.name.size() > 0;
     }

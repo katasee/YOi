@@ -18,10 +18,7 @@ struct PlanFormPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             header
             nameRow
             PlanEmojiGrid(selection: $viewModel.emoji)

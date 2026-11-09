@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BookingActionsList: View {
     let contacts: [ClientContact]
-    let canChangeService: Bool
     let canOpenCard: Bool
     let onChangeService: () -> Void
     let onReschedule: () -> Void
@@ -17,13 +16,11 @@ struct BookingActionsList: View {
                 }
             }
 
-            if canChangeService {
-                ActionRowButton(
-                    titleKey: "schedule.actions.changeService",
-                    systemImage: "list.bullet.rectangle",
-                    action: onChangeService
-                )
-            }
+            ActionRowButton(
+                titleKey: "schedule.actions.changeService",
+                systemImage: "list.bullet.rectangle",
+                action: onChangeService
+            )
 
             ActionRowButton(
                 titleKey: "schedule.actions.reschedule",
@@ -53,7 +50,6 @@ struct BookingActionsList: View {
 #Preview {
     BookingActionsList(
         contacts: SchedulePreviewData.bookingActions.contacts,
-        canChangeService: true,
         canOpenCard: true,
         onChangeService: {},
         onReschedule: {},

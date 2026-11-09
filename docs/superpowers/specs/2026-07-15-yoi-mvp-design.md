@@ -35,7 +35,8 @@ clients/{autoId}         name?, instagram? (lowercased, no "@"), phone? (+48 + 9
                          createdAt, lastBookedAt?          — name or instagram required
 slots/{yyyy-MM-dd_HHmm}  date, time, clientId?, serviceId?, serviceName?, servicePrice?
                          — no client = free window; id from date+time, so no duplicates
-events/{autoId}          date, startTime, endTime, templateId + emoji/name snapshot
+events/{autoId}          date, startTime, endTime, templateId? + emoji/name snapshot
+                         (no templateId = a one-off plan, typed in place, Y-58)
                          (weekdays[] + fromDate, skippedDates[] with the weekly repeat)
 eventTemplates/{autoId}  emoji, name, isActive                            — "Мої справи"
 services/{autoId}        name, price (whole PLN), isFavorite?
@@ -68,16 +69,24 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
    an SMS with the text filled in. The stories image and the price list are out of scope for now.
 4. **Book** — tap a free window (past ones too) → one popup: search focused (an empty search
    lists nobody), pick a client, optionally a service — only starred ones are offered — then
-   "Записати". "+ Нова клієнтка" is always there and opens the client form over the popup.
-5. **Booking actions** — tap a booked slot → Написати, Змінити послугу, Перенести, Картка
+   "Записати". "+ Нова клієнтка" is always there and opens the client form over the popup;
+   "+ Нова послуга", the last service chip (dashed), opens the "Мої послуги" form the same way and
+   selects the new service — so a new master can book before filling "Мої послуги" (Y-57/Y-58).
+   "+ Швидко додати" under a day books a client at a typed time without a window first; it works
+   on past days too, back to the 1st of the oldest month the 3-month query loads in full, so a
+   master who starts mid-month can enter the visits she already had (Y-61). On a past day it
+   offers booking only — plans and free windows are for today and later.
+5. **Booking actions** — tap a booked slot → Написати, Змінити послугу (always offered, with
+   "+ Нова послуга" among the chips), Перенести, Картка
    клієнтки (opens inside Розклад), Скасувати запис (asks first). Перенести (past bookings too):
    a scroller of days from today, that day's free windows or own time; same client and service,
    the old window becomes free, Розклад jumps to the new day. A deleted client keeps only the
    actions on the window. Where the recipient is known,
    "Надіслати @нік" copies the message and opens her chat; the master pastes and sends.
-6. **Personal plans** — "Своя справа" (boxing, gym): a "Мої справи" template (emoji + name),
-   start–end, on one or several picked days (the "Мої справи" tab of Розклад's "+") or weekly on
-   chosen days; shown in the day list like a booking, tap → change / move / delete. A free window that overlaps a plan (assuming
+6. **Personal plans** — "Своя справа" (boxing, gym): a "Мої справи" template (emoji + name), or a
+   one-off plan typed in place (an emoji tile that opens the emoji grid + a name; not saved as a
+   template; a typed name and a template chip exclude each other), start–end, on one or several picked days (the "Мої справи" tab of Розклад's "+") or weekly on
+   chosen days; shown in the day list like a booking, tap → change (always offered: another template or a one-off name) / move / delete. A free window that overlaps a plan (assuming
    a 60-minute visit) is flagged and left out of what is published; it is not deleted.
 
 ## Statistics (calendar month, navigable back)
@@ -92,7 +101,8 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
 - **Comparison with the previous month** — money (percent) and clients (count), full calendar
   months; hidden when the previous month earned nothing or is not fully loaded.
 - **How far back** — the first month the 3-month slot query loads in full; older months come from
-  stored monthly summaries in M-38.1.
+  stored monthly summaries in M-38.1. A month's summary is written only once it leaves that
+  window, since until then it can still be booked into (Y-61).
 - No "hours worked": visits have no duration.
 
 ## Out of scope

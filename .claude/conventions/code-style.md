@@ -44,15 +44,18 @@ clear in light, white in dark, so the light theme is untouched. Both modifiers d
 `colorScheme` branches to get depth. **Nothing a user reads as an object is flat**: a flat outlined box
 (`.insetSurface`) existed in M-27 and was removed after a device pass, because a summary plate that
 does not lift reads as a hole in the popup. The deliberately flat exceptions are markers, not
-objects: the dashed free window (`FreeSlotRow`), the "today" outline in `WeekDayStrip`, and the
-conflict warning line (`ConflictNoticeView`, M-37.7: a tinted note, not a card).
+objects: the dashed free window (`FreeSlotRow`), the "today" outline in `WeekDayStrip`, the
+conflict warning line (`ConflictNoticeView`, M-37.7: a tinted note, not a card), and the dashed
+"+ Нова послуга" chip (`ChoiceChipsAdd` in `ChoiceChips`, Y-57: a raised chip with a plus read as
+one more service on the simulator; the dashed `Stroke` capsule and `TextSecondary` text say "nothing
+here yet, add one", like the free window).
 A raised control that can be *selected* swaps its surface for a `PrimaryFill` fill with
 `.brandShadow()` (the selected day in `WeekDayStrip`); write that as an explicit `if`/`else` in
 `.background`, not as a fill stacked over a raised one — for a plain chip or field that is
 `.selectableSurface(isSelected:in:)` (`Assets/UICommons/`, M-37.3), which holds exactly that
 `if`/`else` (on iOS 26 it is glass instead — see "Liquid Glass on our own views"). `Hairline` is for dividers and outlines
 only — never a fill (the client avatar, removed in M-30, shaded with a `Raised` → `Shadow` gradient instead) — and
-`Stroke` is for the dashed outline of a free window (`FreeSlotRow`). Shadows sit on the surface's background shape,
+`Stroke` is for dashed outlines: a free window (`FreeSlotRow`) and the "+ Нова послуга" chip. Shadows sit on the surface's background shape,
 never on the whole content — `.shadow` on a view with children shadows each child. A horizontal `ScrollView` of raised chips
 clips their shadows; the client booking chip row (removed in M-30) used `.scrollClipDisabled()` (scrolled chips may then paint into
 the screen gutters — accepted).
@@ -100,6 +103,10 @@ User-facing strings never sit as bare literals in a View — they go in
 Exception: the "YOi" wordmark/brand name — it's not translated, leave it as a literal. Add the
 key to the catalog in the same change that introduces the string; don't leave it dangling for a
 later pass.
+
+**Ukrainian copy addresses the master formally** («Спробуйте ще раз», «Додайте нік або телефон»,
+«Або впишіть свою справу»), never «ти». The catalog was checked in Y-57: one string was on «ти»
+(`plans.empty.message`) and was brought in line.
 
 Text never uses the system font — always go through `Font.elmsSans(_:_:)`
 (`YOi/YOi/Assets/UICommons/Extension+ElmsSans.swift`), e.g. `.font(.elmsSans(.bold, 32))`, never

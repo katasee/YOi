@@ -18,10 +18,7 @@ struct ChangePasswordPopup: View {
     }
 
     var body: some View {
-        PopupContainer(
-            dismissLabel: "common.action.cancel",
-            onDismiss: onDismiss
-        ) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             if viewModel.isChanged {
                 successContent(dismiss: dismiss)
             } else {

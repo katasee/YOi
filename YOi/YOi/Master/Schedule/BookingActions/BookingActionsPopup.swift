@@ -7,16 +7,16 @@ struct BookingActionsPopup: View {
     let onDismiss: () -> Void
 
     @State private var isConfirmingCancel = false
+    @State private var newServiceForm: ServiceFormViewModel?
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.close", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
 
             switch viewModel.mode {
             case .actions:
                 BookingActionsList(
                     contacts: viewModel.contacts,
-                    canChangeService: viewModel.canChangeService,
                     canOpenCard: viewModel.cardClientId != nil,
                     onChangeService: viewModel.startChangingService,
                     onReschedule: viewModel.startRescheduling,
@@ -38,6 +38,7 @@ struct BookingActionsPopup: View {
                 ChoiceChipsEditor(
                     titleKey: "schedule.book.service",
                     chips: viewModel.services,
+                    add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: addService),
                     canSave: viewModel.hasServiceChanged,
                     onToggle: viewModel.toggleService,
                     onBack: viewModel.stopChangingService,
@@ -53,6 +54,7 @@ struct BookingActionsPopup: View {
                 )
             }
         }
+        .newServiceForm($newServiceForm, onSaved: viewModel.select(newService:))
     }
 
     private func openCard(then dismiss: () -> Void) {
@@ -78,6 +80,12 @@ struct BookingActionsPopup: View {
         }
 
         onRescheduled(dayId)
+    }
+
+    private func addService() {
+        withoutPresentationAnimation {
+            newServiceForm = viewModel.makeNewServiceForm()
+        }
     }
 
     private func saveService(then dismiss: () -> Void) {

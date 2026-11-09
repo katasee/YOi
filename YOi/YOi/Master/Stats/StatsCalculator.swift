@@ -21,36 +21,42 @@ enum StatsCalculator {
         return calendar.date(from: components) ?? date
     }
 
-    static func earliestMonthStart(now: Date) -> Date {
-        let historyStart = Slot.historyStartDate(now: now)
-        let start = monthStart(containing: historyStart)
-
-        guard start < historyStart else { return start }
-
-        return DateFormat.salonCalendar.date(byAdding: .month, value: 1, to: start) ?? start
-    }
-
     static func monthId(_ monthStart: Date) -> String {
         DateFormat.month.string(from: monthStart)
     }
 
-    static func missingMonths(storedIds: Set<String>, now: Date) -> [Date] {
-        let current = monthStart(containing: now)
-        let months = sequence(first: earliestMonthStart(now: now)) {
-            DateFormat.salonCalendar.date(byAdding: .month, value: 1, to: $0)
-        }
+    static func staleMonthIds(storedIds: Set<String>, now: Date) -> [String] {
+        let liveStartId = monthId(Slot.liveMonthsStartDate(now: now))
 
-        return months
-            .prefix { $0 < current }
-            .filter { storedIds.contains(monthId($0)) == false }
+        return storedIds
+            .filter { $0 >= liveStartId }
+            .sorted()
     }
 
-    static func summariesToArchive(
+    static func missingMonths(storedIds: Set<String>, now: Date) -> [Date] {
+        let calendar = DateFormat.salonCalendar
+        let liveStart = Slot.liveMonthsStartDate(now: now)
+        let liveStartId = monthId(liveStart)
+        let newestFinal = storedIds
+            .filter { $0 < liveStartId }
+            .max()
+            .flatMap(DateFormat.month.date(from:))
+        let first = newestFinal.flatMap { calendar.date(byAdding: .month, value: 1, to: $0) }
+            ?? calendar.date(byAdding: .month, value: -1, to: liveStart)
+            ?? liveStart
+        let months = sequence(first: first) {
+            calendar.date(byAdding: .month, value: 1, to: $0)
+        }
+
+        return Array(months.prefix { $0 < liveStart })
+    }
+
+    static func summaries(
+        months: [Date],
         slots: [Slot],
-        storedIds: Set<String>,
         now: Date
     ) -> [MonthlySummary] {
-        missingMonths(storedIds: storedIds, now: now).map {
+        months.map {
             summary(
                 slots: slots,
                 monthStart: $0,
@@ -105,7 +111,7 @@ enum StatsCalculator {
         let calendar = DateFormat.salonCalendar
         let monthEnd = calendar.date(byAdding: .month, value: 1, to: monthStart) ?? monthStart
         let previousStart = calendar.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart
-        let isPreviousLive = previousStart >= earliestMonthStart(now: now)
+        let isPreviousLive = previousStart >= Slot.liveMonthsStartDate(now: now)
 
         let monthSlots = slots.filter { isInside($0, start: monthStart, end: monthEnd) }
         let previousSlots = slots.filter { isInside($0, start: previousStart, end: monthStart) }

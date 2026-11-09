@@ -3,7 +3,7 @@ import Observation
 
 enum PlanActionsMode {
     case actions
-    case changeTemplate
+    case changePlan
     case reschedule
 }
 
@@ -13,10 +13,10 @@ final class PlanActionsViewModel: Identifiable {
     private(set) var mode = PlanActionsMode.actions
     var move: PlanMove
 
-    private var templateChoice: TemplateChoice
+    private var planChoice: PlanChoice
 
     private let plan: PlanEvent
-    private let initialChoice: TemplateChoice
+    private let initialChoice: PlanChoice
     private let initialMove: PlanMove
     private let slots: [Slot]
     private let now: Date
@@ -31,8 +31,8 @@ final class PlanActionsViewModel: Identifiable {
         self.plan = plan
         self.slots = slots
         self.now = now
-        initialChoice = TemplateChoice(templates: templates, pinning: plan)
-        templateChoice = initialChoice
+        initialChoice = PlanChoice(templates: templates, pinning: plan)
+        planChoice = initialChoice
         initialMove = PlanMove(
             plan: plan,
             plannedDays: plannedDays,
@@ -48,29 +48,28 @@ final class PlanActionsViewModel: Identifiable {
     var title: String {
         switch mode {
         case .reschedule: String(localized: "schedule.plan.reschedule.title")
-        case .actions, .changeTemplate: planTitle
+        case .actions, .changePlan: planTitle
         }
     }
 
     var subtitle: String {
         switch mode {
         case .reschedule: "\(planTitle) · \(dayAndTime)"
-        case .actions, .changeTemplate: dayAndTime
+        case .actions, .changePlan: dayAndTime
         }
     }
 
-    var canChangeTemplate: Bool {
-        initialChoice.chips.contains { $0.id != plan.templateId }
+    var ownPlan: OwnPlan {
+        get { planChoice.own }
+        set { planChoice.own = newValue }
     }
 
     var templateChips: [ChoiceChip] {
-        templateChoice.chips
+        planChoice.chips
     }
 
-    var hasTemplateChanged: Bool {
-        guard let id = templateChoice.selectedTemplate?.id else { return false }
-
-        return id != plan.templateId
+    var hasPlanChanged: Bool {
+        planChoice.pick?.changes(plan) == true
     }
 
     var conflictNotice: ConflictNotice? {
@@ -88,30 +87,26 @@ final class PlanActionsViewModel: Identifiable {
         move.movedPlan != nil && conflictNotice?.blocksConfirm != true
     }
 
-    func startChangingTemplate() {
-        templateChoice = initialChoice
-        mode = .changeTemplate
+    func startChangingPlan() {
+        planChoice = initialChoice
+        mode = .changePlan
     }
 
-    func stopChangingTemplate() {
+    func stopChangingPlan() {
         mode = .actions
     }
 
     func selectTemplate(_ id: String) {
-        templateChoice.select(id)
+        planChoice.select(id)
     }
 
     func changedPlan() -> PlanEvent? {
-        guard
-            hasTemplateChanged,
-            let template = templateChoice.selectedTemplate,
-            let templateId = template.id
-        else { return nil }
+        guard let pick = planChoice.pick, pick.changes(plan) else { return nil }
 
         var changed = plan
-        changed.templateId = templateId
-        changed.emoji = template.emoji
-        changed.name = template.name
+        changed.templateId = pick.templateId
+        changed.emoji = pick.emoji
+        changed.name = pick.name
 
         return changed
     }

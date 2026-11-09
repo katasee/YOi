@@ -5,7 +5,7 @@ struct SendSchedulePopup: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        PopupContainer(dismissLabel: "common.action.close", onDismiss: onDismiss) { dismiss in
+        PopupContainer(onDismiss: onDismiss) { dismiss in
             switch viewModel.mode {
             case .text:
                 textStep

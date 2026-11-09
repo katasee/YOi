@@ -51,5 +51,15 @@ final class FakeMonthlySummaryRepository: MonthlySummaryRepository {
             }
         }
     }
+
+    func delete(ids: [String]) throws {
+        state.withLock { state in
+            state.summaries.removeAll { $0.id.map(ids.contains) ?? false }
+
+            for observer in state.observers.values {
+                observer(state.summaries)
+            }
+        }
+    }
 }
 #endif

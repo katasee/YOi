@@ -2466,6 +2466,21 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`. The failure toast is checked by reading the `catch` path only — the
     Firestore write cannot be made to throw from the UI.
 
+- **Y-56 — A vertical drag on a row scrolls the list** (branch `feature/y-56-day-list-scroll`).
+  On a long Розклад day the list scrolled only from the gaps and side margins: `SwipeToDelete`'s
+  `.simultaneousGesture(DragGesture(minimumDistance: 12))` claimed every drag that started on a
+  row, vertical ones too.
+  - `SwipeToDelete` now uses a private `HorizontalPan` (`UIGestureRecognizerRepresentable`, a
+    `UIPanGestureRecognizer`) whose delegate lets it begin only when the horizontal velocity beats
+    the vertical one; otherwise it fails and the `ScrollView` pans. `minimumDrag` went with the
+    old drag. Розклад, Мої послуги and Мої плани get it with no call site change.
+  - `.cancelled` releases like `.ended`, so an interrupted swipe snaps instead of sticking.
+  - Verified: `xcodebuild`; simulator: a drag from mid-card scrolls, a row swipe opens the trash
+    without turning the week, a tap opens the popup, an open row closes; Мої послуги the same.
+  - Found while testing, not caused by it: on a long day the week swipe in the gaps between rows
+    is hard to land (the same before Y-56; a short day is fine) — backlog, "Week swipe on a long
+    day".
+
 - **Y-57 — Inline service and one-off plan (UI)** (branch
   `feature/y-57-inline-service-and-plan-ui`; brainstormed 2026-11-08, mockup on a Claude Design
   canvas). New masters book straight away and found empty pickers: the "Послуга" block was hidden
@@ -2808,16 +2823,7 @@ those items are referred to by name, so the list can grow without renumbering an
          app". The missing translation is closed (Y-49); same-name
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
-   13. **Y-56 Day list does not scroll on a long day** (next up — user, 2026-11-07; its own PR,
-       found during Y-53, older than Y-52). With many windows the Розклад day list mostly does
-       not scroll; it starts from some spots, then stops again. Hypothesis, not yet confirmed: the
-       `.simultaneousGesture(DragGesture(minimumDistance: 12))` that `SwipeToDelete` puts on every
-       row takes a vertical drag that starts on a row, so the `ScrollView` never pans; the "spots"
-       are the 10pt gaps between rows and the 16pt side margins. Check first: a drag from the side
-       margin always scrolls, one from the middle of a card never does. Likely fix, in
-       `SwipeToDelete` only (so Мої послуги gets it too): a `UIGestureRecognizerRepresentable` pan
-       (iOS 18+) that begins only when the horizontal velocity beats the vertical one. Recheck the
-       `.weekSwipe` rule (`architecture.md`, M-39) after the change.
+   13. ~~**Y-56 Day list does not scroll on a long day**~~ — **done** (under "Done").
    14. ~~**Y-58 Inline service and one-off plan (logic)**~~ — **done** (under "Done"). (after Y-57's UI; user, 2026-11-08).
        "+ Нова послуга" opens `ServiceFormPopup`; `ServiceRepository.add` returns the new id
        (like `ClientRepository.add`) so the service is selected at once, offline too. A one-off
@@ -2833,6 +2839,13 @@ Not a queue. These accumulate as they're found and get picked up when they block
 something nearby is already being touched. **No numbers on purpose** — cite them by name, since
 numbering drifts every time an item is added or closed (it already did once: PR9's entry pointed at
 "step 9" for what was item 10).
+
+- **Week swipe on a long day** (found in Y-56, 2026-11-08). When the day list overflows, a
+  horizontal swipe in the gaps between rows rarely turns the week: the `ScrollView`'s pan takes
+  the slightly diagonal drag before `.weekSwipe`. A short day is fine (`.scrollBounceBehavior(.basedOnSize)`).
+  Likely fix: move `.weekSwipe` onto the same horizontal-only pan as `SwipeToDelete`, which makes
+  `HorizontalPan` a shared `Assets/UICommons/` component; recheck that a row swipe still does not
+  turn the week.
 
 - ~~**Gender-neutral wording for the master**~~ — **done as Y-44** (under "Done").
 

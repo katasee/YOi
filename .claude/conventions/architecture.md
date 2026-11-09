@@ -157,11 +157,19 @@
   opened its popup. A tap gesture fails as soon as the finger moves (`ScheduleSlotRow`,
   `SchedulePlanRow`, Мої послуги's `ServiceRow`). Older rows also carry
   `.accessibilityAddTraits(.isButton)`; new code adds no VoiceOver traits or hints (user, M-37.5).
+- **A row's swipe is a UIKit pan that begins only on a horizontal velocity** (Y-56, found on the
+  simulator). `SwipeToDelete` once used `.simultaneousGesture(DragGesture(minimumDistance: 12))`:
+  a SwiftUI drag claims the touch after 12pt in *any* direction — a direction `guard` in
+  `onChanged` only stops the offset — so a vertical drag that started on a row never scrolled the
+  list. Its private `HorizontalPan` (`UIGestureRecognizerRepresentable`) answers `false` from
+  `gestureRecognizerShouldBegin` when the vertical velocity wins, the recognizer fails, and the
+  `ScrollView` takes the touch. `List` + `.swipeActions` was rejected: it restyles both lists and
+  makes the trash a system one.
 - **A screen-wide swipe is `.gesture` on the screen, and its list scrolls only when it overflows**
   (M-39, found on the simulator). Розклад's `.weekSwipe` sits on the root stack with `.gesture`,
-  not `.simultaneousGesture`: a descendant's gesture wins, so a row's `SwipeToDelete` drag keeps
-  the swipe to itself. A `ScrollView` inside still takes most slightly diagonal drags first; the
-  day list carries `.scrollBounceBehavior(.basedOnSize)`, so a day whose rows fit never starts a
+  not `.simultaneousGesture`: a descendant's gesture wins, so a row's `SwipeToDelete` pan keeps
+  the swipe to itself (rechecked in Y-56, when that pan became UIKit). A `ScrollView` inside
+  still takes most slightly diagonal drags first; the day list carries `.scrollBounceBehavior(.basedOnSize)`, so a day whose rows fit never starts a
   pan and the swipe always lands. Don't remove the `ScrollView` instead — a full day does not fit.
 - **A scroll position that depends on a measured size is set after the measurement, by command**
   (found on the simulator, M-36.1 fix). `RescheduleDayScroller` centres a day with side margins

@@ -21,7 +21,8 @@ service cloud.firestore {
       return request.resource.data.name is string &&
         request.resource.data.name.size() > 0 &&
         request.resource.data.price is int &&
-        request.resource.data.price >= 0;
+        request.resource.data.price >= 0 &&
+        (!('position' in request.resource.data) || request.resource.data.position is int);
     }
 
     // A client needs a handle or a name; an absent field is left out, never stored empty.

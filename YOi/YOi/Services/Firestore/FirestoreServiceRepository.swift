@@ -39,4 +39,15 @@ final class FirestoreServiceRepository: ServiceRepository {
     func delete(id: String) async throws {
         try await db.userCollection("services").document(id).delete()
     }
+
+    func reorder(ids: [String]) throws {
+        let services = try db.userCollection("services")
+        let batch = db.batch()
+
+        for (index, id) in ids.enumerated() {
+            batch.updateData(["position": index], forDocument: services.document(id))
+        }
+
+        batch.commit(completion: nil)
+    }
 }

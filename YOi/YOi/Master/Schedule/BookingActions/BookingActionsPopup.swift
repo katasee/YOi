@@ -39,6 +39,7 @@ struct BookingActionsPopup: View {
                     titleKey: "schedule.book.service",
                     chips: viewModel.services,
                     add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: addService),
+                    reorder: ChoiceChipsReorder(move: viewModel.moveService, commit: viewModel.commitServiceOrder),
                     canSave: viewModel.hasServiceChanged,
                     onToggle: viewModel.toggleService,
                     onBack: viewModel.stopChangingService,

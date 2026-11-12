@@ -13,6 +13,10 @@ final class MyServicesViewModel {
         set { if newValue == false { failure = nil } }
     }
 
+    var nextPosition: Int {
+        services.nextPosition
+    }
+
     private let serviceRepository: ServiceRepository
 
     init(serviceRepository: ServiceRepository = FirestoreServiceRepository()) {
@@ -21,7 +25,7 @@ final class MyServicesViewModel {
 
     func observeServices() async {
         for await updatedServices in serviceRepository.observeServices() {
-            services = updatedServices.sortedByName()
+            services = updatedServices.sortedByOrder()
             hasLoaded = true
         }
     }

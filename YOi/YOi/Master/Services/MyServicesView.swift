@@ -141,7 +141,7 @@ struct MyServicesView: View {
 
     private func addService() {
         withoutPresentationAnimation {
-            formMode = .add
+            formMode = .add(position: viewModel.nextPosition)
         }
     }
 

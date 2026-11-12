@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ServiceFormMode: Identifiable {
-    case add
+    case add(position: Int)
     case edit(Service)
 
     var id: String {

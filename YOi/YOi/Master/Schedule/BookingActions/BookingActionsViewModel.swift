@@ -99,7 +99,7 @@ final class BookingActionsViewModel: Identifiable {
     }
 
     func makeNewServiceForm() -> ServiceFormViewModel {
-        ServiceFormViewModel(mode: .add, serviceRepository: serviceRepository)
+        ServiceFormViewModel(mode: .add(position: serviceChoice.nextPosition), serviceRepository: serviceRepository)
     }
 
     func select(newService: Service) {

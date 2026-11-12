@@ -48,12 +48,13 @@ final class ServiceFormViewModel: Identifiable {
 
     private func save(price: Int) async throws {
         switch mode {
-        case .add:
+        case .add(let position):
             var service = Service(
                 id: nil,
                 name: trimmedName,
                 price: price,
-                isActive: true
+                isActive: true,
+                position: position
             )
             service.id = try await serviceRepository.add(service)
             savedService = service
@@ -64,7 +65,8 @@ final class ServiceFormViewModel: Identifiable {
                     id: service.id,
                     name: trimmedName,
                     price: price,
-                    isActive: service.isOffered
+                    isActive: service.isOffered,
+                    position: service.position
                 )
             )
         }

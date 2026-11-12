@@ -52,6 +52,14 @@ final class ClientBookingChoice {
         serviceChoice.toggle(id)
     }
 
+    func moveService(_ id: String, to targetId: String) {
+        serviceChoice.move(id, to: targetId)
+    }
+
+    func commitServiceOrder() {
+        try? serviceRepository.reorder(ids: serviceChoice.orderedIds)
+    }
+
     func makeNewClientForm() -> ClientFormViewModel {
         ClientFormViewModel(takenHandles: clients.takenHandles, clientRepository: clientRepository)
     }
@@ -64,7 +72,7 @@ final class ClientBookingChoice {
     }
 
     func makeNewServiceForm() -> ServiceFormViewModel {
-        ServiceFormViewModel(mode: .add, serviceRepository: serviceRepository)
+        ServiceFormViewModel(mode: .add(position: serviceChoice.nextPosition), serviceRepository: serviceRepository)
     }
 
     func select(newService: Service) {

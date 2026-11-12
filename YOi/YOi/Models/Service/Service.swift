@@ -5,6 +5,7 @@ struct Service: Identifiable, Codable, Named {
     var name: String
     var price: Int
     var isActive: Bool?
+    var position: Int?
 
     var isOffered: Bool {
         isActive ?? true

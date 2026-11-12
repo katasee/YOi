@@ -38,7 +38,8 @@ struct ClientBookingSection: View {
             ChoiceChips(
                 chips: choice.services,
                 onToggle: choice.toggleService,
-                add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: openNewServiceForm)
+                add: ChoiceChipsAdd(titleKey: "schedule.book.newService", action: openNewServiceForm),
+                reorder: ChoiceChipsReorder(move: choice.moveService, commit: choice.commitServiceOrder)
             )
         }
         .fullScreenCover(item: $newClientForm) { form in

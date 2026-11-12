@@ -42,6 +42,8 @@ final class FakeServiceRepository: ServiceRepository {
         broadcast()
     }
 
+    func reorder(ids: [String]) throws {}
+
     private func broadcast() {
         for continuation in continuations.values {
             continuation.yield(services)

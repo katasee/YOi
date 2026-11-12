@@ -98,8 +98,17 @@ final class BookingActionsViewModel: Identifiable {
         serviceChoice.toggle(id)
     }
 
+    func moveService(_ id: String, to targetId: String) {
+        serviceChoice.move(id, to: targetId)
+        initialChoice.move(id, to: targetId)
+    }
+
+    func commitServiceOrder() {
+        try? serviceRepository.reorder(ids: serviceChoice.orderedIds)
+    }
+
     func makeNewServiceForm() -> ServiceFormViewModel {
-        ServiceFormViewModel(mode: .add, serviceRepository: serviceRepository)
+        ServiceFormViewModel(mode: .add(position: serviceChoice.nextPosition), serviceRepository: serviceRepository)
     }
 
     func select(newService: Service) {

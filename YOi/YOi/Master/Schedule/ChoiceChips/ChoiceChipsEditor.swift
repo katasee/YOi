@@ -4,6 +4,7 @@ struct ChoiceChipsEditor<Accessory: View>: View {
     let titleKey: LocalizedStringKey
     let chips: [ChoiceChip]
     let add: ChoiceChipsAdd?
+    let reorder: ChoiceChipsReorder?
     let canSave: Bool
     let onToggle: (String) -> Void
     let onBack: () -> Void
@@ -16,6 +17,7 @@ struct ChoiceChipsEditor<Accessory: View>: View {
         titleKey: LocalizedStringKey,
         chips: [ChoiceChip],
         add: ChoiceChipsAdd? = nil,
+        reorder: ChoiceChipsReorder? = nil,
         canSave: Bool,
         onToggle: @escaping (String) -> Void,
         onBack: @escaping () -> Void,
@@ -25,6 +27,7 @@ struct ChoiceChipsEditor<Accessory: View>: View {
         self.titleKey = titleKey
         self.chips = chips
         self.add = add
+        self.reorder = reorder
         self.canSave = canSave
         self.onToggle = onToggle
         self.onBack = onBack
@@ -37,13 +40,18 @@ struct ChoiceChipsEditor<Accessory: View>: View {
             SectionLabel(titleKey: titleKey)
 
             ScrollView {
-                ChoiceChips(chips: chips, onToggle: onToggle, add: add)
-                    .padding(ScheduleMetrics.Spacing.scrollShadowInset)
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.size.height
-                    } action: { height in
-                        chipsHeight = height
-                    }
+                ChoiceChips(
+                    chips: chips,
+                    onToggle: onToggle,
+                    add: add,
+                    reorder: reorder
+                )
+                .padding(ScheduleMetrics.Spacing.scrollShadowInset)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.height
+                } action: { height in
+                    chipsHeight = height
+                }
             }
             .frame(maxHeight: chipsHeight)
             .opacity(chipsHeight == nil ? 0 : 1)
@@ -74,6 +82,7 @@ extension ChoiceChipsEditor where Accessory == EmptyView {
         titleKey: LocalizedStringKey,
         chips: [ChoiceChip],
         add: ChoiceChipsAdd? = nil,
+        reorder: ChoiceChipsReorder? = nil,
         canSave: Bool,
         onToggle: @escaping (String) -> Void,
         onBack: @escaping () -> Void,
@@ -83,6 +92,7 @@ extension ChoiceChipsEditor where Accessory == EmptyView {
             titleKey: titleKey,
             chips: chips,
             add: add,
+            reorder: reorder,
             canSave: canSave,
             onToggle: onToggle,
             onBack: onBack,

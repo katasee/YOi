@@ -96,27 +96,15 @@ struct MyServicesView: View {
     }
 
     private var list: some View {
-        ScrollView {
-            LazyVStack(spacing: ServicesMetrics.Spacing.rowSpacing) {
-                ForEach(viewModel.services) { service in
-                    SwipeToDelete(
-                        id: service.id ?? "",
-                        openId: $openRowId,
-                        cornerRadius: ServicesMetrics.Size.rowCornerRadius,
-                        onDelete: { delete(service) }
-                    ) {
-                        ServiceRow(
-                            service: service,
-                            onToggleActive: { toggleActive(service) }
-                        )
-                        .onTapGesture { editService(service) }
-                    }
-                }
-            }
-            .padding(.horizontal, ServicesMetrics.Spacing.horizontalPadding)
-            .padding(.top, ServicesMetrics.Spacing.listTopPadding)
-            .padding(.bottom, ServicesMetrics.Spacing.listBottomPadding)
-        }
+        ServiceReorderList(
+            services: viewModel.services,
+            openRowId: $openRowId,
+            onBegin: viewModel.beginReorder,
+            onFinish: viewModel.finishReorder,
+            onEdit: editService,
+            onToggleActive: toggleActive,
+            onDelete: delete
+        )
         .overlay {
             ListStatusOverlay(
                 hasLoaded: viewModel.hasLoaded,
@@ -141,7 +129,7 @@ struct MyServicesView: View {
 
     private func addService() {
         withoutPresentationAnimation {
-            formMode = .add
+            formMode = .add(position: viewModel.nextPosition)
         }
     }
 

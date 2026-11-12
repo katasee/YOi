@@ -126,7 +126,7 @@ struct ServiceFormPopup: View {
         .overlay {
             ServiceFormPopup(
                 viewModel: ServiceFormViewModel(
-                    mode: .add,
+                    mode: .add(position: 0),
                     serviceRepository: FakeServiceRepository()
                 ),
                 onDismiss: {}

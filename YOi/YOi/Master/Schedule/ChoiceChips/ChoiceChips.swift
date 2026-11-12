@@ -44,6 +44,7 @@ struct ChoiceChips: View {
                         .contentShape(.capsule)
                 }
                 .buttonStyle(.plain)
+                .layoutValue(key: ChoiceChipTrailing.self, value: true)
             }
         }
         .glassEffectGroup()

@@ -1,5 +1,9 @@
 import SwiftUI
 
+struct ChoiceChipTrailing: LayoutValueKey {
+    static let defaultValue = false
+}
+
 struct ChoiceChipsLayout: Layout {
     private struct Row {
         var indices: [Int]
@@ -66,9 +70,11 @@ struct ChoiceChipsLayout: Layout {
         var openRow: Int?
 
         for index in subviews.indices {
+            let isTrailing = subviews[index][ChoiceChipTrailing.self]
+
             if subviews[index].sizeThatFits(.unspecified).width > columnWidth {
                 rows.append(Row(indices: [index], isWide: true))
-            } else if let row = openRow {
+            } else if let row = openRow, isTrailing == false || row == rows.count - 1 {
                 rows[row].indices.append(index)
                 openRow = nil
             } else {

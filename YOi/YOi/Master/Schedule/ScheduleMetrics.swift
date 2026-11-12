@@ -11,6 +11,8 @@ enum ScheduleMetrics {
         static let rowLabel: CGFloat = 13
         static let rowLabelTracking: CGFloat = 0.8
         static let pastOpacity: Double = 0.45
+        static let chipLiftScale: CGFloat = 1.03
+        static let chipLongPress: Double = 0.3
         static let fillTitle: CGFloat = 18
         static let weekdayLetter: CGFloat = 12
         static let dayCellHeight: CGFloat = 44

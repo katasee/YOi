@@ -1,8 +1,9 @@
 import SwiftUI
 
-struct ServiceRow: View {
+struct ServiceRow<Handle: View>: View {
     let service: Service
     let onToggleActive: () -> Void
+    @ViewBuilder let handle: Handle
 
     var body: some View {
         HStack(spacing: ServicesMetrics.Spacing.rowContentSpacing) {
@@ -12,6 +13,7 @@ struct ServiceRow: View {
             Spacer(minLength: 0)
 
             price
+            handle
         }
         .padding(.horizontal, ServicesMetrics.Spacing.rowHorizontalPadding)
         .padding(.vertical, ServicesMetrics.Spacing.rowVerticalPadding)
@@ -56,6 +58,12 @@ struct ServiceRow: View {
             .foregroundStyle(Color.ink)
             .lineLimit(1)
             .layoutPriority(1)
+    }
+}
+
+extension ServiceRow where Handle == EmptyView {
+    init(service: Service, onToggleActive: @escaping () -> Void) {
+        self.init(service: service, onToggleActive: onToggleActive) {}
     }
 }
 

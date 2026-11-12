@@ -7,6 +7,12 @@ enum ServicesMetrics {
         static let rowIconGlyph: CGFloat = 15
         static let addButton: CGFloat = 52
         static let addIcon: CGFloat = 20
+        static let handleGlyph: CGFloat = 17
+        static let handleWidth: CGFloat = 32
+        static let handleHeight: CGFloat = 44
+        static let liftScale: CGFloat = 1.03
+        static let autoScrollZone: CGFloat = 60
+        static let autoScrollMaxStep: CGFloat = 12
     }
 
     enum Spacing {

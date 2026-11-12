@@ -17,6 +17,9 @@ final class MyServicesViewModel {
         services.nextPosition
     }
 
+    private var isReordering = false
+    private var deferred: [Service]?
+
     private let serviceRepository: ServiceRepository
 
     init(serviceRepository: ServiceRepository = FirestoreServiceRepository()) {
@@ -25,8 +28,40 @@ final class MyServicesViewModel {
 
     func observeServices() async {
         for await updatedServices in serviceRepository.observeServices() {
-            services = updatedServices.sortedByOrder()
+            let sorted = updatedServices.sortedByOrder()
+
+            if isReordering {
+                deferred = sorted
+            } else {
+                services = sorted
+            }
             hasLoaded = true
+        }
+    }
+
+    func beginReorder() {
+        isReordering = true
+    }
+
+    func finishReorder(from source: Int, to target: Int) {
+        defer {
+            isReordering = false
+            deferred = nil
+        }
+
+        guard source != target else {
+            if let deferred {
+                services = deferred
+            }
+            return
+        }
+
+        services = services.moving(services[source].id ?? "", to: services[target].id ?? "")
+
+        do {
+            try serviceRepository.reorder(ids: services.ids)
+        } catch {
+            failure = .update
         }
     }
 

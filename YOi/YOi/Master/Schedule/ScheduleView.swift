@@ -123,6 +123,7 @@ struct ScheduleView: View {
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
                 onReplacePlans: viewModel.replaceWindows(_:with:),
+                onCutPlans: viewModel.applyingCuts(_:to:),
                 onAdded: noteAdded,
                 onDismiss: closePopup
             )
@@ -163,6 +164,7 @@ struct ScheduleView: View {
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
                 onReplacePlans: viewModel.replaceWindows(_:with:),
+                onCutPlans: viewModel.applyingCuts(_:to:),
                 onAdded: noteAdded,
                 onDismiss: closePopup
             )

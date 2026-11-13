@@ -5,6 +5,7 @@ struct FillMonthPopup: View {
     let addPlan: AddPlanViewModel
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
     let onReplacePlans: ([String], [PlanEvent]) -> AddedNotice?
+    let onCutPlans: (WindowReplacement, AddedNotice?) -> AddedNotice?
     let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
@@ -14,23 +15,23 @@ struct FillMonthPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            let replacement = tab == .plans ? addPlan.replacement : nil
+            let replacement = replacement
 
-            if let replacement, addPlan.isConfirmingReplace {
+            if let replacement, isConfirmingReplace {
                 ReplaceConfirmStep(
                     replacement: replacement,
-                    onBack: addPlan.stopConfirmingReplace,
-                    onConfirm: { replace(replacement, then: dismiss) }
+                    onBack: stopConfirmingReplace,
+                    onConfirm: { replace(then: dismiss) }
                 )
             } else {
-                form(replacement: replacement, dismiss: dismiss)
+                form(offersReplace: replacement != nil, dismiss: dismiss)
             }
         }
         .animation(PopupContainerLayout.fade, value: conflictNotice)
     }
 
     @ViewBuilder
-    private func form(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
+    private func form(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
         ScheduleTabs(selection: $tab)
 
         ScrollView {
@@ -54,7 +55,21 @@ struct FillMonthPopup: View {
                 .id(tab)
         }
 
-        actions(replacement: replacement, dismiss: dismiss)
+        actions(offersReplace: offersReplace, dismiss: dismiss)
+    }
+
+    private var replacement: (any ScheduleReplacement)? {
+        switch tab {
+        case .slots: viewModel.replacement
+        case .plans: addPlan.replacement
+        }
+    }
+
+    private var isConfirmingReplace: Bool {
+        switch tab {
+        case .slots: viewModel.isConfirmingReplace
+        case .plans: addPlan.isConfirmingReplace
+        }
     }
 
     private var conflictNotice: ConflictNotice? {
@@ -79,7 +94,7 @@ struct FillMonthPopup: View {
     }
 
     @ViewBuilder
-    private func actions(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
+    private func actions(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
         HStack {
             PopupDismissButton(titleKey: "common.action.cancel", action: dismiss)
 
@@ -87,15 +102,19 @@ struct FillMonthPopup: View {
 
             switch tab {
             case .slots:
-                CapsuleButton(
-                    titleKey: "schedule.fill.add \(viewModel.newSlotCount)",
-                    role: .primary,
-                    isEnabled: viewModel.canAdd,
-                    action: { add(then: dismiss) }
-                )
+                if offersReplace {
+                    ReplaceButton(action: startConfirmingReplace)
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.fill.add \(viewModel.newSlotCount)",
+                        role: .primary,
+                        isEnabled: viewModel.canAdd,
+                        action: { add(then: dismiss) }
+                    )
+                }
             case .plans:
-                if replacement != nil {
-                    ReplaceButton(action: { addPlan.startConfirmingReplace() })
+                if offersReplace {
+                    ReplaceButton(action: startConfirmingReplace)
                 } else {
                     CapsuleButton(
                         titleKey: "schedule.plan.add",
@@ -124,8 +143,32 @@ struct FillMonthPopup: View {
         dismiss()
     }
 
-    private func replace(_ replacement: PlanReplacement, then dismiss: () -> Void) {
-        onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+    private func startConfirmingReplace() {
+        switch tab {
+        case .slots: viewModel.startConfirmingReplace()
+        case .plans: addPlan.startConfirmingReplace()
+        }
+    }
+
+    private func stopConfirmingReplace() {
+        switch tab {
+        case .slots: viewModel.stopConfirmingReplace()
+        case .plans: addPlan.stopConfirmingReplace()
+        }
+    }
+
+    private func replace(then dismiss: () -> Void) {
+        switch tab {
+        case .slots:
+            guard let replacement = viewModel.replacement else { return }
+
+            onAdded(onCutPlans(replacement, viewModel.addReplacing()))
+        case .plans:
+            guard let replacement = addPlan.replacement else { return }
+
+            onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+        }
+
         dismiss()
     }
 }
@@ -139,6 +182,7 @@ struct FillMonthPopup: View {
                 addPlan: SchedulePreviewData.addPlan,
                 onAddPlans: { _ in nil },
                 onReplacePlans: { _, _ in nil },
+                onCutPlans: { _, notice in notice },
                 onAdded: { _ in },
                 onDismiss: {}
             )

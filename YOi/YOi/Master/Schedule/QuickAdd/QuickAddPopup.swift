@@ -5,6 +5,7 @@ struct QuickAddPopup: View {
     let addPlan: AddPlanViewModel?
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
     let onReplacePlans: ([String], [PlanEvent]) -> AddedNotice?
+    let onCutPlans: (WindowReplacement, AddedNotice?) -> AddedNotice?
     let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
@@ -13,23 +14,23 @@ struct QuickAddPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            let replacement = tab == .plan ? addPlan?.replacement : nil
+            let replacement = replacement
 
-            if let addPlan, let replacement, addPlan.isConfirmingReplace {
+            if let replacement, isConfirmingReplace {
                 ReplaceConfirmStep(
                     replacement: replacement,
-                    onBack: addPlan.stopConfirmingReplace,
-                    onConfirm: { replace(replacement, then: dismiss) }
+                    onBack: stopConfirmingReplace,
+                    onConfirm: { replace(then: dismiss) }
                 )
             } else {
-                form(replacement: replacement, dismiss: dismiss)
+                form(offersReplace: replacement != nil, dismiss: dismiss)
             }
         }
         .animation(PopupContainerLayout.fade, value: conflictNotice)
     }
 
     @ViewBuilder
-    private func form(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
+    private func form(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
         if addPlan != nil {
             ScheduleTabs(selection: $tab)
         }
@@ -53,7 +54,21 @@ struct QuickAddPopup: View {
                 .id(tab)
         }
 
-        actions(replacement: replacement, dismiss: dismiss)
+        actions(offersReplace: offersReplace, dismiss: dismiss)
+    }
+
+    private var replacement: (any ScheduleReplacement)? {
+        switch tab {
+        case .client: quickBook.replacement
+        case .plan: addPlan?.replacement
+        }
+    }
+
+    private var isConfirmingReplace: Bool {
+        switch tab {
+        case .client: quickBook.isConfirmingReplace
+        case .plan: addPlan?.isConfirmingReplace == true
+        }
     }
 
     private var conflictNotice: ConflictNotice? {
@@ -93,7 +108,7 @@ struct QuickAddPopup: View {
     }
 
     @ViewBuilder
-    private func actions(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
+    private func actions(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
         HStack {
             PopupDismissButton(titleKey: "common.action.cancel", action: dismiss)
 
@@ -101,15 +116,19 @@ struct QuickAddPopup: View {
 
             switch tab {
             case .client:
-                CapsuleButton(
-                    titleKey: "schedule.book.submit",
-                    role: .primary,
-                    isEnabled: quickBook.canBook,
-                    action: { book(then: dismiss) }
-                )
+                if offersReplace {
+                    ReplaceButton(isEnabled: quickBook.canReplace, action: startConfirmingReplace)
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.book.submit",
+                        role: .primary,
+                        isEnabled: quickBook.canBook,
+                        action: { book(then: dismiss) }
+                    )
+                }
             case .plan:
-                if replacement != nil {
-                    ReplaceButton(action: { addPlan?.startConfirmingReplace() })
+                if offersReplace {
+                    ReplaceButton(action: startConfirmingReplace)
                 } else {
                     CapsuleButton(
                         titleKey: "schedule.plan.add",
@@ -134,10 +153,32 @@ struct QuickAddPopup: View {
         dismiss()
     }
 
-    private func replace(_ replacement: PlanReplacement, then dismiss: () -> Void) {
-        guard let addPlan else { return }
+    private func startConfirmingReplace() {
+        switch tab {
+        case .client: quickBook.startConfirmingReplace()
+        case .plan: addPlan?.startConfirmingReplace()
+        }
+    }
 
-        onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+    private func stopConfirmingReplace() {
+        switch tab {
+        case .client: quickBook.stopConfirmingReplace()
+        case .plan: addPlan?.stopConfirmingReplace()
+        }
+    }
+
+    private func replace(then dismiss: () -> Void) {
+        switch tab {
+        case .client:
+            guard let replacement = quickBook.replacement else { return }
+
+            onAdded(onCutPlans(replacement, quickBook.bookReplacing()))
+        case .plan:
+            guard let addPlan, let replacement = addPlan.replacement else { return }
+
+            onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+        }
+
         dismiss()
     }
 }
@@ -151,6 +192,7 @@ struct QuickAddPopup: View {
                 addPlan: SchedulePreviewData.quickAddPlan,
                 onAddPlans: { _ in nil },
                 onReplacePlans: { _, _ in nil },
+                onCutPlans: { _, notice in notice },
                 onAdded: { _ in },
                 onDismiss: {}
             )

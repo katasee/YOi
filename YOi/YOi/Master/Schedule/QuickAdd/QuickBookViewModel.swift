@@ -7,6 +7,7 @@ final class QuickBookViewModel: Identifiable {
     let id = UUID()
     let choice: ClientBookingChoice
     var time = WorkHours.defaultCustomTime
+    private(set) var isConfirmingReplace = false
 
     private let day: Date
     private let dayId: String
@@ -55,23 +56,44 @@ final class QuickBookViewModel: Identifiable {
             return .overlap(ConflictEntry(id: "taken", text: text))
         }
 
-        return ConflictNotice(
-            WindowConflict.find(
-                windows: [candidate],
-                plans: plans,
-                now: now
-            ),
-            subject: .window
-        )
+        return ConflictNotice(conflicts, subject: .window)
     }
 
     var canBook: Bool {
         choice.selectedClientId != nil && notice?.blocksConfirm != true
     }
 
+    var replacement: WindowReplacement? {
+        guard bookedIds.contains(candidateId) == false else { return nil }
+
+        return WindowReplacement(conflicts)
+    }
+
+    var canReplace: Bool {
+        choice.selectedClientId != nil
+    }
+
+    func startConfirmingReplace() {
+        isConfirmingReplace = true
+    }
+
+    func stopConfirmingReplace() {
+        isConfirmingReplace = false
+    }
+
     func book() -> AddedNotice? {
         guard canBook, let clientId = choice.selectedClientId else { return nil }
 
+        return save(clientId: clientId)
+    }
+
+    func bookReplacing() -> AddedNotice? {
+        guard replacement != nil, let clientId = choice.selectedClientId else { return nil }
+
+        return save(clientId: clientId)
+    }
+
+    private func save(clientId: String) -> AddedNotice {
         let slot = candidate
         let booking = SlotBooking(clientId: clientId, service: choice.selectedService)
 
@@ -85,6 +107,14 @@ final class QuickBookViewModel: Identifiable {
         } catch {
             return AddedNotice(kind: .booking, outcome: .failed)
         }
+    }
+
+    private var conflicts: [WindowConflict] {
+        WindowConflict.find(
+            windows: [candidate],
+            plans: plans,
+            now: now
+        )
     }
 
     private var candidate: Slot {

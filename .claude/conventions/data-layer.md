@@ -47,12 +47,12 @@
   face value) — the async-operations warning is a genuine compiler diagnostic about the code as
   written and won't go away on its own.
 - **The deliberate fire-and-forget writes are `FirestoreClientRepository`'s `add`, `update` and
-  `delete`, `FirestoreServiceRepository`'s `add`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
+  `delete`, `FirestoreServiceRepository`'s `add` and `reorder(ids:)`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
   `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`** (user decisions: `add` in
   M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
-  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58,
+  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
   although the change was already in the local cache and on screen. They now pass
@@ -103,6 +103,18 @@
   `historyStart` formats), so it never offers months whose windows were not read. The client
   card's bookings (M-34.3) reuse the same bounded query and filter by `clientId`; a full
   per-client history would need its own `clientId ==` query, read whole on every card open.
+- **Services have the master's own order** (Y-60): `Service.position: Int?`, read everywhere
+  through `sortedByOrder()` (`Models/Service/Service+Order.swift`) — services without a position
+  first, alphabetically, then by position — so data from before Y-60 stays alphabetical until the
+  first drag. A new service is created with `nextPosition` (`max + 1`, or `0`), which lands it
+  last in both states; the edit form and the star toggle carry `position` over, because `update`
+  writes the model whole. A drop rewrites every position at once: `reorder(ids:)` is one
+  `WriteBatch` of `updateData(["position": i])`, fire-and-forget. It is always the full list,
+  inactive services included, so a move in a popup that only shows offered ones goes through
+  `moving(_:to:)` on the full list and keeps the inactive ones in place. Accepted risk: if one
+  service was deleted meanwhile (another device), the server rejects the whole batch unseen —
+  `setData(merge:)` is no fix, it would create a document `hasValidServiceFormat()` rejects.
+  Plans still sort with `sortedByName()`.
 - **A new field added to a model whose collection already has documents must be optional.** Swift's
   synthesized `init(from:)` does **not** fall back to a property's default value — a missing key
   throws `keyNotFound`, so `var isActive = true` would break decoding for every pre-existing

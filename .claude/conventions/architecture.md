@@ -157,6 +157,41 @@
   opened its popup. A tap gesture fails as soon as the finger moves (`ScheduleSlotRow`,
   `SchedulePlanRow`, Мої послуги's `ServiceRow`). Older rows also carry
   `.accessibilityAddTraits(.isButton)`; new code adds no VoiceOver traits or hints (user, M-37.5).
+- **Reordering moves our own views, never the system drag** (Y-60, rejected on the simulator).
+  `List` + `.onMove` and `.onDrag` + `DropDelegate` move a system *snapshot*: a grey rectangle
+  around the card, clipped shadows, a flash when the real row returns, and on iOS 18 `.onDrag`
+  has no "drag ended" event, so a drop outside a target left the row transparent. Instead
+  "Мої послуги" (`ServiceReorderList`) drags a row by its handle ☰ with
+  `DragGesture(minimumDistance: 0)` — a dedicated area, so it starts on touch and never fights the
+  scroll — and the service chips (`ChoiceChips` with a `ChoiceChipsReorder`) drag after a 0.3 s
+  long press, drawing a floating copy over the grid and an empty slot in it. The geometry lives in
+  pure value types (`RowDrag`, `ChipDrag`, `AutoScroll`), checked with `swiftc` scripts. Rules
+  found on the way:
+  - **Measure every row**: a plain `VStack`, not `LazyVStack` — a lazy stack leaves off-screen
+    rows unmeasured, and the target jumped to the end.
+  - **Track the finger in a space that does not move with it** (the stack's or the viewport's),
+    never the handle's own: the handle rides with the row and the row shook.
+  - **End a drag both ways**: `.onEnded` for the normal release and a `@GestureState` reset
+    (`onChange`) for a cancelled gesture, which never calls `onEnded`; `land()` runs once. With
+    only the `@GestureState`, a tap shorter than a frame toggled it twice in one frame and the
+    `onChange` was skipped.
+  - **A long press lifts on `.second`, not `.first(true)`**: in `LongPressGesture.sequenced`,
+    `.first(true)` means "touch is down", so every tap lifted the chip.
+  - **The tap goes before the move gesture**: of two gestures on one view the first attached gets
+    the touch; with the long press first, `.onTapGesture` never fired.
+  - **While landing, ignore every other touch** (`isLanding`, owner check), or a second handle or
+    chip grabs the item still animating into place.
+  - **Inside a `GlassEffectContainer`, `.opacity(0)` hides the text, not the glass** — the empty
+    slot draws the label `.hidden()` without its surface.
+  - **Reorder the array only after the landing animation has fully finished**
+    (`completionCriteria: .removed`, then a `disablesAnimations` transaction), and keep the last
+    dragged row's `zIndex(1)` until the next drag — `zIndex` cannot animate, and its shadow
+    flashed under the neighbour.
+  - A Firestore snapshot that arrives mid-drag is deferred until the drop
+    (`MyServicesViewModel.beginReorder()` / `finishReorder(from:to:)`).
+  `ServiceReorderList` draws `SwipeToDelete` + `ServiceRow` itself (a gesture-carrying handle
+  cannot be handed to a caller's row closure without `AnyView`); it moves to `UICommons` and
+  becomes generic when "Мої плани" gets the same drag.
 - **A row's swipe is a UIKit pan that begins only on a horizontal velocity** (Y-56, found on the
   simulator). `SwipeToDelete` once used `.simultaneousGesture(DragGesture(minimumDistance: 12))`:
   a SwiftUI drag claims the touch after 12pt in *any* direction — a direction `guard` in

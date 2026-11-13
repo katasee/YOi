@@ -48,7 +48,9 @@ objects: the dashed free window (`FreeSlotRow`), the "today" outline in `WeekDay
 conflict warning line (`ConflictNoticeView`, M-37.7: a tinted note, not a card), and the dashed
 "+ Нова послуга" chip (`ChoiceChipsAdd` in `ChoiceChips`, Y-57: a raised chip with a plus read as
 one more service on the simulator; the dashed `Stroke` capsule and `TextSecondary` text say "nothing
-here yet, add one", like the free window).
+here yet, add one", like the free window). It is always the grid's last chip: `ChoiceChipsLayout`
+lets a chip marked `ChoiceChipTrailing` fill an open half row only when that row is the last one
+(Y-60; before, it back-filled the gap beside a short chip above a wide one).
 A raised control that can be *selected* swaps its surface for a `PrimaryFill` fill with
 `.brandShadow()` (the selected day in `WeekDayStrip`); write that as an explicit `if`/`else` in
 `.background`, not as a fill stacked over a raised one — for a plain chip or field that is

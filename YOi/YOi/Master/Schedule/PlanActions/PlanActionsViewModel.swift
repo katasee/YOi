@@ -5,6 +5,7 @@ enum PlanActionsMode {
     case actions
     case changePlan
     case reschedule
+    case confirmReplace
 }
 
 @MainActor
@@ -20,17 +21,20 @@ final class PlanActionsViewModel: Identifiable {
     private let initialMove: PlanMove
     private let slots: [Slot]
     private let now: Date
+    private let directory: ClientDirectory
 
     init(
         plan: PlanEvent,
         templates: [EventTemplate],
         plannedDays: Set<String>,
         slots: [Slot],
-        now: Date
+        now: Date,
+        directory: ClientDirectory
     ) {
         self.plan = plan
         self.slots = slots
         self.now = now
+        self.directory = directory
         initialChoice = PlanChoice(templates: templates, pinning: plan)
         planChoice = initialChoice
         initialMove = PlanMove(
@@ -47,14 +51,14 @@ final class PlanActionsViewModel: Identifiable {
 
     var title: String {
         switch mode {
-        case .reschedule: String(localized: "schedule.plan.reschedule.title")
+        case .reschedule, .confirmReplace: String(localized: "schedule.plan.reschedule.title")
         case .actions, .changePlan: planTitle
         }
     }
 
     var subtitle: String {
         switch mode {
-        case .reschedule: "\(planTitle) · \(dayAndTime)"
+        case .reschedule, .confirmReplace: "\(planTitle) · \(dayAndTime)"
         case .actions, .changePlan: dayAndTime
         }
     }
@@ -73,14 +77,11 @@ final class PlanActionsViewModel: Identifiable {
     }
 
     var conflictNotice: ConflictNotice? {
-        ConflictNotice(
-            WindowConflict.find(
-                windows: slots,
-                plans: [move.movedPlan].compactMap { $0 },
-                now: now
-            ),
-            subject: .plan
-        )
+        ConflictNotice(conflicts, subject: .plan)
+    }
+
+    var replacement: PlanReplacement? {
+        PlanReplacement(conflicts, directory: directory)
     }
 
     var canReschedule: Bool {
@@ -118,6 +119,22 @@ final class PlanActionsViewModel: Identifiable {
 
     func stopRescheduling() {
         mode = .actions
+    }
+
+    func startConfirmingReplace() {
+        mode = .confirmReplace
+    }
+
+    func stopConfirmingReplace() {
+        mode = .reschedule
+    }
+
+    private var conflicts: [WindowConflict] {
+        WindowConflict.find(
+            windows: slots,
+            plans: [move.movedPlan].compactMap { $0 },
+            now: now
+        )
     }
 
     private var planTitle: String {

@@ -4,6 +4,7 @@ struct FillMonthPopup: View {
     @Bindable var viewModel: FillMonthViewModel
     let addPlan: AddPlanViewModel
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
+    let onReplacePlans: ([String], [PlanEvent]) -> AddedNotice?
     let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
@@ -13,32 +14,47 @@ struct FillMonthPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            ScheduleTabs(selection: $tab)
+            let replacement = tab == .plans ? addPlan.replacement : nil
 
-            ScrollView {
-                sections
-                    .padding(ScheduleMetrics.Spacing.scrollShadowInset)
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.size.height
-                    } action: { height in
-                        contentHeight = height
-                    }
+            if let replacement, addPlan.isConfirmingReplace {
+                ReplaceConfirmStep(
+                    replacement: replacement,
+                    onBack: addPlan.stopConfirmingReplace,
+                    onConfirm: { replace(replacement, then: dismiss) }
+                )
+            } else {
+                form(replacement: replacement, dismiss: dismiss)
             }
-            .frame(maxHeight: contentHeight)
-            .scrollPosition($scrollPosition)
-            .onChange(of: addPlan.selectedTemplateId, scrollToTime)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollIndicators(.hidden)
-            .padding(-ScheduleMetrics.Spacing.scrollShadowInset)
-
-            if let conflictNotice {
-                ConflictNoticeView(notice: conflictNotice)
-                    .id(tab)
-            }
-
-            actions(dismiss: dismiss)
         }
         .animation(PopupContainerLayout.fade, value: conflictNotice)
+    }
+
+    @ViewBuilder
+    private func form(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
+        ScheduleTabs(selection: $tab)
+
+        ScrollView {
+            sections
+                .padding(ScheduleMetrics.Spacing.scrollShadowInset)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.height
+                } action: { height in
+                    contentHeight = height
+                }
+        }
+        .frame(maxHeight: contentHeight)
+        .scrollPosition($scrollPosition)
+        .onChange(of: addPlan.selectedTemplateId, scrollToTime)
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollIndicators(.hidden)
+        .padding(-ScheduleMetrics.Spacing.scrollShadowInset)
+
+        if let conflictNotice {
+            ConflictNoticeView(notice: conflictNotice)
+                .id(tab)
+        }
+
+        actions(replacement: replacement, dismiss: dismiss)
     }
 
     private var conflictNotice: ConflictNotice? {
@@ -63,7 +79,7 @@ struct FillMonthPopup: View {
     }
 
     @ViewBuilder
-    private func actions(dismiss: @escaping () -> Void) -> some View {
+    private func actions(replacement: PlanReplacement?, dismiss: @escaping () -> Void) -> some View {
         HStack {
             PopupDismissButton(titleKey: "common.action.cancel", action: dismiss)
 
@@ -78,12 +94,16 @@ struct FillMonthPopup: View {
                     action: { add(then: dismiss) }
                 )
             case .plans:
-                CapsuleButton(
-                    titleKey: "schedule.plan.add",
-                    role: .primary,
-                    isEnabled: addPlan.canAdd,
-                    action: { addPlans(then: dismiss) }
-                )
+                if replacement != nil {
+                    ReplaceButton(action: { addPlan.startConfirmingReplace() })
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.plan.add",
+                        role: .primary,
+                        isEnabled: addPlan.canAdd,
+                        action: { addPlans(then: dismiss) }
+                    )
+                }
             }
         }
     }
@@ -103,6 +123,11 @@ struct FillMonthPopup: View {
         onAdded(onAddPlans(addPlan.makePlans()))
         dismiss()
     }
+
+    private func replace(_ replacement: PlanReplacement, then dismiss: () -> Void) {
+        onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+        dismiss()
+    }
 }
 
 #if DEBUG
@@ -113,6 +138,7 @@ struct FillMonthPopup: View {
                 viewModel: SchedulePreviewData.fillMonth,
                 addPlan: SchedulePreviewData.addPlan,
                 onAddPlans: { _ in nil },
+                onReplacePlans: { _, _ in nil },
                 onAdded: { _ in },
                 onDismiss: {}
             )

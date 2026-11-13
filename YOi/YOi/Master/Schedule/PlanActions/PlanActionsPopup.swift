@@ -4,11 +4,14 @@ struct PlanActionsPopup: View {
     @Bindable var viewModel: PlanActionsViewModel
     let onUpdate: (PlanEvent) -> Void
     let onDelete: (String) -> Void
+    let onReplace: ([String], PlanEvent) -> Void
     let onDismiss: () -> Void
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
+            if viewModel.mode != .confirmReplace {
+                SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
+            }
 
             switch viewModel.mode {
             case .actions:
@@ -32,6 +35,16 @@ struct PlanActionsPopup: View {
                 }
             case .reschedule:
                 PlanRescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
+            case .confirmReplace:
+                if let replacement = viewModel.replacement {
+                    ReplaceConfirmStep(
+                        replacement: replacement,
+                        onBack: viewModel.stopConfirmingReplace,
+                        onConfirm: { replace(replacement, then: dismiss) }
+                    )
+                } else {
+                    PlanRescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
+                }
             }
         }
     }
@@ -59,6 +72,13 @@ struct PlanActionsPopup: View {
 
         dismiss()
     }
+
+    private func replace(_ replacement: PlanReplacement, then dismiss: () -> Void) {
+        guard let plan = viewModel.move.movedPlan else { return }
+
+        onReplace(replacement.windowIds, plan)
+        dismiss()
+    }
 }
 
 #if DEBUG
@@ -69,6 +89,7 @@ struct PlanActionsPopup: View {
                 viewModel: SchedulePreviewData.planActions,
                 onUpdate: { _ in },
                 onDelete: { _ in },
+                onReplace: { _, _ in },
                 onDismiss: {}
             )
         }

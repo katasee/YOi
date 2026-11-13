@@ -3249,7 +3249,6 @@
       }
     },
     "schedule.replace.action" : {
-      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3261,6 +3260,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Замінити"
+          }
+        }
+      }
+    },
+    "schedule.replace.freeWindow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "free window"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вільне вікно"
+          }
+        }
+      }
+    },
+    "schedule.replace.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінити?"
+          }
+        }
+      }
+    },
+    "schedule.replace.windowsMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The plan will take the place of these windows"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Справа стане на місце цих вікон"
           }
         }
       }

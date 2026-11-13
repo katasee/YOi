@@ -2605,6 +2605,32 @@ this file is just "what's done, what's next," not a design doc.
     `RowDrag` + `AutoScroll` (11/11), `ChipDrag` (10/10), id-based vs index-based move (25 pairs);
     simulator by the user (lists, chips, tap vs long press).
 
+- **Y-63 — Replace a window with a plan, or a plan with a booking** (branch
+  `worktree-feature+y-63-replace-window-with-plan`; user, 2026-11-11/13). A red overlap between a
+  window and a plan no longer only blocks: for a **single day** the disabled button becomes
+  "Замінити" (`ReplaceButton`, the new `.warning` role of `CapsuleButton`, `Warning` outline), and
+  two or more days still block (user: "там можна щось провтикати"). Replaces M-37.8's "Red still
+  blocks" for one day.
+  - Plan over windows ("+" → "Мої справи", Заповнити місяць "Мої справи" with one day,
+    "Перенести" a plan): every overlapped window is deleted, booked or free.
+    `PlanReplacement` lists them ("10:00 · Олена · Манікюр", "12:00 · вільне вікно").
+  - Booking or window over a plan ("+" → "Клієнтка", Заповнити місяць "Вікна" with one day,
+    "Перенести" a booking): the plan is **trimmed** to end at the earliest new window, or
+    deleted when that window is at its start (user: trim, not delete). `PlanCut` holds the minute
+    rule, `WindowReplacement` the plans and lines ("🥊 Бокс · 10:00–14:00 → 10:00–12:00",
+    "… — буде видалено"). A time already booked stays a hard block; amber is never touched.
+  - Always a confirmation step (user: "всюди робити попередження"), `ReplaceConfirmStep` fed by
+    `ScheduleReplacement` (`message` + `entries`, both replacements conform). The yellow button
+    only opens it, the red "Замінити" commits; Back keeps the form.
+  - Writes: the new item first, then the windows deleted (`ScheduleViewModel.replaceWindows`) or
+    the plans cut (`applyingCuts(_:to:)`, `cutPlans`) — only when the first write returned
+    `.saved` (`AddedNotice.isSaved`). All fire-and-forget, so "saved" means queued locally.
+  - Reviews: swiftui-pro (four passes), swift-concurrency-pro (no async code), SOLID/clean code
+    (the always-confirm split, `ReplaceButton`, `ScheduleReplacement`, `ConflictEntry` instead of
+    a second line type).
+  - Verified: `xcodebuild` on every commit; `swiftc` script on `PlanCut` (4/4: at start, inside,
+    at end, before start).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2858,6 +2884,7 @@ those items are referred to by name, so the list can grow without renumbering an
        hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
        to `PlanChoice` here.
    15. ~~**Y-60 Reorder services by drag**~~ — **done** (under "Done"). Plans' order is a later PR.
+   16. ~~**Y-63 Replace a window with a plan, or a plan with a booking**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 

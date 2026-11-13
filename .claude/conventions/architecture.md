@@ -146,7 +146,7 @@
   label fights it for the tap. When a menu must look like one of our buttons, draw the button's
   *look* without the `Button`: `RoundIconLabel` is `RoundIconButton`'s look, extracted in M-32.2b
   so the row's contact menu and every round button share one drawing. `CapsuleButton`'s look was
-  not extracted (it is tangled with loading/disabled states and three roles); the client card's
+  not extracted (it is tangled with loading/disabled states and four roles); the client card's
   "Зв'язатися" menu label is drawn privately as a `.cardSurface` row (M-32.5, user decision: it
   matches the list rows instead of the primary capsule) — extract it when a second one appears.
   `BookingActionLabel` (M-34.2) follows the same rule: one row look, used as a `Button` label for

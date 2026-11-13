@@ -2580,6 +2580,31 @@ this file is just "what's done, what's next," not a design doc.
     own way out; the rule is in `architecture.md`.
   - Verified: `xcodebuild`. No simulator pass yet.
 
+- **Y-60 — Reorder services by drag** (branch `feature/y-60-reorder-services`; user, 2026-11-11/12,
+  replacing the 2026-11-08 design, which used the system drag and drop). The master sets her own
+  service order, and that one order is shown everywhere.
+  - "Мої послуги": a handle ☰ inside each card drags the row at once (no long press), neighbours
+    slide aside, the row lands into its slot; the list auto-scrolls near the top and bottom edges.
+    Tap, star and swipe-to-delete stay on the rest of the card.
+  - Service chips in the booking popup, "+ Швидко додати" and "Змінити послугу": a 0.3 s long press
+    lifts a chip, the grid reflows live as it moves. The pinned (archived) chip and "+ Нова послуга"
+    do not move; "Змінити послугу" keeps the new order after Back and a move never enables Save.
+  - Data: `Service.position: Int?`, `sortedByOrder()` (unpositioned first, alphabetically — old
+    data does not shuffle), a new service goes last, `ServiceRepository.reorder(ids:)` writes the
+    whole order as one fire-and-forget batch on drop. `firestore.rules` checks `position is int` —
+    published by hand in the Console.
+  - "+ Нова послуга" is always the grid's last chip (`ChoiceChipTrailing`), fixing a pre-Y-60
+    layout gap.
+  - Five spikes on the simulator settled the mechanism: `List` + `.onMove` and `.onDrag` were
+    rejected for their snapshot (grey rectangle, clipped shadows, flash, a stuck transparent row);
+    the drags move our own views (`architecture.md`). Plans ("Мої плани", plan chips) keep
+    alphabetical order — a later PR.
+  - Reviews: swiftui-pro (twice), swift-concurrency-pro, SOLID/clean code; the geometry is in pure
+    `RowDrag`, `ChipDrag`, `AutoScroll`.
+  - Verified: `xcodebuild`; `swiftc` scripts for the sort and move (10/10), `ServiceChoice` (6/6),
+    `RowDrag` + `AutoScroll` (11/11), `ChipDrag` (10/10), id-based vs index-based move (25 pairs);
+    simulator by the user (lists, chips, tap vs long press).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2832,6 +2857,7 @@ those items are referred to by name, so the list can grow without renumbering an
        `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
        hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
        to `PlanChoice` here.
+   15. ~~**Y-60 Reorder services by drag**~~ — **done** (under "Done"). Plans' order is a later PR.
 
 ## Backlog and tech debt (unordered)
 

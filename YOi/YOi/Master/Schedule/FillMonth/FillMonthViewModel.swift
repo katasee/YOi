@@ -7,6 +7,7 @@ final class FillMonthViewModel: Identifiable {
     let id = UUID()
 
     var days: MonthDaySelection
+    private(set) var isConfirmingReplace = false
 
     private var fillTimes = FillTimes()
 
@@ -60,6 +61,20 @@ final class FillMonthViewModel: Identifiable {
         newSlotCount > 0 && conflictNotice?.blocksConfirm != true
     }
 
+    var replacement: WindowReplacement? {
+        guard days.selected.count == 1 else { return nil }
+
+        return WindowReplacement(conflicts)
+    }
+
+    func startConfirmingReplace() {
+        isConfirmingReplace = true
+    }
+
+    func stopConfirmingReplace() {
+        isConfirmingReplace = false
+    }
+
     func toggleTime(_ id: String) {
         fillTimes.toggle(id)
     }
@@ -73,8 +88,16 @@ final class FillMonthViewModel: Identifiable {
     }
 
     func add(now: Date = .now) -> AddedNotice? {
-        let slots = missingSlots(now: now)
+        save(missingSlots(now: now))
+    }
 
+    func addReplacing(now: Date = .now) -> AddedNotice? {
+        guard replacement != nil else { return nil }
+
+        return save(missingSlots(now: now))
+    }
+
+    private func save(_ slots: [Slot]) -> AddedNotice? {
         guard slots.isEmpty == false else { return nil }
 
         do {

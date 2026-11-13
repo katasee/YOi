@@ -26,12 +26,16 @@ struct PlanRescheduleStep: View {
 
                 Spacer()
 
-                CapsuleButton(
-                    titleKey: "schedule.reschedule.action",
-                    role: .primary,
-                    isEnabled: viewModel.canReschedule,
-                    action: onConfirm
-                )
+                if viewModel.replacement != nil {
+                    ReplaceButton(action: viewModel.startConfirmingReplace)
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.reschedule.action",
+                        role: .primary,
+                        isEnabled: viewModel.canReschedule,
+                        action: onConfirm
+                    )
+                }
             }
         }
         .animation(PopupContainerLayout.fade, value: viewModel.conflictNotice)

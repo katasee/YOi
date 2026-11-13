@@ -15,6 +15,10 @@ struct AddedNotice: Equatable {
     let kind: Kind
     let outcome: Outcome
 
+    var isSaved: Bool {
+        if case .saved = outcome { true } else { false }
+    }
+
     var dayId: String? {
         guard case .saved(let dates) = outcome, Set(dates).count == 1 else { return nil }
 

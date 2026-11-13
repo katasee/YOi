@@ -87,7 +87,11 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
    one-off plan typed in place (an emoji tile that opens the emoji grid + a name; not saved as a
    template; a typed name and a template chip exclude each other), start–end, on one or several picked days (the "Мої справи" tab of Розклад's "+") or weekly on
    chosen days; shown in the day list like a booking, tap → change (always offered: another template or a one-off name) / move / delete. A free window that overlaps a plan (assuming
-   a 60-minute visit) is flagged and left out of what is published; it is not deleted.
+   a 60-minute visit) is flagged and left out of what is published; it is not deleted. Adding
+   something that overlaps on **one** day offers "Замінити" after a confirmation listing what
+   changes: a plan deletes the windows under it (booked ones too); a booking or window trims the
+   plan to end at it, or deletes the plan when it starts there. Over several days an overlap still
+   blocks the add.
 
 ## Statistics (calendar month, navigable back)
 

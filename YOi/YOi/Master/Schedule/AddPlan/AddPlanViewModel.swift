@@ -7,18 +7,21 @@ final class AddPlanViewModel {
     var days: MonthDaySelection
     var times = PlanTimes()
     private(set) var isSingleDay = false
+    private(set) var isConfirmingReplace = false
 
     private var planChoice: PlanChoice
 
     private let slots: [Slot]
     private let now: Date
+    private let directory: ClientDirectory
 
     init(
         month: Date,
         templates: [EventTemplate],
         plannedDays: Set<String>,
         slots: [Slot],
-        now: Date
+        now: Date,
+        directory: ClientDirectory
     ) {
         days = MonthDaySelection(
             month: month,
@@ -28,6 +31,7 @@ final class AddPlanViewModel {
         planChoice = PlanChoice(templates: templates)
         self.slots = slots
         self.now = now
+        self.directory = directory
     }
 
     convenience init(
@@ -35,14 +39,16 @@ final class AddPlanViewModel {
         templates: [EventTemplate],
         plannedDays: Set<String>,
         slots: [Slot],
-        now: Date
+        now: Date,
+        directory: ClientDirectory
     ) {
         self.init(
             month: day,
             templates: templates,
             plannedDays: plannedDays,
             slots: slots,
-            now: now
+            now: now,
+            directory: directory
         )
         days.toggleDay(DateFormat.date.string(from: day))
         isSingleDay = true
@@ -80,12 +86,30 @@ final class AddPlanViewModel {
             && conflictNotice?.blocksConfirm != true
     }
 
+    var replacement: PlanReplacement? {
+        guard days.selected.count == 1 else { return nil }
+
+        return PlanReplacement(conflicts, directory: directory)
+    }
+
+    func startConfirmingReplace() {
+        isConfirmingReplace = true
+    }
+
+    func stopConfirmingReplace() {
+        isConfirmingReplace = false
+    }
+
     func selectTemplate(_ id: String) {
         planChoice.select(id)
     }
 
     func makePlans() -> [PlanEvent] {
         canAdd ? candidatePlans : []
+    }
+
+    func replacingPlans() -> [PlanEvent] {
+        replacement == nil ? [] : candidatePlans
     }
 
     private var conflicts: [WindowConflict] {

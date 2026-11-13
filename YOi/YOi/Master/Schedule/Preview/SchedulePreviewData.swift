@@ -42,6 +42,11 @@ enum SchedulePreviewData {
 
     static let overlapNotice = ConflictNotice.overlap(ConflictEntry(id: "overlap", text: "5.10 о 10:00 · 🥊 Бокс"))
 
+    static let replacedWindows: [ConflictEntry] = [
+        ConflictEntry(id: "booked-0", text: "10:00 · Олена · Манікюр · 150 zł"),
+        ConflictEntry(id: "free-1", text: "12:00 · вільне вікно")
+    ]
+
     static let nearNotice = ConflictNotice.near([ConflictEntry(id: "near", text: "5.10 о 9:00 · 🥊 Бокс о 10:00")])
 
     static let nearEntries: [ConflictEntry] = [
@@ -142,7 +147,8 @@ enum SchedulePreviewData {
             templates: templates,
             plannedDays: [today],
             slots: dailySlots("11:00"),
-            now: .now
+            now: .now,
+            directory: ClientDirectory(clients: [], isLoaded: false)
         )
 
         viewModel.days.toggleWeekday(MonthGrid.column(of: .now))
@@ -181,7 +187,8 @@ enum SchedulePreviewData {
             templates: templates,
             plannedDays: [today],
             slots: dailySlots("11:00"),
-            now: .now
+            now: .now,
+            directory: ClientDirectory(clients: [], isLoaded: false)
         )
 
         viewModel.selectTemplate("tpl-boxing")
@@ -199,7 +206,8 @@ enum SchedulePreviewData {
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
-            now: .now
+            now: .now,
+            directory: ClientDirectory(clients: [], isLoaded: false)
         )
 
         viewModel.move.times.start = ClockTime(minutesOfDay: 17 * 60)

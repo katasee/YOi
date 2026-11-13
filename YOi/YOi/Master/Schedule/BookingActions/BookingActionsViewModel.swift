@@ -5,6 +5,7 @@ enum BookingActionsMode {
     case actions
     case changeService
     case reschedule
+    case confirmReplace
     case rescheduled(message: String)
 }
 
@@ -51,14 +52,14 @@ final class BookingActionsViewModel: Identifiable {
 
     var title: String {
         switch mode {
-        case .reschedule: String(localized: "schedule.reschedule.title")
+        case .reschedule, .confirmReplace: String(localized: "schedule.reschedule.title")
         case .actions, .changeService, .rescheduled: clientName
         }
     }
 
     var subtitle: String {
         switch mode {
-        case .reschedule:
+        case .reschedule, .confirmReplace:
             return "\(clientName) · \(SlotWhen.text(for: slot))"
         case .rescheduled:
             return String(localized: "schedule.reschedule.copied")
@@ -146,16 +147,15 @@ final class BookingActionsViewModel: Identifiable {
     }
 
     var conflictNotice: ConflictNotice? {
-        guard let target = rescheduleChoice.target else { return nil }
+        ConflictNotice(conflicts, subject: .window)
+    }
 
-        return ConflictNotice(
-            WindowConflict.find(
-                windows: [Slot(date: target.date, time: target.time)],
-                plans: plans,
-                now: now
-            ),
-            subject: .window
-        )
+    var replacement: WindowReplacement? {
+        WindowReplacement(conflicts)
+    }
+
+    var isConfirmingReplace: Bool {
+        if case .confirmReplace = mode { true } else { false }
     }
 
     var canReschedule: Bool {
@@ -183,6 +183,20 @@ final class BookingActionsViewModel: Identifiable {
         mode = .actions
     }
 
+    func startConfirmingReplace() {
+        mode = .confirmReplace
+    }
+
+    func stopConfirmingReplace() {
+        mode = .reschedule
+    }
+
+    func rescheduleReplacing() -> String? {
+        guard replacement != nil else { return nil }
+
+        return reschedule()
+    }
+
     func reschedule() -> String? {
         guard
             let target = rescheduleChoice.target,
@@ -204,6 +218,16 @@ final class BookingActionsViewModel: Identifiable {
         mode = .rescheduled(message: RescheduleMessage.text(date: target.date, time: target.time))
 
         return target.date
+    }
+
+    private var conflicts: [WindowConflict] {
+        guard let target = rescheduleChoice.target else { return [] }
+
+        return WindowConflict.find(
+            windows: [Slot(date: target.date, time: target.time)],
+            plans: plans,
+            now: now
+        )
     }
 
     func cancelBooking() {

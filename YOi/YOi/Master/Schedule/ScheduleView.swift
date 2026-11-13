@@ -122,6 +122,8 @@ struct ScheduleView: View {
                 viewModel: fillMonth,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
+                onReplacePlans: viewModel.replaceWindows(_:with:),
+                onCutPlans: viewModel.applyingCuts(_:to:),
                 onAdded: noteAdded,
                 onDismiss: closePopup
             )
@@ -140,6 +142,7 @@ struct ScheduleView: View {
                 viewModel: bookingActions,
                 onOpenCard: { pendingCardClientId = $0 },
                 onRescheduled: { pendingDayId = $0 },
+                onCutPlans: viewModel.cutPlans,
                 onDismiss: closePopup
             )
         case .planActions(let planActions):
@@ -150,6 +153,10 @@ struct ScheduleView: View {
                     pendingDayId = plan.date
                 },
                 onDelete: viewModel.deletePlan(id:),
+                onReplace: { windowIds, plan in
+                    viewModel.replaceWindows(windowIds, moving: plan)
+                    pendingDayId = plan.date
+                },
                 onDismiss: closePopup
             )
         case .quickAdd(let quickBook, let addPlan):
@@ -157,6 +164,8 @@ struct ScheduleView: View {
                 quickBook: quickBook,
                 addPlan: addPlan,
                 onAddPlans: viewModel.addPlans,
+                onReplacePlans: viewModel.replaceWindows(_:with:),
+                onCutPlans: viewModel.applyingCuts(_:to:),
                 onAdded: noteAdded,
                 onDismiss: closePopup
             )

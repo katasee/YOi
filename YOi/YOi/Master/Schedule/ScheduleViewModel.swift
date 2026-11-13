@@ -67,8 +67,42 @@ final class ScheduleViewModel {
         }
     }
 
+    func replaceWindows(_ windowIds: [String], with newPlans: [PlanEvent]) -> AddedNotice? {
+        let notice = addPlans(newPlans)
+
+        if notice?.isSaved == true {
+            deleteWindows(windowIds)
+        }
+
+        return notice
+    }
+
+    func applyingCuts(_ replacement: WindowReplacement, to notice: AddedNotice?) -> AddedNotice? {
+        if notice?.isSaved == true {
+            cutPlans(replacement)
+        }
+
+        return notice
+    }
+
+    func cutPlans(_ replacement: WindowReplacement) {
+        for plan in replacement.trimmedPlans {
+            updatePlan(plan)
+        }
+
+        for id in replacement.deletedPlanIds {
+            deletePlan(id: id)
+        }
+    }
+
     func updatePlan(_ plan: PlanEvent) {
         try? eventRepository.update(plan)
+    }
+
+    func replaceWindows(_ windowIds: [String], moving plan: PlanEvent) {
+        guard (try? eventRepository.update(plan)) != nil else { return }
+
+        deleteWindows(windowIds)
     }
 
     func deletePlan(id: String) {
@@ -136,6 +170,12 @@ final class ScheduleViewModel {
         try? slotRepository.delete(id: id)
     }
 
+    private func deleteWindows(_ ids: [String]) {
+        for id in ids {
+            delete(id: id)
+        }
+    }
+
     func makeFillMonthViewModel(now: Date = .now) -> FillMonthViewModel {
         FillMonthViewModel(
             month: selectedDate,
@@ -152,7 +192,8 @@ final class ScheduleViewModel {
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
-            now: now
+            now: now,
+            directory: directory
         )
     }
 
@@ -182,7 +223,8 @@ final class ScheduleViewModel {
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
-            now: now
+            now: now,
+            directory: directory
         )
     }
 
@@ -226,7 +268,8 @@ final class ScheduleViewModel {
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
-            now: now
+            now: now,
+            directory: directory
         )
     }
 

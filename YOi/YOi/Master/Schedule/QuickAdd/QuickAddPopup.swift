@@ -4,6 +4,8 @@ struct QuickAddPopup: View {
     let quickBook: QuickBookViewModel
     let addPlan: AddPlanViewModel?
     let onAddPlans: ([PlanEvent]) -> AddedNotice?
+    let onReplacePlans: ([String], [PlanEvent]) -> AddedNotice?
+    let onCutPlans: (WindowReplacement, AddedNotice?) -> AddedNotice?
     let onAdded: (AddedNotice?) -> Void
     let onDismiss: () -> Void
 
@@ -12,32 +14,61 @@ struct QuickAddPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            if addPlan != nil {
-                ScheduleTabs(selection: $tab)
-            }
+            let replacement = currentReplacement
 
-            ScrollView {
-                sections
-                    .padding(ScheduleMetrics.Spacing.scrollShadowInset)
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.size.height
-                    } action: { height in
-                        resize(to: height)
-                    }
+            if let replacement, isConfirmingReplace {
+                ReplaceConfirmStep(
+                    replacement: replacement,
+                    onBack: stopConfirmingReplace,
+                    onConfirm: { replace(then: dismiss) }
+                )
+            } else {
+                form(offersReplace: replacement != nil, dismiss: dismiss)
             }
-            .frame(maxHeight: contentHeight)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollIndicators(.hidden)
-            .padding(-ScheduleMetrics.Spacing.scrollShadowInset)
-
-            if let conflictNotice {
-                ConflictNoticeView(notice: conflictNotice)
-                    .id(tab)
-            }
-
-            actions(dismiss: dismiss)
         }
         .animation(PopupContainerLayout.fade, value: conflictNotice)
+    }
+
+    @ViewBuilder
+    private func form(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
+        if addPlan != nil {
+            ScheduleTabs(selection: $tab)
+        }
+
+        ScrollView {
+            sections
+                .padding(ScheduleMetrics.Spacing.scrollShadowInset)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.height
+                } action: { height in
+                    resize(to: height)
+                }
+        }
+        .frame(maxHeight: contentHeight)
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollIndicators(.hidden)
+        .padding(-ScheduleMetrics.Spacing.scrollShadowInset)
+
+        if let conflictNotice {
+            ConflictNoticeView(notice: conflictNotice)
+                .id(tab)
+        }
+
+        actions(offersReplace: offersReplace, dismiss: dismiss)
+    }
+
+    private var currentReplacement: (any ScheduleReplacement)? {
+        switch tab {
+        case .client: quickBook.replacement
+        case .plan: addPlan?.replacement
+        }
+    }
+
+    private var isConfirmingReplace: Bool {
+        switch tab {
+        case .client: quickBook.isConfirmingReplace
+        case .plan: addPlan?.isConfirmingReplace == true
+        }
     }
 
     private var conflictNotice: ConflictNotice? {
@@ -77,7 +108,7 @@ struct QuickAddPopup: View {
     }
 
     @ViewBuilder
-    private func actions(dismiss: @escaping () -> Void) -> some View {
+    private func actions(offersReplace: Bool, dismiss: @escaping () -> Void) -> some View {
         HStack {
             PopupDismissButton(titleKey: "common.action.cancel", action: dismiss)
 
@@ -85,19 +116,27 @@ struct QuickAddPopup: View {
 
             switch tab {
             case .client:
-                CapsuleButton(
-                    titleKey: "schedule.book.submit",
-                    role: .primary,
-                    isEnabled: quickBook.canBook,
-                    action: { book(then: dismiss) }
-                )
+                if offersReplace {
+                    ReplaceButton(isEnabled: quickBook.canReplace, action: startConfirmingReplace)
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.book.submit",
+                        role: .primary,
+                        isEnabled: quickBook.canBook,
+                        action: { book(then: dismiss) }
+                    )
+                }
             case .plan:
-                CapsuleButton(
-                    titleKey: "schedule.plan.add",
-                    role: .primary,
-                    isEnabled: addPlan?.canAdd == true,
-                    action: { addPlans(then: dismiss) }
-                )
+                if offersReplace {
+                    ReplaceButton(action: startConfirmingReplace)
+                } else {
+                    CapsuleButton(
+                        titleKey: "schedule.plan.add",
+                        role: .primary,
+                        isEnabled: addPlan?.canAdd == true,
+                        action: { addPlans(then: dismiss) }
+                    )
+                }
             }
         }
     }
@@ -113,6 +152,35 @@ struct QuickAddPopup: View {
         onAdded(onAddPlans(addPlan.makePlans()))
         dismiss()
     }
+
+    private func startConfirmingReplace() {
+        switch tab {
+        case .client: quickBook.startConfirmingReplace()
+        case .plan: addPlan?.startConfirmingReplace()
+        }
+    }
+
+    private func stopConfirmingReplace() {
+        switch tab {
+        case .client: quickBook.stopConfirmingReplace()
+        case .plan: addPlan?.stopConfirmingReplace()
+        }
+    }
+
+    private func replace(then dismiss: () -> Void) {
+        switch tab {
+        case .client:
+            guard let replacement = quickBook.replacement else { return }
+
+            onAdded(onCutPlans(replacement, quickBook.bookReplacing()))
+        case .plan:
+            guard let addPlan, let replacement = addPlan.replacement else { return }
+
+            onAdded(onReplacePlans(replacement.windowIds, addPlan.replacingPlans()))
+        }
+
+        dismiss()
+    }
 }
 
 #if DEBUG
@@ -123,6 +191,8 @@ struct QuickAddPopup: View {
                 quickBook: SchedulePreviewData.quickBook,
                 addPlan: SchedulePreviewData.quickAddPlan,
                 onAddPlans: { _ in nil },
+                onReplacePlans: { _, _ in nil },
+                onCutPlans: { _, notice in notice },
                 onAdded: { _ in },
                 onDismiss: {}
             )

@@ -142,6 +142,7 @@ struct ScheduleView: View {
                 viewModel: bookingActions,
                 onOpenCard: { pendingCardClientId = $0 },
                 onRescheduled: { pendingDayId = $0 },
+                onCutPlans: viewModel.cutPlans,
                 onDismiss: closePopup
             )
         case .planActions(let planActions):

@@ -4,6 +4,7 @@ struct BookingActionsPopup: View {
     let viewModel: BookingActionsViewModel
     let onOpenCard: (String) -> Void
     let onRescheduled: (String) -> Void
+    let onCutPlans: (WindowReplacement) -> Void
     let onDismiss: () -> Void
 
     @State private var isConfirmingCancel = false
@@ -11,7 +12,9 @@ struct BookingActionsPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
+            if viewModel.isConfirmingReplace == false {
+                SchedulePopupHeader(title: viewModel.title, subtitle: viewModel.subtitle)
+            }
 
             switch viewModel.mode {
             case .actions:
@@ -47,6 +50,16 @@ struct BookingActionsPopup: View {
                 )
             case .reschedule:
                 RescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
+            case .confirmReplace:
+                if let replacement = viewModel.replacement {
+                    ReplaceConfirmStep(
+                        replacement: replacement,
+                        onBack: viewModel.stopConfirmingReplace,
+                        onConfirm: { replace(replacement, then: dismiss) }
+                    )
+                } else {
+                    RescheduleStep(viewModel: viewModel, onConfirm: { reschedule(then: dismiss) })
+                }
             case .rescheduled(let message):
                 RescheduleNotifyStep(
                     message: message,
@@ -83,6 +96,16 @@ struct BookingActionsPopup: View {
         onRescheduled(dayId)
     }
 
+    private func replace(_ replacement: WindowReplacement, then dismiss: () -> Void) {
+        guard let dayId = viewModel.rescheduleReplacing() else {
+            dismiss()
+            return
+        }
+
+        onCutPlans(replacement)
+        onRescheduled(dayId)
+    }
+
     private func addService() {
         withoutPresentationAnimation {
             newServiceForm = viewModel.makeNewServiceForm()
@@ -103,6 +126,7 @@ struct BookingActionsPopup: View {
                 viewModel: SchedulePreviewData.bookingActions,
                 onOpenCard: { _ in },
                 onRescheduled: { _ in },
+                onCutPlans: { _ in },
                 onDismiss: {}
             )
         }

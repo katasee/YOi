@@ -4,6 +4,7 @@ enum CapsuleButtonRole {
     case primary
     case secondary
     case destructive
+    case warning
 }
 
 struct CapsuleButton: View {
@@ -27,10 +28,15 @@ struct CapsuleButton: View {
         static let destructiveShadowOpacity: Double = 0.25
         static let destructiveShadowRadius: CGFloat = 8
         static let destructiveShadowY: CGFloat = 6
+        static let warningOutline: CGFloat = 1.5
     }
 
     private var labelColor: Color {
-        role == .secondary ? Color.ink : Color.onPrimary
+        switch role {
+        case .primary, .destructive: Color.onPrimary
+        case .secondary: Color.ink
+        case .warning: Color.warning
+        }
     }
 
     private var isDisabled: Bool {
@@ -51,6 +57,7 @@ struct CapsuleButton: View {
             Button(action: action) {
                 sizedLabel
                     .glassEffect(glass, in: .capsule)
+                    .overlay { outline }
                     .contentShape(.capsule)
             }
             .buttonStyle(.plain)
@@ -75,7 +82,7 @@ struct CapsuleButton: View {
         switch role {
         case .primary:
             .primary.interactive()
-        case .secondary:
+        case .secondary, .warning:
             .regular.interactive()
         case .destructive:
             .destructive.interactive()
@@ -115,6 +122,10 @@ struct CapsuleButton: View {
         case .secondary:
             Color.clear
                 .raisedSurface(.capsule)
+        case .warning:
+            Color.clear
+                .raisedSurface(.capsule)
+                .overlay { outline }
         case .destructive:
             Capsule()
                 .fill(Color.destructiveFill)
@@ -124,6 +135,14 @@ struct CapsuleButton: View {
                     x: 0,
                     y: Layout.destructiveShadowY
                 )
+        }
+    }
+
+    @ViewBuilder
+    private var outline: some View {
+        if role == .warning {
+            Capsule()
+                .strokeBorder(Color.warning, lineWidth: Layout.warningOutline)
         }
     }
 }
@@ -160,6 +179,8 @@ private struct PressableButtonStyle: ButtonStyle {
             isLoading: true,
             action: {}
         )
+
+        CapsuleButton(titleKey: "schedule.replace.action", role: .warning, action: {})
 
         HStack(spacing: 10) {
             CapsuleButton(

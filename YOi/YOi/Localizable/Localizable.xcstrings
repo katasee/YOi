@@ -3248,6 +3248,23 @@
         }
       }
     },
+    "schedule.replace.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінити"
+          }
+        }
+      }
+    },
     "schedule.reschedule.action" : {
       "extractionState" : "manual",
       "localizations" : {

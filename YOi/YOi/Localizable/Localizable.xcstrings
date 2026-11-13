@@ -3281,6 +3281,40 @@
         }
       }
     },
+    "schedule.replace.planDeleted %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ — will be deleted"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ — буде видалено"
+          }
+        }
+      }
+    },
+    "schedule.replace.plansMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These plans will be shortened or deleted"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ці справи буде скорочено або видалено"
+          }
+        }
+      }
+    },
     "schedule.replace.title" : {
       "extractionState" : "manual",
       "localizations" : {

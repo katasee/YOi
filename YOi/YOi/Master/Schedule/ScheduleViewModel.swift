@@ -77,6 +77,24 @@ final class ScheduleViewModel {
         return notice
     }
 
+    func applyingCuts(_ replacement: WindowReplacement, to notice: AddedNotice?) -> AddedNotice? {
+        if notice?.isSaved == true {
+            cutPlans(replacement)
+        }
+
+        return notice
+    }
+
+    func cutPlans(_ replacement: WindowReplacement) {
+        for plan in replacement.trimmedPlans {
+            updatePlan(plan)
+        }
+
+        for id in replacement.deletedPlanIds {
+            deletePlan(id: id)
+        }
+    }
+
     func updatePlan(_ plan: PlanEvent) {
         try? eventRepository.update(plan)
     }

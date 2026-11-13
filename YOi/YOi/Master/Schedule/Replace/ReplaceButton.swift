@@ -14,8 +14,10 @@ struct ReplaceButton: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ReplaceButton(action: {})
         .padding()
         .background(Color.card)
 }
+#endif

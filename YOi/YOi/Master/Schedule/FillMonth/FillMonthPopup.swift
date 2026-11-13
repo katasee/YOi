@@ -15,7 +15,7 @@ struct FillMonthPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            let replacement = replacement
+            let replacement = currentReplacement
 
             if let replacement, isConfirmingReplace {
                 ReplaceConfirmStep(
@@ -58,7 +58,7 @@ struct FillMonthPopup: View {
         actions(offersReplace: offersReplace, dismiss: dismiss)
     }
 
-    private var replacement: (any ScheduleReplacement)? {
+    private var currentReplacement: (any ScheduleReplacement)? {
         switch tab {
         case .slots: viewModel.replacement
         case .plans: addPlan.replacement

@@ -14,7 +14,7 @@ struct QuickAddPopup: View {
 
     var body: some View {
         PopupContainer(onDismiss: onDismiss) { dismiss in
-            let replacement = replacement
+            let replacement = currentReplacement
 
             if let replacement, isConfirmingReplace {
                 ReplaceConfirmStep(
@@ -57,7 +57,7 @@ struct QuickAddPopup: View {
         actions(offersReplace: offersReplace, dismiss: dismiss)
     }
 
-    private var replacement: (any ScheduleReplacement)? {
+    private var currentReplacement: (any ScheduleReplacement)? {
         switch tab {
         case .client: quickBook.replacement
         case .plan: addPlan?.replacement

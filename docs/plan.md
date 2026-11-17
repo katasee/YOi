@@ -2631,6 +2631,16 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild` on every commit; `swiftc` script on `PlanCut` (4/4: at start, inside,
     at end, before start).
 
+- **Today ring in the calendars** (branch `worktree-today-highlight`; user, 2026-11-17). Today was
+  hard to spot in both themes: the week strip had a 1pt `Stroke` outline and a `Wine` number
+  (`Wine` `#7D2E3E` barely differs from `Ink` in light, `#D7ADB5` from white in dark), the month
+  calendar only the number. Both now draw a 1.5pt `Wine` ring when today is not selected:
+  `WeekDayCell` (`Layout.todayOutline`) and `MonthDayCell` (`ScheduleMetrics.Size.todayRing`);
+  today's number is one weight heavier (`.bold` / `.semiBold`).
+  - Five variants were mocked in the browser (ring, soft wine tint, Apple-style filled circle,
+    raised tile, top bar); the user kept the ring.
+  - Reviews: swiftui-pro (no findings). Verified: `xcodebuild`.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

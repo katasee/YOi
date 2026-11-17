@@ -2946,8 +2946,9 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   most failures are silent. Known spots: the slot writes in Розклад ("Записати", "Змінити
   послугу", "Скасувати запис", "Перенести", delete) are `try?` — "Перенести" only skips its
   message step on a thrown error (M-36.2), the others just close the popup; the fire-and-forget
-  writes (`data-layer.md`) never see a server rejection at all; `observeServices`/`observeBlocks`
-  swallow listener errors. Agree one pattern (an alert, an inline line in the popup, or a shared
+  writes (`data-layer.md`) never see a server rejection at all; `observeServices` swallows
+  listener errors and yields `[]`, so a permissions failure reads as "Поки що немає послуг" — the
+  fix is the `AsyncThrowingStream` switch `observeClients` already made. Agree one pattern (an alert, an inline line in the popup, or a shared
   error banner) and apply it everywhere in one PR, rather than per screen.
 
 - **Editor for the texts sent to clients** (requested 2026-10-24, during M-36.2). The master's
@@ -3004,6 +3005,11 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   model structs `Sendable` (check that `@DocumentID` allows it), constrain `listening` to
   `Element: Sendable`, decide `@preconcurrency import FirebaseFirestore` vs. fixing each capture,
   then switch `SWIFT_VERSION` to 6 and build clean.
+  Also from the merged "Swift 6 language mode" item (2026-11-17): `MasterRootView` builds three
+  `@MainActor` view models from nonisolated property initializers (`@State private var
+  scheduleViewModel = ScheduleViewModel()` and two more); `MonthHeader` takes `@MainActor` methods
+  as plain `() -> Void`; and the `Task { @MainActor in }` sites become redundant under Swift 6.2's
+  default main-actor isolation — drop them then.
 
 - ~~**Verification emails don't reach ukr.net — own sender before release**~~ — **done
   2026-10-31, Console only.** With Firebase's default sender (`noreply@<project>.firebaseapp.com`)
@@ -3100,19 +3106,8 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   the six existing components; file scope is only forced on the generic `SwipeToDelete`), and
   `ListStatusOverlay` takes `isEmpty` as a parameter — the planned
   `ListStatusOverlay(hasLoaded:titleKey:messageKey:)` had no way to know the list was empty.
-- **PR13 leftovers from the final whole-branch review** — all Minor, none blocking:
-  - ~~`BookingPreviewData.clientId` is dead~~ — **fixed by PR15**: it feeds every confirm-popup and
-    calendar preview now that the fake repository actually books.
-  - ~~`ServiceOffer.id`'s unreachable fallback~~ — **fixed before merge**: `id` is now a stored
-    `let`, assigned from the already-unwrapped `serviceId`.
-  - ~~The past filter is up to 60 s stale~~ — **fixed by PR15**: `BookingConfirmViewModel.book()`
-    guards on `.now` at the call site instead of trusting the list's ticked `now`.
-  - The booking design spec (`docs/superpowers/specs/2026-08-08-client-booking-design.md`) was
-    **deleted** together with the PR13 plan file once the code landed, per the CLAUDE.md rule that
-    these are throwaway artifacts. The parts of it worth keeping are folded into the PR13 entry
-    above and into the screen-2 item below; the month calendar with green-underlined available
-    dates is the one design decision that has not shipped yet, so it is recorded there rather than
-    only in a deleted file.
+- ~~**PR13 leftovers from the final whole-branch review**~~ — **obsolete** (three were fixed in PR15
+  or before merge; the last, the client booking calendar, went with the client cabinet in M-30).
 - ~~**View models are rebuilt on every tab switch**~~ — **done in PR19** (see its entry under
   "Done"). Both routers now hold them as `@State` above the `switch`; `ClientRootView` builds its
   two in `init` from `profile.uid`, and `RootView` carries `.id(profile.uid)` on both routers so a
@@ -3142,12 +3137,8 @@ numbering drifts every time an item is added or closed (it already did once: PR9
     `switch`. The written-out fix (`@State` on `ClientRootView` built in its `init`, plus
     `.id(profile.uid)` on it in `RootView` as insurance for `State(initialValue:)` taking only on
     the first evaluation) is the plan of record; it just needs doing.
-- **Split off `Assets/DomainUI/` — the condition has now been met.** `BlockStatusPill`/
-  `BlockStatusStyle` landed in `Assets/UICommons/` in PR17 as the first two components that switch on
-  a domain type (`BlockStatus`) rather than being purely presentational; **PR19 added
-  `BlockAction`/`BlockActionButton`**, making four. The original wording said "if a couple more
-  accumulate" — they have. PR19 deliberately did not do it, to keep its diff about the Requests
-  screen; it's a pure file move (Swift has no intra-module imports, so nothing else changes).
+- ~~**Split off `Assets/DomainUI/`**~~ — **obsolete** (`BlockStatusPill`, `BlockStatusStyle`, `BlockAction` and
+  `BlockActionButton` went with `Block` in M-38; nothing in `Assets/UICommons/` switches on a domain type now).
 - ~~**Deploy `firestore.rules`**~~ — **done (2026-08-08, after PR12)**: the file was edited by PR12
   (`hasValidServiceFormat()`, and `services`' `write` split into `create, update` / `delete`) and
   published to the Console for project `manik-5a2b8` (the old project; since Y-41 the rules live
@@ -3193,91 +3184,35 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   artboards show "1 год" on the client's offer cards and in the confirmation popup; `Service` has
   no duration field since PR11. A slot's length is derivable from its block, but that is new
   presentation logic, not styling, so the redesign does not build it.
-- **Popup scrim blur** (dropped from the light redesign). The artboards blur the backdrop by 3px;
-  on iOS 18 that means a `Material` with its own tint, and 3px is barely visible.
-- **Input fields focus only on their text line** (found in M-27's SwiftUI Pro review).
-  `.inputFieldStyle()` pads 15/16pt around a `TextField`/`SecureField`, which hit-tests only its
-  text frame, so tapping the padding does nothing. Predates M-27 (it was the same with 12pt). A fix
-  needs a `FocusState`-aware field, which changes the modifier's API.
+- **Popup scrim blur on every popup** (dropped from the light redesign; narrowed on 2026-11-17).
+  `PopupContainer(blursBackground:)` (M-33.3, an `.ultraThinMaterial` layer under the backdrop)
+  exists, but only "Перейти до дати" and a client form opened over another popup turn it on. The
+  artboards blur every backdrop by 3px; on iOS 18 that means a `Material` with its own tint, and
+  3px is barely visible.
+- ~~**Input fields focus only on their text line**~~ — **closed on 2026-11-17** (user: never noticed
+  on a device, not worth changing `.inputFieldStyle()`'s API for).
 - ~~**Deleting a block rewrites past revenue**~~ — **obsolete** (`Block` was deleted in M-38; a slot has no status to rewrite).
 - ~~**Stats reads the entire `blocks` collection**~~ — **obsolete** (`blocks` was deleted in M-38; Статистика reads bounded `slots` and, since M-38.1, `monthlyStats`).
 - ~~**"Забули пароль?"**~~ — **done in M-31** (`Auth/ResetPassword/`, see its entry under "Done").
-- **Accessibility debt (found in PR8 review, deliberately not fixed there)**:
-  - `Font.elmsSans(_:_:)` calls `Font.custom(_:size:)` **without `relativeTo:`**, so Dynamic Type
-    is effectively off app-wide. Adding it is one line, but the schedule also needs `@ScaledMetric`
-    for `Size.hourHeight` or larger text will overflow the cards.
-  - On a *card*, a block's status is still conveyed only by the accent-capsule color, and
-    VoiceOver never reads it. PR9 built `BlockStatusPill` as the second signal and wired it to
-    `\.accessibilityDifferentiateWithoutColor` in `ScheduleBlockCard`, then removed that wiring
-    on request — on the master's side the pill appears only in `BlockDetailPopup`'s header,
-    unconditionally. Re-adding it to the card is a three-line change. (Since PR17 the pill also
-    renders on the client's `MyBookingCard` for upcoming bookings, and lives in
-    `Assets/UICommons/` — the master's card is still the gap.)
-  - `SwipeToDelete`'s trash button has no text label (removed on request), so VoiceOver announces
-    the raw SF Symbol name.
-  - PR12 added one more: the star toggle in `ServiceRow` is a `Button` with no `accessibilityLabel`
-    or `accessibilityValue`, and the row's `onTapGesture` carries no `.isButton` trait. Both were
-    explicitly cut from PR12's scope, not overlooked.
-  - PR18 added one more: every "Скасувати" button in `MyBookingCard` reads as the bare word
-    "Скасувати" to VoiceOver, so a list of upcoming bookings gives several identically-labelled
-    buttons with no way to tell which is which. The fix is an `accessibilityLabel` naming the
-    service and the slot — declined in PR18 by the same precedent as PR9/PR12/PR17, which is why
-    it lands here rather than in that PR.
-  - M-22 added three, all declined by the same precedent: the icon badges in `StatCard`/`StatsLinkRow`
-    are decorative but not `.accessibilityHidden(true)`, so VoiceOver reads the raw SF Symbol name
-    before the metric's label; `StatsTrendLabel`'s arrow reads as its own element ("arrow up, 18%,
-    до минулого місяця"); and the metric cards are multi-`Text` stacks with no
-    `.accessibilityElement(children: .combine)`, matching the PR11/PR17 decisions.
-  - PR19 added one more, and it is the same shape: every card in «Заявки» carries a "Підтвердити"
-    and a "Відхилити" button, so a queue of requests reads to VoiceOver as several identically
-    labelled pairs with no way to tell which request each belongs to. Fix is an `accessibilityLabel`
-    naming the client and the slot on both buttons. Declined in PR19 by the same precedent.
-- **Schedule week navigation keeps the weekday instead of landing sensibly** (reported 2026-10-07).
-  `WeekDayStrip.shiftWeek` adds ±7 days to the selected date (`WeekDayStrip.swift:45`), so Thursday
-  the 8th becomes Thursday the 15th; and since tabs keep their state, returning to «Розклад» keeps
-  whatever day was last selected. Wanted:
-  - switching week (arrows and swipe alike) lands on the **first day of the week**, or on **today**
-    when the target week contains it — one static rule in `WeekDayStrip`, e.g.
-    `landingDate(forWeekStarting:today:)`;
-  - **switching back to the «Розклад» tab resets to today**. Do it in `MasterRootView` with
-    `.onChange(of: selectedTab)` calling a `ScheduleViewModel.showToday()`, not with `.onAppear` in
-    `ScheduleView` — `onAppear` can also fire when a slot / block popup closes, which would yank the
-    master off the day she is working on. Re-tapping the already active tab doesn't reset.
-  - Master-only: the client's calendar is the month grid, `WeekDayStrip` has no other caller.
-  Verify on a device: Thu 8 → next week = Mon 12; back to this week = today; swipe = arrows;
-  Розклад → Заявки → Розклад = today; closing a popup on another day keeps that day.
-- **Swift 6 language mode**: the project builds in Swift 5 mode with `minimal` concurrency
-  checking. `AddNewSlotBlock` still constructs a `@MainActor` view model from its nonisolated
-  `init` — legal today, an error under Swift 6 until `View` conformance carries main-actor
-  isolation. Don't paper over it with per-`init` `@MainActor`. (`ScheduleView` no longer belongs
-  on this list: since PR11 its view model is built in `MasterRootView.body`, which *is*
-  main-actor isolated.) The same migration is where the deliberately-declined
-  `FakeServiceRepository` race below should be revisited.
-  - PR19 added one instance of a different flavour: `RequestsViewModel.fetchNames(for:)` passes
-    `userRepository` into a `withTaskGroup` child task via a capture list, and `UserRepository` is a
-    plain protocol with no `Sendable` conformance. Legal under `minimal` checking, a warning under
-    `-strict-concurrency=complete`. Don't paper over it with `@unchecked Sendable` on the protocol —
-    fix it as part of the migration.
-  - M-22 added three instances, none new in kind — all three already existed elsewhere, which is why
-    nothing was changed for them: `MasterRootView` now builds a **third** `@MainActor` view model
-    from a nonisolated property initializer (`@State private var statsViewModel = StatsViewModel()`);
-    `[Block]` crosses the `AsyncStream` boundary from the Firestore listener into a `@MainActor` view
-    model for the fourth time, and `Block` is not `Sendable` because `@DocumentID` is not; and
-    `MonthHeader` takes `@MainActor` methods as plain `() -> Void`, losing the global actor on
-    conversion, exactly as `BookingDatesView` has passed `viewModel.goToPreviousMonth` since PR14.
-  - PR12 patched a symptom of the same root cause: helper methods on `View` structs are
-    nonisolated, so a `Task {}` created inside one does **not** inherit `MainActor` and any
-    synchronous UI call after an `await` runs off the main thread. Three popups were fixed with
-    `Task { @MainActor in }` (`ServiceFormPopup`, `AddNewSlotBlock`, `BlockActionButton`). Under
-    Swift 6.2's default main-actor isolation the annotation becomes redundant — drop it then
-    rather than sprinkling more of it now.
-- **A failed read is indistinguishable from empty data** (found in PR10 review, deliberately
-  deferred): `observeServices()`/`observeBlocks()` swallow listener errors and yield `?? []`, so
-  a permissions failure or a dropped connection renders as a confident "Поки що немає послуг" /
-  an empty timeline. PR10 added a `hasLoaded` spinner, which fixes the flash-before-first-
-  snapshot case but not this one. The real fix is the `AsyncThrowingStream` switch that
-  `data-layer.md` already names as the intended escalation path; it touches both repository
-  protocols, both Firestore implementations, the fakes, and both view models.
+- ~~**Accessibility debt (found in PR8 review)**~~ — **closed on 2026-11-17**: most of its items
+  were about screens deleted by the pivot (`ScheduleBlockCard`, `MyBookingCard`, «Заявки»), and new
+  code adds no VoiceOver traits or labels (user, M-37.5). The one item that is not VoiceOver is
+  kept as "Dynamic Type is off" below.
+- **Dynamic Type is off** (split out of the accessibility debt, PR8). `Font.elmsSans(_:_:)` calls
+  `Font.custom(_:size:)` without `relativeTo:`, so text ignores the system size app-wide. Adding it
+  is one line, but every fixed-height layout (rows, chips, the week strip) then needs a pass with
+  `@ScaledMetric` or larger text overflows.
+- ~~**Returning to Розклад keeps the last selected day**~~ — **closed on 2026-11-17** (user: keeping
+  the day is fine for now). The week change half was done in M-39 (`WeekDayStrip.landingDay`). If
+  the reset is ever wanted: `.onChange(of: selectedTab)` in `MasterRootView` calling a
+  `ScheduleViewModel.showToday()`, not `.onAppear` in `ScheduleView`, which also fires when a
+  popup closes.
+- ~~**Swift 6 language mode**~~ — **merged on 2026-11-17** into "Swift 6 language mode: make the
+  models `Sendable`" above; most of its instances (`AddNewSlotBlock`, `RequestsViewModel`, `Block`)
+  were deleted by the pivot.
+- ~~**A failed read is indistinguishable from empty data**~~ — **merged on 2026-11-17** into "Error
+  handling pass over the whole app" above: `observeClients` and the slot listeners already throw,
+  `observeBlocks` is gone, and only `observeServices` still yields `[]` on an error.
 - ~~**A booking points at a service by reference, so editing the service rewrites history**~~ —
   **done in M-21** (see its entry under "Done"). Shipped exactly as the receipt pattern below
   describes, including the cross-document `get()` in the rules; the "master stamps on confirm"
@@ -3335,16 +3270,8 @@ numbering drifts every time an item is added or closed (it already did once: PR9
     `permissionDenied` cannot be split apart at the `NSError` level, so distinguishing "slot taken"
     from "price changed" needs the rules failure to carry more than a status code, or a re-read of
     the block before mapping. Don't add a second guess-by-heuristic mapping inside the repository.
-- **Service names don't follow the device language** (raised during PR11 planning, deliberately
-  out of its scope): `Service.name` is master-entered *data*, stored as one `String`, so a client
-  on an English device sees whatever the master typed. Only the chrome around it localizes —
-  field labels, buttons and the placeholder. Making names multilingual means turning `name` into a
-  per-language map (e.g. `[String: String]` keyed by language code) plus a resolver that falls back
-  to the salon's default language when the device's is missing, and it touches the model, the
-  add/edit form (a field per language), the services list, the create-slot checklist, and every
-  client-facing screen that prints a service name. Not scoped for the MVP — one salon, one master,
-  who knows what language their clients speak — so treat this as a decision to revisit only if the
-  salon actually serves two languages.
+- ~~**Service names don't follow the device language**~~ — **obsolete** (it was about clients seeing
+  the master's names on an English device; clients do not use the app since M-30).
 
 ## Housekeeping
 

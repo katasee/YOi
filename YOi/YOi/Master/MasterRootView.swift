@@ -9,6 +9,9 @@ struct MasterRootView: View {
     @State private var scheduleViewModel = ScheduleViewModel()
     @State private var statsViewModel = StatsViewModel()
     @State private var clientListViewModel = ClientListViewModel()
+    @State private var tour = OnboardingTour(step: .services)
+    @State private var contentBottomInset: CGFloat = 0
+    @State private var homeIndicatorInset: CGFloat = 0
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -34,10 +37,29 @@ struct MasterRootView: View {
                         }
                     }
                     .tint(Color.accentColor)
+                    .environment(tour)
+                    .onGeometryChange(for: CGFloat.self) { proxy in
+                        proxy.safeAreaInsets.bottom
+                    } action: { inset in
+                        contentBottomInset = inset
+                    }
                 }
             }
         }
         .tint(Color.ink)
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.safeAreaInsets.bottom
+        } action: { inset in
+            homeIndicatorInset = inset
+        }
+        .overlay {
+            OnboardingOverlay(
+                tour: tour,
+                selectedTab: selectedTab,
+                contentBottomInset: contentBottomInset,
+                homeIndicatorInset: homeIndicatorInset
+            )
+        }
         .task {
             await statsViewModel.syncMonthArchive()
         }

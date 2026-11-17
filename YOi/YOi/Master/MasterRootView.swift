@@ -9,9 +9,20 @@ struct MasterRootView: View {
     @State private var scheduleViewModel = ScheduleViewModel()
     @State private var statsViewModel = StatsViewModel()
     @State private var clientListViewModel = ClientListViewModel()
-    @State private var tour = OnboardingTour(step: .welcome)
+    @State private var tour: OnboardingTour
     @State private var contentBottomInset: CGFloat = 0
     @State private var homeIndicatorInset: CGFloat = 0
+
+    init(
+        profile: UserProfile,
+        onSignOut: @escaping () -> Void,
+        onAccountDeleted: @escaping () -> Void
+    ) {
+        self.profile = profile
+        self.onSignOut = onSignOut
+        self.onAccountDeleted = onAccountDeleted
+        _tour = State(initialValue: OnboardingTour(step: profile.tourStep))
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {

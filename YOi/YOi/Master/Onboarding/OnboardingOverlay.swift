@@ -120,7 +120,7 @@ struct OnboardingOverlay: View {
 
 #if DEBUG
 #Preview {
-    let tour = OnboardingTour(step: .services)
+    let tour = OnboardingTour(step: .services, repository: FakeOnboardingRepository())
     let _ = tour.report(.servicesRow, frame: CGRect(x: 16, y: 320, width: 358, height: 64))
 
     OnboardingOverlay(

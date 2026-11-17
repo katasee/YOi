@@ -7,9 +7,11 @@ final class OnboardingTour {
     private(set) var step: OnboardingStep?
     private(set) var frames: [OnboardingTarget: CGRect] = [:]
     private(set) var openPopups = 0
+    private let repository: OnboardingRepository
 
-    init(step: OnboardingStep?) {
-        self.step = step
+    init(step: OnboardingStep?, repository: OnboardingRepository = FirestoreOnboardingRepository()) {
+        self.step = step == .finished ? nil : step
+        self.repository = repository
     }
 
     func report(_ target: OnboardingTarget, frame: CGRect?) {
@@ -27,7 +29,7 @@ final class OnboardingTour {
     func didTap(_ target: OnboardingTarget) {
         guard let step, step.targets.last == target else { return }
 
-        self.step = step.next
+        move(to: step.next)
     }
 
     func popupPresenceChanged(_ isOpen: Bool) {
@@ -35,12 +37,21 @@ final class OnboardingTour {
     }
 
     func advance() {
-        step = step?.next
+        guard let step else { return }
+
+        move(to: step.next)
     }
 
     func close() {
-        step = nil
+        guard step != nil else { return }
+
+        move(to: nil)
         frames = [:]
+    }
+
+    private func move(to newStep: OnboardingStep?) {
+        step = newStep
+        try? repository.save(newStep ?? .finished)
     }
 
     func highlight(selectedTab: MasterTab) -> OnboardingHighlight? {

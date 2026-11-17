@@ -192,6 +192,24 @@
   `ServiceReorderList` draws `SwipeToDelete` + `ServiceRow` itself (a gesture-carrying handle
   cannot be handed to a caller's row closure without `AnyView`); it moves to `UICommons` and
   becomes generic when "Мої плани" gets the same drag.
+- **The onboarding tour draws over the app without knowing its screens** (Y-67). Screens tag a
+  control with `.onboardingTarget(_:)`, which reports its global frame to `OnboardingTour`
+  through the environment; the overlay on `MasterRootView`'s `TabView` cuts a hole there. Rules
+  found on the simulator:
+  - **System tab items cannot be measured.** `TabBarSlot` computes the slot from the tab
+    content's bottom safe-area inset; the iOS 18 bar and the iOS 26 capsule need their own numbers
+    in `OnboardingMetrics.TabBar`. Re-check them when the tab bar's look changes.
+  - **The hole passes touches by being a hole**: one `Shape` (screen + hole) filled and used as
+    `contentShape(_, eoFill: true)`. No hit-testing code.
+  - **`onGeometryChange` fires only on a change**, so a target re-reports its stored frame in
+    `onAppear`, and withdraws on `onDisappear` only the frame it reported — a target that moves
+    between rows would otherwise be cleared by the row it left.
+  - **Covers with a clear background show the tour through them.** `PopupContainer` reports its
+    presence through `EnvironmentValues.popupPresenceChanged` (a generic closure, so UICommons
+    does not import the tour) and the tour hides while the count is above zero.
+  - **Nothing is written while the tour is off**: `report` returns without a step, and
+    `highlight` checks the step before reading `frames`, or every scroll would re-render the
+    overlay for the rest of the app's life.
 - **A row's swipe is a UIKit pan that begins only on a horizontal velocity** (Y-56, found on the
   simulator). `SwipeToDelete` once used `.simultaneousGesture(DragGesture(minimumDistance: 12))`:
   a SwiftUI drag claims the touch after 12pt in *any* direction — a direction `guard` in

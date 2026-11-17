@@ -33,6 +33,7 @@ struct ScheduleView: View {
     @State private var openCardClientId: String?
     @State private var pendingDelete: SlotItem?
     @State private var isConfirmingDelete = false
+    @Environment(OnboardingTour.self) private var tour: OnboardingTour?
 
     init(viewModel: ScheduleViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -47,6 +48,7 @@ struct ScheduleView: View {
                         accessibilityLabel: "schedule.action.sendSchedule",
                         action: openSendSchedule
                     )
+                    .onboardingTarget(.sendSchedule)
                     .disabled(viewModel.areSlotsReady == false)
 
                     RoundIconButton(
@@ -54,6 +56,7 @@ struct ScheduleView: View {
                         accessibilityLabel: "schedule.action.addSlots",
                         action: openFillMonth
                     )
+                    .onboardingTarget(.fillMonth)
                     .disabled(viewModel.areSlotsReady == false)
                 }
 
@@ -94,6 +97,7 @@ struct ScheduleView: View {
                 await viewModel.observeTemplates()
             }
             .onChange(of: viewModel.selectedDate, closeOpenRow)
+            .onChange(of: tour?.step, showFreeWindowForBooking)
             .fullScreenCover(item: $popup, onDismiss: applyPending) { popup in
                 popupView(popup)
                     .presentationBackground(.clear)
@@ -211,12 +215,26 @@ struct ScheduleView: View {
     }
 
     private func list(_ items: [ScheduleItem], canQuickAdd: Bool) -> some View {
+        let firstFreeSlotId = viewModel.firstFreeSlotId(in: items)
+
+        return ScrollViewReader { proxy in
+            dayList(items, canQuickAdd: canQuickAdd, firstFreeSlotId: firstFreeSlotId)
+                .environment(\.onboardingScroll, proxy)
+        }
+    }
+
+    private func dayList(
+        _ items: [ScheduleItem],
+        canQuickAdd: Bool,
+        firstFreeSlotId: String?
+    ) -> some View {
         ScrollView {
             LazyVStack(spacing: ScheduleMetrics.Spacing.rowSpacing) {
                 ForEach(items) { item in
                     switch item {
                     case .slot(let slot):
                         slotRow(slot)
+                            .onboardingTarget(slot.id == firstFreeSlotId ? .freeSlot : nil)
                     case .plan(let plan):
                         planRow(plan)
                     }
@@ -233,6 +251,12 @@ struct ScheduleView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+    }
+
+    private func showFreeWindowForBooking() {
+        guard tour?.step == .booking else { return }
+
+        viewModel.showNearestFreeWindow()
     }
 
     private func slotRow(_ item: SlotItem) -> some View {

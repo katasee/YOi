@@ -81,6 +81,13 @@ struct StatsView: View {
     }
 
     private var content: some View {
+        ScrollViewReader { proxy in
+            scrollContent
+                .environment(\.onboardingScroll, proxy)
+        }
+    }
+
+    private var scrollContent: some View {
         ScrollView {
             VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
                 if let stats = viewModel.stats {
@@ -115,6 +122,7 @@ struct StatsView: View {
             iconName: "list.bullet.rectangle",
             route: .services
         )
+        .onboardingTarget(.servicesRow)
     }
 
     private var plansLink: some View {

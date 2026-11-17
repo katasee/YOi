@@ -51,6 +51,7 @@ struct MyServicesView: View {
             Spacer(minLength: 0)
 
             addButton
+                .onboardingTarget(.addService)
         }
         .padding(.horizontal, ServicesMetrics.Spacing.horizontalPadding)
         .padding(.top, ServicesMetrics.Spacing.introTopPadding)

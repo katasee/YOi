@@ -19,6 +19,7 @@ struct ClientsView: View {
                         accessibilityLabel: "clients.action.add",
                         action: addClient
                     )
+                    .onboardingTarget(.addClient)
                 }
 
                 SearchField(text: $viewModel.searchText, placeholderKey: "clients.search.placeholder")

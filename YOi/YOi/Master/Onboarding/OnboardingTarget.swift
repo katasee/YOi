@@ -4,4 +4,5 @@ enum OnboardingTarget: Hashable {
     case addClient
     case fillMonth
     case sendSchedule
+    case freeSlot
 }

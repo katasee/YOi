@@ -3,20 +3,24 @@ import SwiftUI
 private extension OnboardingStep {
     var titleKey: LocalizedStringKey {
         switch self {
+        case .welcome: "onboarding.welcome.title"
         case .services: "onboarding.services.title"
         case .client: "onboarding.client.title"
         case .windows: "onboarding.windows.title"
         case .sendSchedule: "onboarding.sendSchedule.title"
+        case .booking: "onboarding.booking.title"
         case .finished: "onboarding.finished.title"
         }
     }
 
     var messageKey: LocalizedStringKey {
         switch self {
+        case .welcome: "onboarding.welcome.message"
         case .services: "onboarding.services.message"
         case .client: "onboarding.client.message"
         case .windows: "onboarding.windows.message"
         case .sendSchedule: "onboarding.sendSchedule.message"
+        case .booking: "onboarding.booking.message"
         case .finished: "onboarding.finished.message"
         }
     }
@@ -24,6 +28,7 @@ private extension OnboardingStep {
 
 struct OnboardingCard: View {
     let step: OnboardingStep
+    let tab: MasterTab?
     let onSkip: () -> Void
     let onClose: () -> Void
 
@@ -38,8 +43,19 @@ struct OnboardingCard: View {
                 .font(.elmsSans(.regular, OnboardingMetrics.Card.message))
                 .foregroundStyle(Color.textSecondary)
 
+            if let tab {
+                Label {
+                    Text("onboarding.hint.tab \(Text(tab.titleKey))")
+                } icon: {
+                    Image(systemName: "hand.tap")
+                }
+                .font(.elmsSans(.semiBold, OnboardingMetrics.Card.message))
+                .foregroundStyle(Color.wine)
+                .padding(.top, OnboardingMetrics.Card.spacing)
+            }
+
             HStack {
-                OnboardingProgressDots(current: step.index, count: OnboardingStep.allCases.count - 1)
+                OnboardingProgressDots(current: step.progressIndex ?? 0, count: OnboardingStep.guided.count)
 
                 Spacer(minLength: 0)
 
@@ -73,6 +89,7 @@ struct OnboardingCard: View {
 #Preview {
     OnboardingCard(
         step: .services,
+        tab: .stats,
         onSkip: {},
         onClose: {}
     )

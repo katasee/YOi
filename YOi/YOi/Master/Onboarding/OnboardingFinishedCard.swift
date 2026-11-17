@@ -4,18 +4,11 @@ struct OnboardingFinishedCard: View {
     let onStart: () -> Void
 
     var body: some View {
-        VStack(spacing: OnboardingMetrics.Card.finishedSpacing) {
-            IconBadge(systemName: "checkmark")
-
-            Text("onboarding.finished.title")
-                .font(.elmsSans(.bold, OnboardingMetrics.Card.finishedTitle))
-                .foregroundStyle(Color.ink)
-
-            Text("onboarding.finished.message")
-                .font(.elmsSans(.regular, OnboardingMetrics.Card.message))
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-
+        OnboardingCenteredCard(
+            systemImage: "checkmark",
+            titleKey: "onboarding.finished.title",
+            messageKey: "onboarding.finished.message"
+        ) {
             CapsuleButton(
                 titleKey: "onboarding.action.start",
                 role: .primary,
@@ -23,11 +16,6 @@ struct OnboardingFinishedCard: View {
                 action: onStart
             )
         }
-        .frame(maxWidth: .infinity)
-        .cardSurface(
-            padding: OnboardingMetrics.Card.padding,
-            cornerRadius: OnboardingMetrics.Card.cornerRadius
-        )
     }
 }
 

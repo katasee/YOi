@@ -6,7 +6,7 @@ enum OnboardingMetrics {
             if #available(iOS 26, *) {
                 58
             } else {
-                0
+                4
             }
         }
 
@@ -14,7 +14,7 @@ enum OnboardingMetrics {
             if #available(iOS 26, *) {
                 12
             } else {
-                0
+                10
             }
         }
 
@@ -40,8 +40,8 @@ enum OnboardingMetrics {
         static let title: CGFloat = 15
         static let message: CGFloat = 13
         static let action: CGFloat = 13
-        static let finishedTitle: CGFloat = 18
-        static let finishedSpacing: CGFloat = 10
+        static let centeredTitle: CGFloat = 18
+        static let centeredSpacing: CGFloat = 10
     }
 
     enum Dots {

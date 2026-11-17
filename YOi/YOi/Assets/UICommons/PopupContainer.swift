@@ -11,12 +11,17 @@ enum PopupContainerLayout {
     static let fade = Animation.easeOut(duration: 0.2)
 }
 
+extension EnvironmentValues {
+    @Entry var popupPresenceChanged: @MainActor @Sendable (Bool) -> Void = { _ in }
+}
+
 struct PopupContainer<Content: View>: View {
     var blursBackground = false
     let onDismiss: () -> Void
     @ViewBuilder let content: (_ dismiss: @escaping () -> Void) -> Content
 
     @State private var isVisible = false
+    @Environment(\.popupPresenceChanged) private var popupPresenceChanged
 
     var body: some View {
         ZStack {
@@ -25,9 +30,14 @@ struct PopupContainer<Content: View>: View {
         }
         .opacity(isVisible ? 1 : 0)
         .onAppear {
+            popupPresenceChanged(true)
+
             withAnimation(PopupContainerLayout.fade) {
                 isVisible = true
             }
+        }
+        .onDisappear {
+            popupPresenceChanged(false)
         }
     }
 

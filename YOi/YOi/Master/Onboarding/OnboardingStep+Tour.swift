@@ -1,10 +1,16 @@
 extension OnboardingStep {
+    static let guided: [OnboardingStep] = [.services, .client, .windows, .sendSchedule, .booking]
+
+    var progressIndex: Int? {
+        Self.guided.firstIndex(of: self)
+    }
+
     var tab: MasterTab? {
         switch self {
         case .services: .stats
         case .client: .clients
-        case .windows, .sendSchedule: .schedule
-        case .finished: nil
+        case .windows, .sendSchedule, .booking: .schedule
+        case .welcome, .finished: nil
         }
     }
 
@@ -14,7 +20,8 @@ extension OnboardingStep {
         case .client: [.addClient]
         case .windows: [.fillMonth]
         case .sendSchedule: [.sendSchedule]
-        case .finished: []
+        case .booking: [.freeSlot]
+        case .welcome, .finished: []
         }
     }
 }

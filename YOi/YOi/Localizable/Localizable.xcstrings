@@ -1653,6 +1653,70 @@
         }
       }
     },
+    "onboarding.action.accept" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, help me"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Так, допоможіть"
+          }
+        }
+      }
+    },
+    "onboarding.action.decline" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустити"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shall we set the app up together? It takes a few minutes."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Допомогти вам налаштувати застосунок? Це займе кілька хвилин."
+          }
+        }
+      }
+    },
+    "onboarding.welcome.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to YOi!"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вітаємо в YOi!"
+          }
+        }
+      }
+    },
     "onboarding.action.close" : {
       "localizations" : {
         "en" : {
@@ -1697,6 +1761,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Почати"
+          }
+        }
+      }
+    },
+    "onboarding.booking.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap a free window, then pick your client and the service."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Торкніться вільного вікна й виберіть клієнтку та послугу."
+          }
+        }
+      }
+    },
+    "onboarding.booking.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Book your client"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запишіть клієнтку"
           }
         }
       }
@@ -1793,6 +1889,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Надішліть графік"
+          }
+        }
+      }
+    },
+    "onboarding.hint.tab %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the “%@” tab below"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Натисніть вкладку «%@» унизу"
           }
         }
       }

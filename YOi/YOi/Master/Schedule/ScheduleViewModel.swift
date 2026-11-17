@@ -166,6 +166,24 @@ final class ScheduleViewModel {
         selectedDate = date
     }
 
+    func firstFreeSlotId(in items: [ScheduleItem]) -> String? {
+        for case .slot(let slot) in items where slot.booking == nil && slot.isPast == false {
+            return slot.id
+        }
+
+        return nil
+    }
+
+    func showNearestFreeWindow(now: Date = .now) {
+        let nearest = slots
+            .filter { $0.clientId == nil && $0.isPast(now: now) == false }
+            .min { ($0.date, $0.time) < ($1.date, $1.time) }
+
+        guard let nearest else { return }
+
+        select(dayId: nearest.date)
+    }
+
     func delete(id: String) {
         try? slotRepository.delete(id: id)
     }

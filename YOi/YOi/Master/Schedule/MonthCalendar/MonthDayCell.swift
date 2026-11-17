@@ -8,12 +8,15 @@ struct MonthDayCell: View {
         Button(action: action) {
             VStack(spacing: ScheduleMetrics.Spacing.dayDotSpacing) {
                 Text(verbatim: day.numberText)
-                    .font(.elmsSans(.medium, ScheduleMetrics.Size.dayNumber))
+                    .font(.elmsSans(day.isToday ? .semiBold : .medium, ScheduleMetrics.Size.dayNumber))
                     .foregroundStyle(numberColor)
                     .frame(width: ScheduleMetrics.Size.daySelection, height: ScheduleMetrics.Size.daySelection)
                     .background {
                         if day.isSelected {
                             selectionCircle
+                        } else if day.isToday {
+                            Circle()
+                                .strokeBorder(Color.wine, lineWidth: ScheduleMetrics.Size.todayRing)
                         }
                     }
 

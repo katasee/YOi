@@ -44,7 +44,7 @@ clear in light, white in dark, so the light theme is untouched. Both modifiers d
 `colorScheme` branches to get depth. **Nothing a user reads as an object is flat**: a flat outlined box
 (`.insetSurface`) existed in M-27 and was removed after a device pass, because a summary plate that
 does not lift reads as a hole in the popup. The deliberately flat exceptions are markers, not
-objects: the dashed free window (`FreeSlotRow`), the "today" outline in `WeekDayStrip`, the
+objects: the dashed free window (`FreeSlotRow`), the wine "today" ring in `WeekDayCell` and `MonthDayCell`, the
 conflict warning line (`ConflictNoticeView`, M-37.7: a tinted note, not a card), and the dashed
 "+ Нова послуга" chip (`ChoiceChipsAdd` in `ChoiceChips`, Y-57: a raised chip with a plus read as
 one more service on the simulator; the dashed `Stroke` capsule and `TextSecondary` text say "nothing
@@ -162,5 +162,5 @@ or a button (`ListStatusOverlay`, `CapsuleButton`) is fine as before.
 **The wine marks are a separate token, not the accent.** `Wine` (`#7D2E3E` / `#D7ADB5`) and
 `WineSoft` (`#F6E9EC` / `#2C252C`, the tile under it) are applied *by name* in small doses: the auth
 swap link, `IconBadge` (wine glyph on a flat `WineSoft` tile), the expected-revenue amount,
-today's number in `WeekDayStrip`. In dark the wine *fill* `#6B3442` is `PrimaryFill`, not `Wine`.
+today's ring and number in `WeekDayCell` and `MonthDayCell` (a `Stroke` outline was too faint in both themes). In dark the wine *fill* `#6B3442` is `PrimaryFill`, not `Wine`.
 Wine marks; it never replaces ink.

@@ -19,6 +19,7 @@ enum ScheduleMetrics {
         static let daySelection: CGFloat = 34
         static let dayNumber: CGFloat = 15
         static let dayDot: CGFloat = 4
+        static let todayRing: CGFloat = 1.5
         static let chipHeight: CGFloat = 44
         static let chipTime: CGFloat = 15
         static let chipGlyph: CGFloat = 10

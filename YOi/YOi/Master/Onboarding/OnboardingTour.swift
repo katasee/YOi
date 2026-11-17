@@ -7,9 +7,12 @@ final class OnboardingTour {
     private(set) var step: OnboardingStep?
     private(set) var frames: [OnboardingTarget: CGRect] = [:]
     private(set) var openPopups = 0
+    private var completed: Set<OnboardingStep> = []
+    private let repository: OnboardingRepository
 
-    init(step: OnboardingStep?) {
-        self.step = step
+    init(step: OnboardingStep?, repository: OnboardingRepository = FirestoreOnboardingRepository()) {
+        self.step = step == .finished ? nil : step
+        self.repository = repository
     }
 
     func report(_ target: OnboardingTarget, frame: CGRect?) {
@@ -24,10 +27,14 @@ final class OnboardingTour {
         frames[target] = nil
     }
 
-    func didTap(_ target: OnboardingTarget) {
-        guard let step, step.targets.last == target else { return }
+    func record(_ done: Set<OnboardingStep>) {
+        guard let step, done.isSubset(of: completed) == false else { return }
 
-        self.step = step.next
+        completed.formUnion(done)
+
+        guard completed.contains(step) else { return }
+
+        move(to: firstOpenStep(after: step))
     }
 
     func popupPresenceChanged(_ isOpen: Bool) {
@@ -35,12 +42,31 @@ final class OnboardingTour {
     }
 
     func advance() {
-        step = step?.next
+        guard let step else { return }
+
+        move(to: firstOpenStep(after: step))
     }
 
     func close() {
-        step = nil
+        guard step != nil else { return }
+
+        move(to: nil)
         frames = [:]
+    }
+
+    private func move(to newStep: OnboardingStep?) {
+        step = newStep
+        try? repository.save(newStep ?? .finished)
+    }
+
+    private func firstOpenStep(after step: OnboardingStep) -> OnboardingStep {
+        var next = step.next
+
+        while next != .finished, completed.contains(next) {
+            next = next.next
+        }
+
+        return next
     }
 
     func highlight(selectedTab: MasterTab) -> OnboardingHighlight? {

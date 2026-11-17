@@ -210,6 +210,12 @@
   - **Nothing is written while the tour is off**: `report` returns without a step, and
     `highlight` checks the step before reading `frames`, or every scroll would re-render the
     overlay for the rest of the app's life.
+  - **A step completes from data, reported by the screen that already observes it** (Y-68).
+    `record(_:)` takes the steps whose result exists (`ScheduleViewModel.completedOnboardingSteps`,
+    `MyServicesView`, `ClientsView`, `SendSchedulePopup`'s `onCopied`); the tour keeps a
+    `completed` set that only grows, skips any step in it, and writes once per jump through
+    `move(to:)`, the only place the step changes. A tab's `.task` runs only while it is on
+    screen, so a step done on a pushed or other tab is reported there, not by Розклад.
 - **A row's swipe is a UIKit pan that begins only on a horizontal velocity** (Y-56, found on the
   simulator). `SwipeToDelete` once used `.simultaneousGesture(DragGesture(minimumDistance: 12))`:
   a SwiftUI drag claims the touch after 12pt in *any* direction — a direction `guard` in

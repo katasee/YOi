@@ -5,4 +5,9 @@ struct UserProfile: Identifiable, Codable {
     let uid: String
     var name: String
     var email: String
+    var onboardingStep: String?
+
+    var tourStep: OnboardingStep? {
+        onboardingStep.flatMap(OnboardingStep.init(rawValue:))
+    }
 }

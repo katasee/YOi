@@ -25,11 +25,15 @@ the master books them herself.
 - No push notifications, no reminders, no payments, nothing sent automatically to Instagram.
 - Light and dark themes (System / Light / Dark, per device), chosen on the Profile screen, which
   the round person button next to the "Статистика" title opens.
+- An onboarding tour, once, for new accounts only (Y-67/Y-68): welcome → a service → a client →
+  free windows → send the schedule → a booking → «Все готово!». Each step waits for its data,
+  steps already done are skipped, and it resumes where it stopped on any device. No way to replay
+  it.
 
 ## Data model (Firestore)
 
 ```
-users/{uid}              name, email                                       — created at sign-up
+users/{uid}              name, email, onboardingStep? (missing = no tour)  — created at sign-up
 … and under it:
 clients/{autoId}         name?, instagram? (lowercased, no "@"), phone? (+48 + 9 digits),
                          createdAt, lastBookedAt?          — name or instagram required

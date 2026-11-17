@@ -14,7 +14,11 @@ service cloud.firestore {
 
     function hasValidProfile() {
       return request.resource.data.name is string &&
-        request.resource.data.email is string;
+        request.resource.data.email is string &&
+        (!('onboardingStep' in request.resource.data) ||
+          request.resource.data.onboardingStep in [
+            'welcome', 'services', 'client', 'windows', 'sendSchedule', 'booking', 'finished'
+          ]);
     }
 
     function hasValidServiceFormat() {

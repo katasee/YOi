@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SendSchedulePopup: View {
     @Bindable var viewModel: SendScheduleViewModel
+    let onCopied: () -> Void
     let onDismiss: () -> Void
 
     var body: some View {
@@ -56,6 +57,7 @@ struct SendSchedulePopup: View {
 
     private func copy() {
         UIPasteboard.general.string = viewModel.text
+        onCopied()
     }
 }
 
@@ -63,7 +65,11 @@ struct SendSchedulePopup: View {
 #Preview {
     Color.background
         .overlay {
-            SendSchedulePopup(viewModel: SchedulePreviewData.sendSchedule, onDismiss: {})
+            SendSchedulePopup(
+                viewModel: SchedulePreviewData.sendSchedule,
+                onCopied: {},
+                onDismiss: {}
+            )
         }
 }
 #endif

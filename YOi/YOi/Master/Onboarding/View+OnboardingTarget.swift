@@ -31,7 +31,6 @@ private struct OnboardingTargetModifier: ViewModifier {
                 withdraw(oldTarget)
                 reportStoredFrame()
             }
-            .simultaneousGesture(TapGesture().onEnded(registerTap))
     }
 
     private func reportStoredFrame() {
@@ -58,12 +57,6 @@ private struct OnboardingTargetModifier: ViewModifier {
         withAnimation(.smooth) {
             scroll.scrollTo(target, anchor: .center)
         }
-    }
-
-    private func registerTap() {
-        guard let target else { return }
-
-        tour?.didTap(target)
     }
 }
 

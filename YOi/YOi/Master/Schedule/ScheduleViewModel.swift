@@ -184,6 +184,29 @@ final class ScheduleViewModel {
         select(dayId: nearest.date)
     }
 
+    func completedOnboardingSteps(now: Date) -> Set<OnboardingStep> {
+        let upcoming = slots.filter { $0.isPast(now: now) == false }
+        var steps: Set<OnboardingStep> = []
+
+        if services.isEmpty == false {
+            steps.insert(.services)
+        }
+
+        if directory.clients.isEmpty == false {
+            steps.insert(.client)
+        }
+
+        if upcoming.isEmpty == false {
+            steps.insert(.windows)
+        }
+
+        if upcoming.contains(where: \.isBooked) {
+            steps.insert(.booking)
+        }
+
+        return steps
+    }
+
     func delete(id: String) {
         try? slotRepository.delete(id: id)
     }

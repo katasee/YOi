@@ -2687,6 +2687,29 @@ this file is just "what's done, what's next," not a design doc.
     keyboard late and drops the first keystrokes, also in Release on a device; later opens are
     fine. Suspected keyboard warm-up with the debugger attached; not investigated further.
 
+- **Y-68 — Onboarding tour (logic)** (branch `feature/y-68-onboarding-tour-logic`; user,
+  2026-11-17). The tour runs for new accounts only and resumes where it stopped.
+  - `UserProfile.onboardingStep: String?`, read as `tourStep: OnboardingStep?` — a missing field
+    is an existing account (no tour), and a value this build does not know reads as no tour
+    instead of failing the profile decode. `writeProfile` writes `welcome` (sign-up and the
+    recreated profile; the spec said `services`, Y-67 put the welcome card first).
+    `hasValidProfile()` pins the value to the seven steps — deployed by hand.
+  - `OnboardingRepository.save(_:)` (`FirestoreOnboardingRepository`: `updateData`,
+    fire-and-forget). `OnboardingTour` takes it in `init`, maps a stored `finished` to no tour (the
+    «Все готово!» card is not shown twice), and changes the step only in `move(to:)`, which saves
+    it (`finished` for a closed tour). `MasterRootView` builds the tour from the profile.
+  - Steps complete from data: `record(_:)` with the steps whose result exists — services, a
+    client, a window not yet started, a booking not yet started
+    (`ScheduleViewModel.completedOnboardingSteps(now:)`), services from `MyServicesView`, clients
+    from `ClientsView`, the schedule text copied (`SendSchedulePopup.onCopied`). `completed` only
+    grows; any step in it is skipped, one write per jump. The Y-67 tap completion (`didTap`, the
+    `TapGesture` in the target modifier) is gone.
+  - Reviews: swiftui-pro on the plan (lenient step decoding, no slot scan in `body` while the tour
+    is off, the rules list).
+  - Verified: `swiftc` scripts on profile decoding and the tour (15 cases, `OK`); `xcodebuild`;
+    walked by the user on a new account. A "restarts from the first step" report was an old Y-67
+    build still installed on the device.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2940,13 +2963,7 @@ those items are referred to by name, so the list can grow without renumbering an
        hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
        to `PlanChoice` here.
    15. ~~**Y-67 Onboarding tour (UI)**~~ — **done** (under "Done").
-   16. **Y-68 Onboarding tour (logic)** (user, 2026-11-17). Spec:
-       `docs/superpowers/specs/2026-11-17-onboarding-tour-design.md`. `UserProfile.onboardingStep`
-       (optional; missing = no tour, so existing accounts never see it), written `welcome` at
-       sign-up; the step persisted with a fire-and-forget `updateData`; each step completed from
-       data (≥ 1 service, ≥ 1 client, ≥ 1 future window, the schedule text copied, a booking)
-       instead of the tap, and skipped when its data already exists; the `firestore.rules` line,
-       deployed by hand.
+   16. ~~**Y-68 Onboarding tour (logic)**~~ — **done** (under "Done").
    15. ~~**Y-60 Reorder services by drag**~~ — **done** (under "Done"). Plans' order is a later PR.
    16. ~~**Y-63 Replace a window with a plan, or a plan with a booking**~~ — **done** (under "Done").
 

@@ -4,6 +4,7 @@ struct MyServicesView: View {
     @State private var viewModel: MyServicesViewModel
     @State private var formMode: ServiceFormMode?
     @State private var openRowId: String?
+    @Environment(OnboardingTour.self) private var tour: OnboardingTour?
 
     init(viewModel: MyServicesViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -28,6 +29,11 @@ struct MyServicesView: View {
         }
         .task {
             await viewModel.observeServices()
+        }
+        .onChange(of: viewModel.services.isEmpty, initial: true) { _, isEmpty in
+            guard isEmpty == false else { return }
+
+            tour?.record([.services])
         }
         .alert(
             viewModel.failure?.titleKey ?? "",

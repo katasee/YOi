@@ -50,9 +50,10 @@
   `delete`, `FirestoreServiceRepository`'s `add` and `reorder(ids:)`, `FirestoreSlotRepository`'s `add`, `book`, `addBooked`, `clearBooking` and `delete`,
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
-  `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`** (user decisions: `add` in
+  `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`, and
+  `FirestoreOnboardingRepository`'s `save`** (user decisions: `add` in
   M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
-  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60,
+  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60, the tour's step in Y-68,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
   although the change was already in the local cache and on screen. They now pass
@@ -167,6 +168,13 @@
   A signed-in user with no `users/{uid}` document gets one recreated by `RootViewModel` (name = the
   email's local part) instead of being signed out, so a half-finished sign-up or account deletion
   never locks the email out.
+- **The onboarding step is a string on `users/{uid}`, read through an enum** (Y-68).
+  `UserProfile.onboardingStep: String?`, read as `tourStep: OnboardingStep?`: a missing field is
+  an account from before the tour (no tour), `finished` is a tour ended or closed, and a value this
+  build does not know reads as no tour instead of failing the profile decode — which would lock the
+  master out. `writeProfile` writes `welcome` (sign-up and a recreated profile). `firestore.rules`
+  pins the value to the seven steps in `hasValidProfile()`, so a new step is a rules edit in the
+  same PR.
 - **Every collection under `users/{uid}/` is listed in `FirestoreUserDataRepository.collections`.**
   Account deletion wipes only what is listed, so a collection added without it silently survives
   "Видалити акаунт" — an App Store 5.1.1(v) problem with no visible failure. Add the name in the

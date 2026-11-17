@@ -3,6 +3,7 @@ import SwiftUI
 struct ClientsView: View {
     @State private var viewModel: ClientListViewModel
     @State private var addForm: ClientFormViewModel?
+    @Environment(OnboardingTour.self) private var tour: OnboardingTour?
 
     init(viewModel: ClientListViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -36,6 +37,11 @@ struct ClientsView: View {
             }
             .task {
                 await viewModel.observeClients()
+            }
+            .onChange(of: viewModel.totalCount > 0, initial: true) { _, hasClients in
+                guard hasClients else { return }
+
+                tour?.record([.client])
             }
             .fullScreenCover(item: $addForm) { form in
                 @Bindable var form = form

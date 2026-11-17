@@ -98,6 +98,9 @@ struct ScheduleView: View {
             }
             .onChange(of: viewModel.selectedDate, closeOpenRow)
             .onChange(of: tour?.step, showFreeWindowForBooking)
+            .onChange(of: onboardingProgress, initial: true) { _, steps in
+                tour?.record(steps)
+            }
             .fullScreenCover(item: $popup, onDismiss: applyPending) { popup in
                 popupView(popup)
                     .presentationBackground(.clear)
@@ -138,7 +141,11 @@ struct ScheduleView: View {
                 onDismiss: closePopup
             )
         case .sendSchedule(let sendSchedule):
-            SendSchedulePopup(viewModel: sendSchedule, onDismiss: closePopup)
+            SendSchedulePopup(
+                viewModel: sendSchedule,
+                onCopied: { tour?.record([.sendSchedule]) },
+                onDismiss: closePopup
+            )
         case .bookClient(let bookClient):
             BookClientPopup(viewModel: bookClient, onDismiss: closePopup)
         case .bookingActions(let bookingActions):
@@ -251,6 +258,12 @@ struct ScheduleView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+    }
+
+    private var onboardingProgress: Set<OnboardingStep> {
+        guard tour?.step != nil else { return [] }
+
+        return viewModel.completedOnboardingSteps(now: .now)
     }
 
     private func showFreeWindowForBooking() {

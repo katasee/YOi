@@ -15,7 +15,7 @@ struct WeekDayCell: View {
         static let labelSpacing: CGFloat = 4
         static let dotSize: CGFloat = 4
         static let dotBottomPadding: CGFloat = 6
-        static let todayOutline: CGFloat = 1
+        static let todayOutline: CGFloat = 1.5
         static let selectedLetterOpacity: Double = 0.7
     }
 
@@ -31,7 +31,7 @@ struct WeekDayCell: View {
                     )
 
                 Text(DateFormat.dayNumber.string(from: day))
-                    .font(.elmsSans(.semiBold, 16))
+                    .font(.elmsSans(isToday ? .bold : .semiBold, 16))
                     .foregroundStyle(numberColor)
             }
             .frame(maxWidth: .infinity)
@@ -41,7 +41,7 @@ struct WeekDayCell: View {
                     selectedFill
                 } else if isToday {
                     RoundedRectangle(cornerRadius: Layout.cellCornerRadius)
-                        .strokeBorder(Color.stroke, lineWidth: Layout.todayOutline)
+                        .strokeBorder(Color.wine, lineWidth: Layout.todayOutline)
                 }
             }
             .overlay(alignment: .bottom) {

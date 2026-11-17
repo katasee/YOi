@@ -142,6 +142,7 @@ what broke when `Ink` was text *and* fill *and* shadow):
 | `Destructive` / `DestructiveFill` | destructive text / destructive fill | `#C42F2F`; `#FF6961` / `#D93A3A` |
 | `Shadow` | every shadow | `#0A0A0B` / `#000000` |
 | `Backdrop` | popup backdrop | ink 22% / black 55% |
+| `TourDim` | the onboarding tour's dim around the highlighted control (Y-67; darker than `Backdrop` for focus) | ink 55% / black 80% |
 | `Highlight` | surface rim and sheen | clear / white |
 | `HeaderFill` | `BookingHeader` block — unused since M-30 removed it | `#0A0A0B` / `#1F1A1F` (card tone) |
 | `Warning` / `WarningSoft` | a window too close before a plan (M-37.7): glyph, text and outline; the outline and text of the "Замінити" button (`CapsuleButton`'s `.warning`, Y-63) / the flat fill under the warning line | `#9A5200` / `#FFB340`; `#FFF4E0` / `#33261A` |

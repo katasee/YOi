@@ -2641,6 +2641,52 @@ this file is just "what's done, what's next," not a design doc.
     raised tile, top bar); the user kept the ring.
   - Reviews: swiftui-pro (no findings). Verified: `xcodebuild`.
 
+- **Y-67 — Onboarding tour (UI)** (branch `feature/y-67-onboarding-tour-ui`; user, 2026-11-17).
+  A coach-mark tour for a new master, walkable on the simulator with the step held in memory
+  (`@State` in `MasterRootView`, starts at `.welcome` on every launch until Y-68 stores it).
+  Steps: welcome card («Вітаємо в YOi!», "Так, допоможіть" / "Пропустити") → services (Статистика
+  tab → "Мої послуги" row → "+") → client (Клієнтки "+") → free windows (Розклад "+") → send
+  schedule (paper plane) → book the client into a free window → «Все готово!». The order was
+  changed twice on the simulator; the booking step was added by the user.
+  - `OnboardingTour` (`@MainActor @Observable`) holds the step, the targets' global frames and an
+    open-popup count. `highlight(step:selectedTab:frames:)` is pure: the last visible target of
+    the step, else the step's tab when another tab is selected, else nothing (no dim the master
+    cannot pass, e.g. Profile pushed over Статистика).
+  - Screens tag controls with `.onboardingTarget(_:)` (`View+OnboardingTarget.swift`): it reports
+    `frame(in: .global)` through `onGeometryChange`, re-reports the stored frame on `onAppear`
+    (`onGeometryChange` fires only on a change), withdraws it on `onDisappear` only if the tour
+    still holds *its* frame (`withdraw(_:frame:)` — the "first free window" moves between rows),
+    and counts a tap with a simultaneous `TapGesture`. On Розклад it sits inside `.disabled`, or a
+    greyed-out button would advance the step.
+  - Tabs cannot be tagged (system `TabView`): `TabBarSlot` computes the slot from the tab
+    content's bottom safe-area inset, and `OnboardingMetrics.TabBar` holds the per-OS numbers
+    tuned on the simulators (iOS 26 capsule: 58pt side inset, 12pt below the home-indicator
+    line; iOS 18: 4pt and 10pt).
+  - `OnboardingOverlay` on the `TabView`: one even-odd `Shape` (screen + hole) filled with the new
+    `TourDim` token and used as `contentShape(_, eoFill: true)`, so the hole passes touches and
+    the dim swallows them; `Wine` outline; the card above or below the hole; a blur under the
+    welcome card. Highlights crossfade (`.id` per highlight + `.transition(.opacity)`): sliding
+    the hole across the screen was tried twice and rejected by the user.
+  - Popups hide the tour: `PopupContainer` reports `onAppear`/`onDisappear` through a generic
+    `EnvironmentValues.popupPresenceChanged` (UICommons stays free of onboarding types), counted
+    for nested popups. Covers presented with a clear background would otherwise show the tour
+    through them.
+  - A target inside a list scrolls itself to the centre (`onboardingScroll`, a `ScrollViewProxy`
+    set by Статистика and Розклад; `.task(id: isActive)`), since "Мої послуги" sits under the tab
+    bar. The booking step selects the nearest future free window's day
+    (`ScheduleViewModel.showNearestFreeWindow`).
+  - In this PR a step completes when its last target is **tapped**, so closing a form without
+    saving still advances — Y-68 completes steps from data.
+  - Reviews: swiftui-pro (plan + code: frames written and observed after the tour closed, scroll
+    on a target change), swift-concurrency-pro (`Task` in `onAppear` → `.task(id:)`, `@Sendable`
+    environment closure), SOLID/clean code (`OnboardingCenteredCard`, `advance()`, one `switch`
+    over the highlight, `OnboardingHole`, the free-slot rule moved to the view model).
+  - Verified: `swiftc` scripts on the highlight rule, steps, popups, withdraw and hole geometry
+    (`OK`); `xcodebuild` on iOS 26.1 and 18.6; tried by the user on both simulators and a device, feedback folded in above.
+  - Found while testing, not caused by the tour: the first form opened after launch shows the
+    keyboard late and drops the first keystrokes, also in Release on a device; later opens are
+    fine. Suspected keyboard warm-up with the debugger attached; not investigated further.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2893,6 +2939,14 @@ those items are referred to by name, so the list can grow without renumbering an
        `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
        hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
        to `PlanChoice` here.
+   15. ~~**Y-67 Onboarding tour (UI)**~~ — **done** (under "Done").
+   16. **Y-68 Onboarding tour (logic)** (user, 2026-11-17). Spec:
+       `docs/superpowers/specs/2026-11-17-onboarding-tour-design.md`. `UserProfile.onboardingStep`
+       (optional; missing = no tour, so existing accounts never see it), written `welcome` at
+       sign-up; the step persisted with a fire-and-forget `updateData`; each step completed from
+       data (≥ 1 service, ≥ 1 client, ≥ 1 future window, the schedule text copied, a booking)
+       instead of the tap, and skipped when its data already exists; the `firestore.rules` line,
+       deployed by hand.
    15. ~~**Y-60 Reorder services by drag**~~ — **done** (under "Done"). Plans' order is a later PR.
    16. ~~**Y-63 Replace a window with a plan, or a plan with a booking**~~ — **done** (under "Done").
 

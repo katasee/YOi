@@ -42,7 +42,7 @@ slots/{yyyy-MM-dd_HHmm}  date, time, clientId?, serviceId?, serviceName?, servic
 events/{autoId}          date, startTime, endTime, templateId? + emoji/name snapshot
                          (no templateId = a one-off plan, typed in place, Y-58)
                          (weekdays[] + fromDate, skippedDates[] with the weekly repeat)
-eventTemplates/{autoId}  emoji, name, isActive                            — "Мої справи"
+eventTemplates/{autoId}  emoji, name                                      — "Мої справи"
 services/{autoId}        name, price (whole PLN), isFavorite?
 ```
 
@@ -95,7 +95,9 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
    something that overlaps on **one** day offers "Замінити" after a confirmation listing what
    changes: a plan deletes the windows under it (booked ones too); a booking or window trims the
    plan to end at it, or deletes the plan when it starts there. Over several days an overlap still
-   blocks the add.
+   blocks the add. A template has no on/off (Y-66): one no longer needed is deleted. Tapping a
+   template opens its screen with the plan's upcoming and past events (within the bounded
+   `events` window) and "Змінити".
 
 ## Statistics (calendar month, navigable back)
 

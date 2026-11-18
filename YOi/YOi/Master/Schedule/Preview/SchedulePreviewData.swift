@@ -10,10 +10,10 @@ enum SchedulePreviewData {
     ]
 
     static let templates: [EventTemplate] = [
-        EventTemplate(id: "tpl-boxing", emoji: "🥊", name: "Бокс", isActive: true),
-        EventTemplate(id: "tpl-run", emoji: "🏃‍♀️", name: "Біг", isActive: true),
-        EventTemplate(id: "tpl-dentist", emoji: "🦷", name: "Стоматолог", isActive: true),
-        EventTemplate(id: "tpl-yoga", emoji: "🧘‍♀️", name: "Йога", isActive: false)
+        EventTemplate(id: "tpl-boxing", emoji: "🥊", name: "Бокс"),
+        EventTemplate(id: "tpl-run", emoji: "🏃‍♀️", name: "Біг"),
+        EventTemplate(id: "tpl-dentist", emoji: "🦷", name: "Стоматолог"),
+        EventTemplate(id: "tpl-yoga", emoji: "🧘‍♀️", name: "Йога")
     ]
 
     static let plans: [PlanEvent] = [

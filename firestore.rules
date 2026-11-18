@@ -53,7 +53,7 @@ service cloud.firestore {
       return data.keys().hasOnly(['emoji', 'name', 'isActive']) &&
         data.emoji is string && data.emoji.size() > 0 &&
         data.name is string && data.name.size() > 0 &&
-        data.isActive is bool;
+        (!('isActive' in data) || data.isActive is bool);
     }
 
     function hasValidEventFormat() {

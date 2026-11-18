@@ -9,6 +9,12 @@ final class FirestoreEventTemplateRepository: EventTemplateRepository {
         }
     }
 
+    func observeTemplate(id: String) -> AsyncThrowingStream<EventTemplate?, Error> {
+        .listening { try db.userCollection("eventTemplates").document(id).addSnapshotListener($0) } read: { snapshot in
+            try? snapshot.data(as: EventTemplate.self)
+        }
+    }
+
     func add(_ template: EventTemplate) throws {
         let encoded = try Firestore.Encoder().encode(template)
         try db.userCollection("eventTemplates").addDocument(data: encoded, completion: nil)
@@ -23,7 +29,7 @@ final class FirestoreEventTemplateRepository: EventTemplateRepository {
             )
         }
         let encoded = try Firestore.Encoder().encode(template)
-        try db.userCollection("eventTemplates").document(id).setData(encoded, completion: nil)
+        try db.userCollection("eventTemplates").document(id).updateData(encoded, completion: nil)
     }
 
     func delete(id: String) throws {

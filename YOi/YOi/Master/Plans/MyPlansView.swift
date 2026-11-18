@@ -38,18 +38,13 @@ struct MyPlansView: View {
         .fullScreenCover(item: $formMode) { mode in
             PlanFormPopup(
                 viewModel: PlanFormViewModel(mode: mode),
-                onSave: viewModel.save,
+                onSave: viewModel.add,
                 onDismiss: dismissForm
             )
             .presentationBackground(.clear)
         }
         .navigationDestination(item: $openTemplateId) { id in
-            if let template = viewModel.template(id: id) {
-                PlanHistoryView(
-                    viewModel: PlanHistoryViewModel(template: template),
-                    onSave: viewModel.save
-                )
-            }
+            PlanHistoryView(viewModel: viewModel.makeHistoryViewModel(templateId: id))
         }
     }
 

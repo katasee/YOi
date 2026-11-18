@@ -4,39 +4,66 @@ import Observation
 @MainActor
 @Observable
 final class PlanHistoryViewModel {
-    private(set) var template: EventTemplate
-    private(set) var events: [PlanEvent]
+    private(set) var template: EventTemplate?
+    private(set) var isDeleted = false
+    private(set) var hasFailed = false
+    private(set) var failure: PlansFailure?
+    private var events: [PlanEvent]?
 
-    init(template: EventTemplate) {
-        self.template = template
-        events = Self.inMemoryEvents(for: template, now: .now)
+    var hasFailure: Bool {
+        get { failure != nil }
+        set { if newValue == false { failure = nil } }
     }
 
-    func history(now: Date) -> PlanHistory {
-        PlanHistory(events: events, now: now)
+    private let templateId: String
+    private let templateRepository: EventTemplateRepository
+    private let eventRepository: EventRepository
+
+    init(
+        templateId: String,
+        templateRepository: EventTemplateRepository,
+        eventRepository: EventRepository
+    ) {
+        self.templateId = templateId
+        self.templateRepository = templateRepository
+        self.eventRepository = eventRepository
     }
 
-    func apply(_ edited: EventTemplate) {
-        template = edited
+    func observeTemplate() async {
+        hasFailed = false
+
+        do {
+            for try await updatedTemplate in templateRepository.observeTemplate(id: templateId) {
+                if let updatedTemplate {
+                    template = updatedTemplate
+                } else if template != nil {
+                    isDeleted = true
+                }
+            }
+        } catch {
+            hasFailed = true
+        }
     }
 
-    private static func inMemoryEvents(for template: EventTemplate, now: Date) -> [PlanEvent] {
-        let calendar = DateFormat.salonCalendar
-        let today = calendar.startOfDay(for: now)
-        let templateId = template.id ?? ""
+    func observeEvents() async {
+        do {
+            for try await updatedEvents in eventRepository.observeEvents() {
+                events = updatedEvents.filter { $0.templateId == templateId }
+            }
+        } catch {
+            events = nil
+        }
+    }
 
-        return [2, 9, -5, -12, -19].compactMap { offset in
-            guard let day = calendar.date(byAdding: .day, value: offset, to: today) else { return nil }
+    func history(now: Date) -> PlanHistory? {
+        events.map { PlanHistory(events: $0, now: now) }
+    }
 
-            return PlanEvent(
-                id: "\(templateId)-\(offset)",
-                date: DateFormat.date.string(from: day),
-                startTime: "18:00",
-                endTime: "19:30",
-                templateId: templateId,
-                emoji: template.emoji,
-                name: template.name
-            )
+    func save(_ template: EventTemplate) {
+        do {
+            try templateRepository.update(template)
+        } catch {
+            failure = .save
         }
     }
 }

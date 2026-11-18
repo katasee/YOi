@@ -100,8 +100,7 @@ struct PlanFormPopup: View {
                         EventTemplate(
                             id: "plan-guitar",
                             emoji: "🎸",
-                            name: "Гітара",
-                            isActive: true
+                            name: "Гітара"
                         )
                     )
                 ),

@@ -14,7 +14,7 @@ struct PlanChoice {
     private let pinned: EventTemplate?
 
     init(templates: [EventTemplate], pinning plan: PlanEvent? = nil) {
-        let offered = templates.filter(\.isActive).sortedByName()
+        let offered = templates.sortedByName()
 
         self.offered = offered
         selectedId = plan?.templateId
@@ -69,8 +69,7 @@ struct PlanChoice {
         return EventTemplate(
             id: id,
             emoji: plan.emoji,
-            name: plan.name,
-            isActive: false
+            name: plan.name
         )
     }
 }

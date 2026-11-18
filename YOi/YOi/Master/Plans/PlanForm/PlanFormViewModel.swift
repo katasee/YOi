@@ -30,16 +30,14 @@ final class PlanFormViewModel {
             return EventTemplate(
                 id: nil,
                 emoji: emoji,
-                name: trimmedName,
-                isActive: true
+                name: trimmedName
             )
 
         case .edit(let template):
             return EventTemplate(
                 id: template.id,
                 emoji: emoji,
-                name: trimmedName,
-                isActive: template.isActive
+                name: trimmedName
             )
         }
     }

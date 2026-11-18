@@ -2710,6 +2710,26 @@ this file is just "what's done, what's next," not a design doc.
     walked by the user on a new account. A "restarts from the first step" report was an old Y-67
     build still installed on the device.
 
+- **Y-65 — Plan history (UI)** (branch `feature/y-65-plan-history-ui`; user, 2026-11-17). "Мої
+  плани" stops switching plans on and off: the emoji tile is plain (`PlanEmojiTile` lost
+  `isActive` and its grey look, `toggleActive` is gone), and a tap on a plan pushes its screen
+  (`Master/Plans/History/`) instead of the edit form.
+  - `PlanHistoryView`: emoji and name, "Заплановано" (soonest first) and "Історія" (most recent
+    first), each row a date and "start–end"; "Змінити" in the toolbar opens `PlanFormPopup`.
+    `PlanHistory` splits by `PlanEvent.isPast(now:)` (an event still running is planned), like
+    `ClientVisits`; `PlanHistorySection` looks like `ClientVisitsSection` but is not shared (the
+    rows differ; a generic for two call sites is speculative).
+  - The screen owns `PlanHistoryViewModel` (like `ClientCardViewModel`), pushed by template id
+    with `navigationDestination(item:)`: the list's view model only gained `template(id:)`, and
+    events will be read only when a plan is opened. UI PR: five in-memory events per plan, and
+    an edit updates the screen with `apply(_:)` while the write still goes through the list's
+    `save`.
+  - On/off is dropped, not moved (user: an unneeded plan is deleted). `isActive` stays in the
+    model until Y-66.
+  - Reviews: swiftui-pro (plan twice, Task 1 diff), SOLID/clean code (the own view model).
+  - Verified: `xcodebuild`; `swiftc` script on `PlanHistory` (order, the end-time boundary, the
+    id fallback).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -2962,10 +2982,19 @@ those items are referred to by name, so the list can grow without renumbering an
        `hasValidEventFormat()` in `firestore.rules` accepts a missing `templateId` — deployed by
        hand in Firebase Console, or one-off plans are silently rejected. Rename `TemplateChoice`
        to `PlanChoice` here.
-   15. ~~**Y-67 Onboarding tour (UI)**~~ — **done** (under "Done").
-   16. ~~**Y-68 Onboarding tour (logic)**~~ — **done** (under "Done").
    15. ~~**Y-60 Reorder services by drag**~~ — **done** (under "Done"). Plans' order is a later PR.
    16. ~~**Y-63 Replace a window with a plan, or a plan with a booking**~~ — **done** (under "Done").
+   17. ~~**Y-67 Onboarding tour (UI)**~~ — **done** (under "Done").
+   18. ~~**Y-68 Onboarding tour (logic)**~~ — **done** (under "Done").
+   19. ~~**Y-65 Plan history (UI)**~~ — **done** (under "Done").
+   20. **Y-66 Plan history (logic)** — `PlanHistoryViewModel` takes `templateId` and the
+       repositories: observes its template (`EventTemplateRepository.observeTemplate(id:)`, new)
+       and the bounded `observeEvents()` filtered by `templateId`, writes edits itself, and pops
+       on `isDeleted`. Remove `EventTemplate.isActive` (model, `PlanChoice`, `PlanFormViewModel`,
+       `PlanFormPopup`, preview data); `hasValidEventTemplateFormat()` keeps `isActive` in
+       `hasOnly` but no longer requires it — **deploy in Firebase Console before the build
+       ships**, or every template write is rejected unseen. Plans inactive today reappear in
+       Розклад's chips (accepted).
 
 ## Backlog and tech debt (unordered)
 

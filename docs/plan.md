@@ -2730,6 +2730,24 @@ this file is just "what's done, what's next," not a design doc.
     the edit-before-write header is left to Y-66).
   - Verified: `xcodebuild`; `swiftc` script on `PlanHistory` (order, the end-time boundary, the
     id fallback).
+- **Y-66 — Plan history (logic)** (branch `feature/y-66-plan-history-logic`; user, 2026-11-18).
+  The plan screen reads Firestore and `isActive` is gone.
+  - `PlanHistoryViewModel(templateId:templateRepository:eventRepository:)`, the
+    `ClientCardViewModel` pattern: `observeTemplate(id:)` (new, one document, `nil` when missing)
+    and the bounded `observeEvents()` filtered by `templateId`; `isDeleted` when `nil` arrives
+    while `template != nil` (view model state, so a restarted `.task` still pops); its own `save`
+    and save-failure alert; `ListStatusOverlay` for loading and `plans.loadFailed`.
+  - `MyPlansViewModel` builds it with `makeHistoryViewModel(templateId:)`; `template(id:)` is gone
+    and `save` became `add(_:)`, since the list's form only adds.
+  - `isActive` removed from `EventTemplate`, `PlanChoice`, the form and preview data;
+    `hasValidEventTemplateFormat()` accepts it only optionally (kept in `hasOnly`), deployed in the
+    Console. A template update is a whole `setData`, so an edited old plan loses the field.
+  - No new fakes (user): the preview uses a private `PreviewPlanRepository` stub in
+    `PlanHistoryView.swift`, one struct for both protocols.
+  - Reviews: swiftui-pro, swift-concurrency-pro, SOLID/clean code on the plan; conventions,
+    failure paths and leftovers per task; Firestore cost and readability on the branch.
+  - Verified: `xcodebuild`; walked by the user on the simulator (real events, rename, delete from
+    the Console pops the screen).
 
 ## Screens (in order)
 
@@ -2988,15 +3006,7 @@ those items are referred to by name, so the list can grow without renumbering an
    17. ~~**Y-67 Onboarding tour (UI)**~~ — **done** (under "Done").
    18. ~~**Y-68 Onboarding tour (logic)**~~ — **done** (under "Done").
    19. ~~**Y-65 Plan history (UI)**~~ — **done** (under "Done").
-   20. **Y-66 Plan history (logic)** — `PlanHistoryViewModel` takes `templateId` and the
-       repositories: observes its template (`EventTemplateRepository.observeTemplate(id:)`, new)
-       and the bounded `observeEvents()` filtered by `templateId`, writes edits itself (its own failure alert;
-       today the header updates before the write and a failure alerts on the list under the
-       pushed screen), and pops on `isDeleted`. Remove `EventTemplate.isActive` (model, `PlanChoice`, `PlanFormViewModel`,
-       `PlanFormPopup`, preview data); `hasValidEventTemplateFormat()` keeps `isActive` in
-       `hasOnly` but no longer requires it — **deploy in Firebase Console before the build
-       ships**, or every template write is rejected unseen. Plans inactive today reappear in
-       Розклад's chips (accepted).
+   20. ~~**Y-66 Plan history (logic)**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 

@@ -15,9 +15,14 @@ final class MyPlansViewModel {
     }
 
     private let templateRepository: EventTemplateRepository
+    private let eventRepository: EventRepository
 
-    init(templateRepository: EventTemplateRepository = FirestoreEventTemplateRepository()) {
+    init(
+        templateRepository: EventTemplateRepository = FirestoreEventTemplateRepository(),
+        eventRepository: EventRepository = FirestoreEventRepository()
+    ) {
         self.templateRepository = templateRepository
+        self.eventRepository = eventRepository
     }
 
     func observeTemplates() async {
@@ -34,17 +39,17 @@ final class MyPlansViewModel {
         }
     }
 
-    func template(id: String) -> EventTemplate? {
-        templates.first { $0.id == id }
+    func makeHistoryViewModel(templateId: String) -> PlanHistoryViewModel {
+        PlanHistoryViewModel(
+            templateId: templateId,
+            templateRepository: templateRepository,
+            eventRepository: eventRepository
+        )
     }
 
-    func save(_ template: EventTemplate) {
+    func add(_ template: EventTemplate) {
         do {
-            if template.id == nil {
-                try templateRepository.add(template)
-            } else {
-                try templateRepository.update(template)
-            }
+            try templateRepository.add(template)
         } catch {
             failure = .save
         }

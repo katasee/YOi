@@ -4,6 +4,7 @@ struct MyPlansView: View {
     @State private var viewModel: MyPlansViewModel
     @State private var formMode: PlanFormMode?
     @State private var openRowId: String?
+    @State private var openTemplateId: String?
 
     init(viewModel: MyPlansViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -42,6 +43,14 @@ struct MyPlansView: View {
             )
             .presentationBackground(.clear)
         }
+        .navigationDestination(item: $openTemplateId) { id in
+            if let template = viewModel.template(id: id) {
+                PlanHistoryView(
+                    viewModel: PlanHistoryViewModel(template: template),
+                    onSave: viewModel.save
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -64,11 +73,8 @@ struct MyPlansView: View {
                         cornerRadius: PlansMetrics.Size.rowCornerRadius,
                         onDelete: { delete(template) }
                     ) {
-                        PlanRow(
-                            template: template,
-                            onToggleActive: { toggleActive(template) }
-                        )
-                        .onTapGesture { editTemplate(template) }
+                        PlanRow(template: template)
+                        .onTapGesture { openTemplate(template) }
                         .accessibilityAddTraits(.isButton)
                     }
                 }
@@ -99,25 +105,19 @@ struct MyPlansView: View {
         viewModel.delete(template)
     }
 
-    private func toggleActive(_ template: EventTemplate) {
-        viewModel.toggleActive(template)
-    }
-
     private func addTemplate() {
         withoutPresentationAnimation {
             formMode = .add
         }
     }
 
-    private func editTemplate(_ template: EventTemplate) {
+    private func openTemplate(_ template: EventTemplate) {
         guard openRowId == nil else {
             openRowId = nil
             return
         }
 
-        withoutPresentationAnimation {
-            formMode = .edit(template)
-        }
+        openTemplateId = template.id
     }
 
     private func dismissForm() {

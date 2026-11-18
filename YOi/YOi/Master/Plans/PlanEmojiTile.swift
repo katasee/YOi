@@ -29,23 +29,12 @@ struct PlanEmojiTile: View {
 
     let emoji: String
     var size: Size = .row
-    var isActive = true
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: size.cornerRadius)
-        let glyph = Text(verbatim: emoji)
+        Text(verbatim: emoji)
             .font(.elmsSans(.regular, size.glyph))
             .frame(width: size.side, height: size.side)
-
-        if isActive {
-            glyph
-                .background(Color.wineSoft, in: shape)
-        } else {
-            glyph
-                .grayscale(1)
-                .opacity(PlansMetrics.Opacity.inactiveGlyph)
-                .raisedSurface(shape)
-        }
+            .background(Color.wineSoft, in: RoundedRectangle(cornerRadius: size.cornerRadius))
     }
 }
 
@@ -53,7 +42,6 @@ struct PlanEmojiTile: View {
 #Preview {
     HStack(spacing: 16) {
         PlanEmojiTile(emoji: "🥊")
-        PlanEmojiTile(emoji: "💇‍♀️", isActive: false)
         PlanEmojiTile(emoji: "🦷", size: .picked)
     }
     .padding()

@@ -1989,6 +1989,22 @@
         }
       }
     },
+    "plans.action.edit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Змінити"
+          }
+        }
+      }
+    },
     "plans.action.open" : {
       "localizations" : {
         "en" : {
@@ -2165,6 +2181,22 @@
         }
       }
     },
+    "plans.history.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing here yet"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тут ще нічого немає"
+          }
+        }
+      }
+    },
     "plans.loadFailed.message" : {
       "localizations" : {
         "en" : {
@@ -2197,54 +2229,6 @@
         }
       }
     },
-    "plans.row.active" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Увімкнено"
-          }
-        }
-      }
-    },
-    "plans.row.inactive" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Off"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вимкнено"
-          }
-        }
-      }
-    },
-    "plans.row.toggle" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Offer in the calendar"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропонувати в календарі"
-          }
-        }
-      }
-    },
     "plans.section.all" : {
       "localizations" : {
         "en" : {
@@ -2261,18 +2245,50 @@
         }
       }
     },
-    "plans.subtitle" : {
+    "plans.section.history" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Templates for your calendar — tap one to edit"
+            "value" : "History"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Заготовки для календаря: тапни, щоб змінити"
+            "value" : "Історія"
+          }
+        }
+      }
+    },
+    "plans.section.planned" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заплановано"
+          }
+        }
+      }
+    },
+    "plans.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Templates for your calendar — tap one to see its history"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заготовки для календаря: торкніться, щоб побачити історію"
           }
         }
       }

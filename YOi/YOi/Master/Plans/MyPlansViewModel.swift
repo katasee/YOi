@@ -34,6 +34,10 @@ final class MyPlansViewModel {
         }
     }
 
+    func template(id: String) -> EventTemplate? {
+        templates.first { $0.id == id }
+    }
+
     func save(_ template: EventTemplate) {
         do {
             if template.id == nil {
@@ -41,17 +45,6 @@ final class MyPlansViewModel {
             } else {
                 try templateRepository.update(template)
             }
-        } catch {
-            failure = .save
-        }
-    }
-
-    func toggleActive(_ template: EventTemplate) {
-        var updated = template
-        updated.isActive.toggle()
-
-        do {
-            try templateRepository.update(updated)
         } catch {
             failure = .save
         }

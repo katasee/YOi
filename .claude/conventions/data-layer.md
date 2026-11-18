@@ -75,7 +75,8 @@
   and `time` — never `add` then `book`: `book` alone creates a document without them, which the
   bounded `slots` query never reads. A plan's `update` (M-37.6)
   is `updateData` with all six fields: a plan deleted while its popup was open fails the write
-  instead of being recreated, which both `setData` forms would do. `templateId` is optional (a
+  instead of being recreated, which both `setData` forms would do. A template's `update` is `updateData`
+  for the same reason (Y-66). `templateId` is optional (a
   one-off plan has none, Y-58), and `Firestore.Encoder` omits a `nil`, so `update` writes
   `FieldValue.delete()` for it — otherwise a plan changed to one-off would keep its old id.
 - Realtime data uses **async/await + `AsyncStream`** (`observeServices()`), not

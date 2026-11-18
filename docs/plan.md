@@ -2741,7 +2741,9 @@ this file is just "what's done, what's next," not a design doc.
     and `save` became `add(_:)`, since the list's form only adds.
   - `isActive` removed from `EventTemplate`, `PlanChoice`, the form and preview data;
     `hasValidEventTemplateFormat()` accepts it only optionally (kept in `hasOnly`), deployed in the
-    Console. A template update is a whole `setData`, so an edited old plan loses the field.
+    Console. A template update is now `updateData` (found by `/code-review`): a plan deleted on
+    another device while its form was open fails the write instead of being recreated, as with
+    events in M-37.6. Old documents keep their `isActive` key; the app ignores it.
   - No new fakes (user): the preview uses a private `PreviewPlanRepository` stub in
     `PlanHistoryView.swift`, one struct for both protocols.
   - Reviews: swiftui-pro, swift-concurrency-pro, SOLID/clean code on the plan; conventions,

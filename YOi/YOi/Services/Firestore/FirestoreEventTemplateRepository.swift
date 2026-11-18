@@ -29,7 +29,7 @@ final class FirestoreEventTemplateRepository: EventTemplateRepository {
             )
         }
         let encoded = try Firestore.Encoder().encode(template)
-        try db.userCollection("eventTemplates").document(id).setData(encoded, completion: nil)
+        try db.userCollection("eventTemplates").document(id).updateData(encoded, completion: nil)
     }
 
     func delete(id: String) throws {

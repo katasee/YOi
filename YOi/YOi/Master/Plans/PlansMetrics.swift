@@ -13,6 +13,11 @@ enum PlansMetrics {
         static let gridCellCornerRadius: CGFloat = 14
         static let gridGlyph: CGFloat = 22
         static let gridVisibleHeight: CGFloat = 178
+        static let historyName: CGFloat = 22
+        static let historyDate: CGFloat = 16
+        static let historyTime: CGFloat = 15
+        static let historyEmpty: CGFloat = 15
+        static let dividerHeight: CGFloat = 1
     }
 
     enum Spacing {
@@ -29,6 +34,14 @@ enum PlansMetrics {
         static let nameLabelSpacing: CGFloat = 6
         static let gridSpacing: CGFloat = 8
         static let gridShadowInset: CGFloat = 6
+        static let historyTopPadding: CGFloat = 24
+        static let historyHeaderSpacing: CGFloat = 10
+        static let historySectionsSpacing: CGFloat = 20
+        static let historySectionSpacing: CGFloat = 10
+        static let historyLabelInset: CGFloat = 4
+        static let historyRowHorizontalPadding: CGFloat = 16
+        static let historyRowVerticalPadding: CGFloat = 12
+        static let historyEmptyPadding: CGFloat = 16
     }
 
     enum Grid {

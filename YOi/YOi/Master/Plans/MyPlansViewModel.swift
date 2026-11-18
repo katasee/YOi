@@ -34,6 +34,10 @@ final class MyPlansViewModel {
         }
     }
 
+    func template(id: String) -> EventTemplate? {
+        templates.first { $0.id == id }
+    }
+
     func save(_ template: EventTemplate) {
         do {
             if template.id == nil {

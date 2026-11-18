@@ -4,6 +4,10 @@ struct PlanHistory {
     let planned: [PlanHistoryItem]
     let history: [PlanHistoryItem]
 
+    var showsHistory: Bool {
+        history.isEmpty == false || planned.isEmpty
+    }
+
     init(events: [PlanEvent], now: Date) {
         let sorted = events.sorted { ($0.date, $0.startTime) < ($1.date, $1.startTime) }
 

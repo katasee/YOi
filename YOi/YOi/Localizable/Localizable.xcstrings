@@ -1989,6 +1989,22 @@
         }
       }
     },
+    "plans.action.edit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Змінити"
+          }
+        }
+      }
+    },
     "plans.action.open" : {
       "localizations" : {
         "en" : {
@@ -2165,6 +2181,22 @@
         }
       }
     },
+    "plans.history.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing here yet"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тут ще нічого немає"
+          }
+        }
+      }
+    },
     "plans.loadFailed.message" : {
       "localizations" : {
         "en" : {
@@ -2209,6 +2241,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Усі справи"
+          }
+        }
+      }
+    },
+    "plans.section.history" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Історія"
+          }
+        }
+      }
+    },
+    "plans.section.planned" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заплановано"
           }
         }
       }

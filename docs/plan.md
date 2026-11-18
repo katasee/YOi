@@ -2726,7 +2726,8 @@ this file is just "what's done, what's next," not a design doc.
     `save`.
   - On/off is dropped, not moved (user: an unneeded plan is deleted). `isActive` stays in the
     model until Y-66.
-  - Reviews: swiftui-pro (plan twice, Task 1 diff), SOLID/clean code (the own view model).
+  - Reviews: swiftui-pro (plan twice, every task's code), SOLID/clean code (the own view model;
+    the edit-before-write header is left to Y-66).
   - Verified: `xcodebuild`; `swiftc` script on `PlanHistory` (order, the end-time boundary, the
     id fallback).
 
@@ -2989,8 +2990,9 @@ those items are referred to by name, so the list can grow without renumbering an
    19. ~~**Y-65 Plan history (UI)**~~ — **done** (under "Done").
    20. **Y-66 Plan history (logic)** — `PlanHistoryViewModel` takes `templateId` and the
        repositories: observes its template (`EventTemplateRepository.observeTemplate(id:)`, new)
-       and the bounded `observeEvents()` filtered by `templateId`, writes edits itself, and pops
-       on `isDeleted`. Remove `EventTemplate.isActive` (model, `PlanChoice`, `PlanFormViewModel`,
+       and the bounded `observeEvents()` filtered by `templateId`, writes edits itself (its own failure alert;
+       today the header updates before the write and a failure alerts on the list under the
+       pushed screen), and pops on `isDeleted`. Remove `EventTemplate.isActive` (model, `PlanChoice`, `PlanFormViewModel`,
        `PlanFormPopup`, preview data); `hasValidEventTemplateFormat()` keeps `isActive` in
        `hasOnly` but no longer requires it — **deploy in Firebase Console before the build
        ships**, or every template write is rejected unseen. Plans inactive today reappear in

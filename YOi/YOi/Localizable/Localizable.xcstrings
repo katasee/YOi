@@ -2197,54 +2197,6 @@
         }
       }
     },
-    "plans.row.active" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Увімкнено"
-          }
-        }
-      }
-    },
-    "plans.row.inactive" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Off"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вимкнено"
-          }
-        }
-      }
-    },
-    "plans.row.toggle" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Offer in the calendar"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропонувати в календарі"
-          }
-        }
-      }
-    },
     "plans.section.all" : {
       "localizations" : {
         "en" : {
@@ -2266,13 +2218,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Templates for your calendar — tap one to edit"
+            "value" : "Templates for your calendar — tap one to see its history"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Заготовки для календаря: тапни, щоб змінити"
+            "value" : "Заготовки для календаря: торкніться, щоб побачити історію"
           }
         }
       }

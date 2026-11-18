@@ -34,8 +34,4 @@ enum PlansMetrics {
     enum Grid {
         static let columns = 5
     }
-
-    enum Opacity {
-        static let inactiveGlyph: Double = 0.4
-    }
 }

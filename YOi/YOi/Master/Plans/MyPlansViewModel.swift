@@ -46,17 +46,6 @@ final class MyPlansViewModel {
         }
     }
 
-    func toggleActive(_ template: EventTemplate) {
-        var updated = template
-        updated.isActive.toggle()
-
-        do {
-            try templateRepository.update(updated)
-        } catch {
-            failure = .save
-        }
-    }
-
     func delete(_ template: EventTemplate) {
         guard let id = template.id else { return }
 

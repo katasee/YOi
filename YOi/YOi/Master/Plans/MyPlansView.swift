@@ -64,10 +64,7 @@ struct MyPlansView: View {
                         cornerRadius: PlansMetrics.Size.rowCornerRadius,
                         onDelete: { delete(template) }
                     ) {
-                        PlanRow(
-                            template: template,
-                            onToggleActive: { toggleActive(template) }
-                        )
+                        PlanRow(template: template)
                         .onTapGesture { editTemplate(template) }
                         .accessibilityAddTraits(.isButton)
                     }
@@ -97,10 +94,6 @@ struct MyPlansView: View {
 
     private func delete(_ template: EventTemplate) {
         viewModel.delete(template)
-    }
-
-    private func toggleActive(_ template: EventTemplate) {
-        viewModel.toggleActive(template)
     }
 
     private func addTemplate() {

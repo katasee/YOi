@@ -4,6 +4,8 @@ struct SendScheduleTextStep: View {
     let monthTitle: String
     let canGoBack: Bool
     let text: String?
+    @Binding var language: MessageLanguage
+    let onCustomize: () -> Void
     let onPrevious: () -> Void
     let onNext: () -> Void
     let onCopy: () -> Void
@@ -19,7 +21,7 @@ struct SendScheduleTextStep: View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
             header
 
-            card
+            SendScheduleMessageCard(text: text, height: ScheduleMetrics.Size.sendCardHeight)
 
             buttons
         }
@@ -33,10 +35,23 @@ struct SendScheduleTextStep: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
-            Text("schedule.send.title")
-                .font(.elmsSans(.bold, ScheduleMetrics.Size.fillTitle))
-                .foregroundStyle(Color.ink)
-                .accessibilityAddTraits(.isHeader)
+            HStack(spacing: ScheduleMetrics.Spacing.sendTitleSpacing) {
+                Text("schedule.send.title")
+                    .font(.elmsSans(.bold, ScheduleMetrics.Size.fillTitle))
+                    .foregroundStyle(Color.ink)
+                    .accessibilityAddTraits(.isHeader)
+
+                Spacer()
+
+                SendScheduleLanguageMenu(language: $language)
+
+                RoundIconButton(
+                    systemImage: "slider.horizontal.3",
+                    size: .small,
+                    accessibilityLabel: "schedule.send.customize",
+                    action: onCustomize
+                )
+            }
 
             MonthHeader(
                 title: monthTitle,
@@ -45,31 +60,6 @@ struct SendScheduleTextStep: View {
                 onPrevious: onPrevious,
                 onNext: onNext
             )
-        }
-    }
-
-    @ViewBuilder
-    private var card: some View {
-        if let text {
-            ScrollView {
-                Text(verbatim: text)
-                    .font(.elmsSans(.regular, ScheduleMetrics.Size.sendText))
-                    .foregroundStyle(Color.ink)
-                    .lineSpacing(ScheduleMetrics.Spacing.sendLineSpacing)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(ScheduleMetrics.Spacing.sendCardPadding)
-            }
-            .frame(height: ScheduleMetrics.Size.sendCardHeight)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollIndicators(.hidden)
-            .cardSurface(padding: 0, cornerRadius: ScheduleMetrics.Size.sendCardCornerRadius)
-        } else {
-            Text("schedule.send.empty")
-                .font(.elmsSans(.regular, ScheduleMetrics.Size.sendText))
-                .foregroundStyle(Color.textSecondary)
-                .frame(maxWidth: .infinity)
-                .frame(height: ScheduleMetrics.Size.sendCardHeight)
-                .cardSurface(padding: 0, cornerRadius: ScheduleMetrics.Size.sendCardCornerRadius)
         }
     }
 
@@ -118,6 +108,8 @@ struct SendScheduleTextStep: View {
         monthTitle: "Жовтень 2026",
         canGoBack: false,
         text: SchedulePreviewData.sendSchedule.text,
+        language: .constant(.uk),
+        onCustomize: {},
         onPrevious: {},
         onNext: {},
         onCopy: {},

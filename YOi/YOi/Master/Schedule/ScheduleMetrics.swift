@@ -92,6 +92,7 @@ enum ScheduleMetrics {
         static let sendCardPadding: CGFloat = 16
         static let sendLineSpacing: CGFloat = 4
         static let sendButtonSpacing: CGFloat = 10
+        static let sendTitleSpacing: CGFloat = 8
         static let dayScrollerSpacing: CGFloat = 8
         static let dayScrollerVerticalInset: CGFloat = 6
         static let tabTrackPadding: CGFloat = 3

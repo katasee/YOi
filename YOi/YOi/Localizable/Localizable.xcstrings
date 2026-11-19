@@ -3835,6 +3835,22 @@
         }
       }
     },
+    "schedule.send.customize" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Customize"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштувати"
+          }
+        }
+      }
+    },
     "schedule.send.empty" : {
       "localizations" : {
         "en" : {

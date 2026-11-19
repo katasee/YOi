@@ -86,7 +86,8 @@ final class SendScheduleViewModel: Identifiable {
         text = ScheduleMessage.text(
             slots: slots,
             month: pager.grid,
-            now: now
+            now: now,
+            template: MessageTemplate()
         )
     }
 }

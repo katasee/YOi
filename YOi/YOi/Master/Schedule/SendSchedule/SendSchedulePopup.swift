@@ -17,8 +17,17 @@ struct SendSchedulePopup: View {
             case .contacts(let recipient):
                 contactsStep(recipient)
             case .template:
-                EmptyView()
+                SendScheduleTemplateStep(viewModel: viewModel, onDone: viewModel.back)
             }
+        }
+        .ignoresSafeArea(isEditingTemplate ? .keyboard : [])
+    }
+
+    private var isEditingTemplate: Bool {
+        if case .template = viewModel.mode {
+            true
+        } else {
+            false
         }
     }
 

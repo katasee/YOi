@@ -19,14 +19,14 @@ struct SendScheduleTemplateStep: View {
         VStack(alignment: .leading, spacing: PopupContainerLayout.rowSpacing) {
             header
 
-            textField(
+            SendScheduleTemplateField(
                 titleKey: "schedule.send.template.header",
                 text: $viewModel.headerText,
                 canReset: viewModel.hasCustomHeader,
                 onReset: viewModel.resetHeader
             )
 
-            textField(
+            SendScheduleTemplateField(
                 titleKey: "schedule.send.template.footer",
                 text: $viewModel.footerText,
                 canReset: viewModel.hasCustomFooter,
@@ -55,31 +55,6 @@ struct SendScheduleTemplateStep: View {
             Spacer()
 
             SendScheduleLanguageMenu(language: $viewModel.language)
-        }
-    }
-
-    private func textField(
-        titleKey: LocalizedStringKey,
-        text: Binding<String>,
-        canReset: Bool,
-        onReset: @escaping () -> Void
-    ) -> some View {
-        VStack(alignment: .leading, spacing: ScheduleMetrics.Spacing.templateLabelSpacing) {
-            HStack {
-                SectionLabel(titleKey: titleKey)
-
-                Spacer()
-
-                Button("schedule.send.template.reset", action: onReset)
-                    .font(.elmsSans(.semiBold, ScheduleMetrics.Size.templateReset))
-                    .foregroundStyle(Color.accentColor)
-                    .opacity(canReset ? 1 : ScheduleMetrics.Size.templateResetDisabledOpacity)
-                    .disabled(canReset == false)
-            }
-
-            TextField("", text: text)
-                .submitLabel(.done)
-                .inputFieldStyle()
         }
     }
 

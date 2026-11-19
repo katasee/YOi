@@ -75,10 +75,12 @@ enum ScheduleMessage {
     }
 
     private static func body(of slots: [Slot], formatter: DayLineFormatter) -> String? {
+        let messageTimes = messageTimes(for: Set(slots.map(\.time)))
+
         let days = Dictionary(grouping: slots, by: \.date)
             .sorted { $0.key < $1.key }
             .compactMap { dayId, daySlots in
-                day(dayId: dayId, times: daySlots.map(\.time).sorted())
+                day(dayId: dayId, times: daySlots.map(\.time).sorted().compactMap { messageTimes[$0] })
             }
 
         var body = ""
@@ -96,15 +98,15 @@ enum ScheduleMessage {
         return body.isEmpty ? nil : body
     }
 
-    private static func day(dayId: String, times: [String]) -> (Date, [String])? {
-        guard let day = DateFormat.date.date(from: dayId) else { return nil }
-
-        let messageTimes = times.compactMap { time in
-            DateFormat.time.date(from: time).map { DateFormat.messageTime.string(from: $0) }
+    private static func messageTimes(for times: Set<String>) -> [String: String] {
+        times.reduce(into: [:]) { messageTimes, time in
+            messageTimes[time] = DateFormat.time.date(from: time).map { DateFormat.messageTime.string(from: $0) }
         }
+    }
 
-        guard messageTimes.isEmpty == false else { return nil }
+    private static func day(dayId: String, times: [String]) -> (Date, [String])? {
+        guard let day = DateFormat.date.date(from: dayId), times.isEmpty == false else { return nil }
 
-        return (day, messageTimes)
+        return (day, times)
     }
 }

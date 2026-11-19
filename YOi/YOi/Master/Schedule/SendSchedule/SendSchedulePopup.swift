@@ -20,15 +20,7 @@ struct SendSchedulePopup: View {
                 SendScheduleTemplateStep(viewModel: viewModel, onDone: viewModel.back)
             }
         }
-        .ignoresSafeArea(isEditingTemplate ? .keyboard : [])
-    }
-
-    private var isEditingTemplate: Bool {
-        if case .template = viewModel.mode {
-            true
-        } else {
-            false
-        }
+        .ignoresSafeArea(viewModel.isEditingTemplate ? .keyboard : [])
     }
 
     private var textStep: some View {

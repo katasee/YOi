@@ -58,6 +58,14 @@ final class SendScheduleViewModel: Identifiable {
         }
     }
 
+    var isEditingTemplate: Bool {
+        if case .template = mode {
+            true
+        } else {
+            false
+        }
+    }
+
     var dayStyle: MessageDayStyle {
         template.dayStyle
     }

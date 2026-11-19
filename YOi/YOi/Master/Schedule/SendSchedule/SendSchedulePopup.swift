@@ -16,6 +16,8 @@ struct SendSchedulePopup: View {
                 recipientStep
             case .contacts(let recipient):
                 contactsStep(recipient)
+            case .template:
+                EmptyView()
             }
         }
     }

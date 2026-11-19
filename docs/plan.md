@@ -2751,6 +2751,25 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`; walked by the user on the simulator (real events, rename, delete from
     the Console pops the screen).
 
+- **Y-69 — Landing page** (repo `katasee/yoi-site`, no app code; user, 2026-11-19). For masters
+  arriving from the Instagram bio link; the goal is the App Store install. Modelled on
+  `limatrack.com/uk/`.
+  - Static page per language like Lima Track: `en/` and `uk/` with an ENG / УКР link switch, one
+    shared `style.css`; the root redirects by browser language (`uk` or `ru` → `uk/`, else `en/`)
+    and keeps plain links as fallback. `privacy/` and `support/` unchanged. No own domain yet
+    (user): `https://katasee.github.io/yoi-site/`.
+  - Look: "Темне вино" (picked from three mockups), dark only like the store creatives, Elms Sans
+    from the app's `.ttf`. Sections: hero with an HTML-drawn Schedule phone, three pains, three
+    steps (Fill month → Send schedule → book), six features, privacy, final CTA, footer. Copy on
+    «ти» like the App Store description, gender-neutral "клієнти".
+  - `reveal.js`: sections fade up on scroll (IntersectionObserver), hero and phone animate in, off
+    under reduced motion. Assets are linked with `?v=N` — bump it on every CSS/JS change, or
+    browsers and GitHub Pages' 10-minute cache serve the old file.
+  - Open Graph images `img/og-uk.png` / `og-en.png` rendered from the page's phone; the App Store
+    badges are Apple's SVGs (copied from Lima's site, Apple's tool host did not resolve here).
+  - Verified: headless Chrome screenshots at 1280 and 390 wide in both languages; animations
+    checked in Chrome (`getAnimations()`, cards hidden until scrolled to).
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data

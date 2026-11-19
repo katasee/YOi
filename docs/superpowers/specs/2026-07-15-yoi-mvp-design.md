@@ -67,8 +67,11 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
    title opens a month calendar to jump straight to any day (back to the 3 months of history that
    are read, forward without limit).
 3. **Send the schedule** — "Надіслати графік" on Розклад: the free windows of a month (the
-   current one from now on, later ones whole; arrows like a calendar) as text in the master's own
-   format, one line per day — `1.10-9:00/11:00/13:00`, no title, no weekdays. "Скопіювати"
+   current one from now on, later ones whole; arrows like a calendar) as text built from the
+   master's template (Y-70): a header, one line per day in one of four formats (`1.10 — 9:00,
+   11:00`, with the weekday, as a list, or the compact `1.10-9:00/11:00`) and a sign-off, in
+   Українська, Polski or English, picked per send from a globe menu; header and sign-off are her
+   own text per language («Налаштувати» → «Вигляд повідомлення»). "Скопіювати"
    copies it; "Надіслати" picks a client by search, copies it and opens her Instagram profile or
    an SMS with the text filled in. The stories image and the price list are out of scope for now.
 4. **Book** — tap a free window (past ones too) → one popup: search focused (an empty search

@@ -2770,6 +2770,36 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: headless Chrome screenshots at 1280 and 390 wide in both languages; animations
     checked in Chrome (`getAnimations()`, cards hidden until scrolled to).
 
+- **Y-70 — Message template (UI)** (branch `feature/y-70-message-template-ui`; user, 2026-11-19).
+  The "Надіслати графік" text is built from a template the master edits, in memory until Y-71.
+  - Domain in `Models/MessageTemplate/`: `MessageDayStyle` (`dash`, `weekday`, `list`,
+    `compact` — the slider's order, compact last, user; default `weekday`), `MessageLanguage`
+    (`uk`/`pl`/`en`: locale, native name, default header and footer) and `MessageTemplate`
+    (`style`, `language`, `headers`/`footers` keyed by language, all optional and `private(set)`;
+    an unknown stored value reads as the default). `nil` header or footer = the language's
+    default, `""` = none.
+  - The message defaults live in `MessageLanguage`, not the String Catalog: the catalog answers in
+    the app's language, the message is in the one picked per send. Date words come from
+    `DateFormat.messageWeekday(_:)` / `messageWeekdayDayMonth(_:)` with the message's locale;
+    numbers and times stay the pinned `d.MM` / `H:mm`. `compact` reproduces the pre-Y-70 text.
+  - `ScheduleMessage.text(slots:month:now:template:language:)`: header, styled days, footer,
+    blank lines between weeks (salon calendar) or days (`list`); the text is rebuilt on every
+    keystroke and slider step, so each distinct time is parsed once, not once per slot (review).
+  - Popup: a globe `Menu` (inline `Picker`, system checkmark) and a "Налаштувати" button in the
+    title row; a new `.template` step, «Вигляд повідомлення»: «Шапка» / «Підпис» fields with
+    «Скинути» (`SendScheduleTemplateField`), the message card (`SendScheduleMessageCard`, shared
+    with the text step), a 4-position `Slider` with drawn tick dots (the system slider shows
+    none) and «Готово». The fallback language (`Locale.current`) is a view model `init`
+    parameter, so the model reads no global state.
+  - Found on a device: multi-line fields kept the keyboard up (Return added a line) — they are
+    single-line with `.submitLabel(.done)`; the popup rose under the status bar for the keyboard —
+    the template step ignores the keyboard safe area (`isEditingTemplate`), its fields sit at the
+    top. The first language pick stalled for seconds inside the system menu, before our setter
+    ran (our code: 7–18 ms, measured with temporary logs); unresolved, see Backlog.
+  - Reviews: swiftui-pro on the plan and on the code; SOLID/clean code on the branch.
+  - Verified: `swiftc` checks of every format and language (16/16), `xcodebuild`; walked by the
+    user on a device.
+
 ## Screens (in order)
 
 This is the actual work queue, and the only numbered list here. The ordering follows the **data
@@ -3028,6 +3058,15 @@ those items are referred to by name, so the list can grow without renumbering an
    18. ~~**Y-68 Onboarding tour (logic)**~~ — **done** (under "Done").
    19. ~~**Y-65 Plan history (UI)**~~ — **done** (under "Done").
    20. ~~**Y-66 Plan history (logic)**~~ — **done** (under "Done").
+   21. ~~**Y-70 Message template (UI)**~~ — **done** (under "Done").
+   22. **Y-71 Message template (logic)** — persist the template in `users/{uid}/settings/sendSchedule`
+       (spec `docs/superpowers/specs/2026-11-19-message-template-design.md`): `MessageTemplate:
+       Codable`, `MessageTemplateRepository` + Firestore implementation (`observe()`, `save(_:)`,
+       `setData(merge: true)`, fire-and-forget) + a fake, the view model observes it and saves on
+       «Готово» and on a language pick, a `settings` rule in `firestore.rules` (deployed by hand),
+       `"settings"` in `FirestoreUserDataRepository.collections`. Consider moving template editing
+       out of `SendScheduleViewModel` here (SOLID review: it already pages months, picks clients
+       and switches steps).
 
 ## Backlog and tech debt (unordered)
 
@@ -3405,6 +3444,12 @@ numbering drifts every time an item is added or closed (it already did once: PR9
     the block before mapping. Don't add a second guess-by-heuristic mapping inside the repository.
 - ~~**Service names don't follow the device language**~~ — **obsolete** (it was about clients seeing
   the master's names on an English device; clients do not use the app since M-30).
+
+- **The first language pick in "Надіслати графік" stalls for seconds** (Y-70, found on a device).
+  The menu's first open stalled ~1.3 s and the first pick ~4.9 s on the main thread, before
+  `SendScheduleViewModel.language`'s setter ran; later picks are instant and our rebuild takes
+  7–18 ms. Seen with Xcode's debugger attached; not yet checked from the home screen or a
+  TestFlight build. Compare with the contact `Menu` in Клієнтки before changing code.
 
 ## Housekeeping
 

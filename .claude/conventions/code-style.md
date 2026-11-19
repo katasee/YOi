@@ -102,7 +102,10 @@ found on a device:
 User-facing strings never sit as bare literals in a View — they go in
 `YOi/YOi/Localizable.xcstrings` (String Catalog) under a `feature.kind.name` key
 (e.g. `auth.field.email`, `auth.action.signUp`) and get pulled in via `String(localized: "key")`.
-Exception: the "YOi" wordmark/brand name — it's not translated, leave it as a literal. Add the
+Exception: the "YOi" wordmark/brand name — it's not translated, leave it as a literal. Second
+exception: the default header and sign-off of the "Надіслати графік" message live in
+`MessageLanguage` (Y-70) — the message is in the language picked per send, and the catalog only
+answers in the app's language. They are data the master sends, not UI. Add the
 key to the catalog in the same change that introduces the string; don't leave it dangling for a
 later pass.
 

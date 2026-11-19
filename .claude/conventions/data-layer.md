@@ -10,7 +10,10 @@
   String Catalog, so display formatters must never hardcode a locale; **message** formatters
   (`DateFormat.messageDay`/`messageTime`, `d.MM`/`H:mm`, M-35.2) pin `en_US_POSIX` like storage
   ones, because the "Надіслати графік" text is the master's own fixed format (`1.10-9:00/11:00`)
-  and must not follow the device locale either — but it is never stored, hence its own name. All
+  and must not follow the device locale either — but it is never stored, hence its own name. Its
+  date *words* (Y-70: `messageWeekday(_:)`, `messageWeekdayDayMonth(_:)`) take the locale of the
+  message language the master picked, never `Locale.current` — they are functions, not `static
+  let`s, because that locale changes per send. All
   three keep the salon's fixed `TimeZone`. `firestore.rules` regex-validates the storage format server-side
   (`hasValidSlotFormat(_:)`) as defense in depth. Times shown on screen must go through
   `DateFormat.displayTime(_:)` rather than printing the stored `HH:mm` string (`SlotItem.timeText`

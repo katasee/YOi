@@ -20,9 +20,9 @@ private struct DayLineFormatter {
         case .compact:
             return dayNumber + "-" + times.joined(separator: "/")
         case .dash:
-            return dayNumber + " — " + times.joined(separator: ", ")
+            return dashLine(dayNumber: dayNumber, times: times)
         case .weekday:
-            return capitalized(weekday.string(from: day)) + " " + dayNumber + " — " + times.joined(separator: ", ")
+            return capitalized(weekday.string(from: day)) + " " + dashLine(dayNumber: dayNumber, times: times)
         case .list:
             let bullets = times.map { "• " + $0 }
             return ([capitalized(weekdayDayMonth.string(from: day))] + bullets).joined(separator: "\n")
@@ -40,6 +40,10 @@ private struct DayLineFormatter {
         }
     }
 
+    private func dashLine(dayNumber: String, times: [String]) -> String {
+        dayNumber + " — " + times.joined(separator: ", ")
+    }
+
     private func capitalized(_ text: String) -> String {
         text.prefix(1).uppercased(with: locale) + text.dropFirst()
     }
@@ -54,7 +58,8 @@ enum ScheduleMessage {
         slots: [Slot],
         month: MonthGrid,
         now: Date,
-        template: MessageTemplate
+        template: MessageTemplate,
+        language: MessageLanguage
     ) -> String? {
         let monthStart = DateFormat.date.string(from: month.start)
         let nextMonthStart = DateFormat.date.string(from: month.shifted(by: 1).start)
@@ -64,7 +69,6 @@ enum ScheduleMessage {
             monthRange.contains(slot.date) && slot.isBookable(now: now)
         }
 
-        let language = template.messageLanguage
         let formatter = DayLineFormatter(style: template.dayStyle, language: language)
 
         guard let body = body(of: offeredSlots, formatter: formatter) else { return nil }

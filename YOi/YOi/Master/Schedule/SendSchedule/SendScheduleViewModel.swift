@@ -22,17 +22,20 @@ final class SendScheduleViewModel: Identifiable {
     private let slots: [Slot]
     private let clients: [Client]
     private let now: Date
+    private let fallbackLanguage: MessageLanguage
 
     init(
         slots: [Slot],
         clients: [Client],
         now: Date,
-        template: MessageTemplate = MessageTemplate()
+        template: MessageTemplate = MessageTemplate(),
+        fallbackLanguage: MessageLanguage = .standard(for: .current)
     ) {
         self.slots = slots
         self.clients = clients
         self.now = now
         self.template = template
+        self.fallbackLanguage = fallbackLanguage
         pager = MonthPager(showing: now, earliest: now)
         updateText()
     }
@@ -51,7 +54,7 @@ final class SendScheduleViewModel: Identifiable {
     }
 
     var language: MessageLanguage {
-        get { template.messageLanguage }
+        get { template.messageLanguage ?? fallbackLanguage }
         set {
             template.setLanguage(newValue)
             updateText()
@@ -164,7 +167,8 @@ final class SendScheduleViewModel: Identifiable {
             slots: slots,
             month: pager.grid,
             now: now,
-            template: template
+            template: template,
+            language: language
         )
     }
 }

@@ -1,17 +1,17 @@
 import Foundation
 
 struct MessageTemplate: Equatable {
-    var style: String?
-    var language: String?
-    var headers: [String: String]?
-    var footers: [String: String]?
+    private(set) var style: String?
+    private(set) var language: String?
+    private(set) var headers: [String: String]?
+    private(set) var footers: [String: String]?
 
     var dayStyle: MessageDayStyle {
         style.flatMap(MessageDayStyle.init(rawValue:)) ?? .standard
     }
 
-    var messageLanguage: MessageLanguage {
-        language.flatMap(MessageLanguage.init(rawValue:)) ?? .standard(for: .current)
+    var messageLanguage: MessageLanguage? {
+        language.flatMap(MessageLanguage.init(rawValue:))
     }
 
     mutating func setDayStyle(_ dayStyle: MessageDayStyle) {

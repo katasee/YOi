@@ -238,6 +238,13 @@
   first time the width is known, and scroll on a tap with `scrollTo` too — assigning a bound id
   that already equals the state is no change and scrolls nothing. Read the centred item back with
   `viewID(type:)`.
+- **A popup step with text fields takes the keyboard on its own terms** (Y-70, found on a device).
+  `PopupContainer` does not scroll, so a tall step pushed up by the keyboard ran under the status
+  bar. «Вигляд повідомлення» ignores the keyboard safe area for that step only
+  (`.ignoresSafeArea(viewModel.isEditingTemplate ? .keyboard : [])`) and keeps its fields at the
+  top, where the keyboard cannot cover them. Its fields are single-line with
+  `.submitLabel(.done)`: an `axis: .vertical` field turns Return into a new line and leaves no way
+  to close the keyboard in a popup.
 - **Haptics fire imperatively on the tap, not through `.sensoryFeedback`** (found on a device in
   M-35.2). The modifier prepares a feedback generator when its view *appears*, and the first one
   per launch connects to the system haptics service on the main thread — the "Надіслати графік"

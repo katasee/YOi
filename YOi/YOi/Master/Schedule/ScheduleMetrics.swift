@@ -46,6 +46,12 @@ enum ScheduleMetrics {
         static let sendText: CGFloat = 16
         static let sendCardCornerRadius: CGFloat = 18
         static let sendCardHeight: CGFloat = 280
+        static let templatePreviewHeight: CGFloat = 180
+        static let templateReset: CGFloat = 13
+        static let templateResetDisabledOpacity: Double = 0.4
+        static let templateCaption: CGFloat = 13
+        static let templateSliderCornerRadius: CGFloat = 16
+        static let templateTick: CGFloat = 4
         static let rescheduleEmpty: CGFloat = 15
         static let dayScrollerCell: CGFloat = 52
         static let dayScrollerSelectedScale: CGFloat = 1.15
@@ -92,6 +98,13 @@ enum ScheduleMetrics {
         static let sendCardPadding: CGFloat = 16
         static let sendLineSpacing: CGFloat = 4
         static let sendButtonSpacing: CGFloat = 10
+        static let sendTitleSpacing: CGFloat = 8
+        static let templateLabelSpacing: CGFloat = 8
+        static let templateSliderPadding: CGFloat = 16
+        static let templateSliderVerticalPadding: CGFloat = 10
+        static let templateTickSpacing: CGFloat = 2
+        static let templateTickInset: CGFloat = 19
+        static let templateTickInsetLegacy: CGFloat = 13.5
         static let dayScrollerSpacing: CGFloat = 8
         static let dayScrollerVerticalInset: CGFloat = 6
         static let tabTrackPadding: CGFloat = 3

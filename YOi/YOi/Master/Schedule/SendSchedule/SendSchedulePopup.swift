@@ -16,8 +16,11 @@ struct SendSchedulePopup: View {
                 recipientStep
             case .contacts(let recipient):
                 contactsStep(recipient)
+            case .template:
+                SendScheduleTemplateStep(viewModel: viewModel, onDone: viewModel.back)
             }
         }
+        .ignoresSafeArea(viewModel.isEditingTemplate ? .keyboard : [])
     }
 
     private var textStep: some View {
@@ -25,6 +28,8 @@ struct SendSchedulePopup: View {
             monthTitle: viewModel.monthTitle,
             canGoBack: viewModel.canGoBack,
             text: viewModel.text,
+            language: $viewModel.language,
+            onCustomize: viewModel.customize,
             onPrevious: viewModel.showPreviousMonth,
             onNext: viewModel.showNextMonth,
             onCopy: copy,

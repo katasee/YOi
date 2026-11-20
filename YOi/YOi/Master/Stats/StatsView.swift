@@ -96,7 +96,7 @@ struct StatsView: View {
         ScrollView {
             VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
                 if let stats = viewModel.stats(currency: currency) {
-                    MonthStatsCards(stats: stats, onSelectCurrency: onSelectCurrency)
+                    MonthStatsCards(stats: stats)
                 } else {
                     ContentUnavailableView {
                         Text("stats.noData")

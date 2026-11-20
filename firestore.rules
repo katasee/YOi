@@ -18,7 +18,9 @@ service cloud.firestore {
         (!('onboardingStep' in request.resource.data) ||
           request.resource.data.onboardingStep in [
             'welcome', 'services', 'client', 'windows', 'sendSchedule', 'booking', 'finished'
-          ]);
+          ]) &&
+        (!('currency' in request.resource.data) ||
+          request.resource.data.currency in ['PLN', 'UAH', 'USD', 'EUR']);
     }
 
     function hasValidServiceFormat() {

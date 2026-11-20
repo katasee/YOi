@@ -10,7 +10,7 @@ struct MasterRootView: View {
     @State private var statsViewModel = StatsViewModel()
     @State private var clientListViewModel = ClientListViewModel()
     @State private var tour: OnboardingTour
-    @State private var currencySetting = CurrencySetting(currency: .pln)
+    @State private var currencySetting: CurrencySetting
     @State private var contentBottomInset: CGFloat = 0
     @State private var homeIndicatorInset: CGFloat = 0
 
@@ -23,6 +23,7 @@ struct MasterRootView: View {
         self.onSignOut = onSignOut
         self.onAccountDeleted = onAccountDeleted
         _tour = State(initialValue: OnboardingTour(step: profile.tourStep))
+        _currencySetting = State(initialValue: CurrencySetting(currency: profile.selectedCurrency))
     }
 
     var body: some View {

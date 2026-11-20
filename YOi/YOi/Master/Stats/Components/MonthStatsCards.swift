@@ -1,11 +1,41 @@
 import SwiftUI
 
+private extension Currency {
+    var titleKey: LocalizedStringKey {
+        switch self {
+        case .pln: "currency.option.pln"
+        case .uah: "currency.option.uah"
+        case .usd: "currency.option.usd"
+        case .eur: "currency.option.eur"
+        }
+    }
+}
+
 struct MonthStatsCards: View {
     let stats: MonthlyStats
+    let onSelectCurrency: (Currency) -> Void
+
+    @Environment(\.currency) private var currency
 
     var body: some View {
         VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
-            RevenueCard(stats: stats)
+            Menu {
+                ForEach(Currency.allCases) { option in
+                    Button {
+                        onSelectCurrency(option)
+                    } label: {
+                        if option == currency {
+                            Label(option.titleKey, systemImage: "checkmark")
+                        } else {
+                            Text(option.titleKey)
+                        }
+                    }
+                }
+            } label: {
+                RevenueCard(stats: stats)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
 
             Grid(
                 horizontalSpacing: StatsMetrics.Spacing.cardSpacing,

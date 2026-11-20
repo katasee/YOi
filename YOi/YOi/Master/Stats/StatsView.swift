@@ -6,17 +6,20 @@ struct StatsView: View {
     @Environment(\.currency) private var currency
 
     private let profile: UserProfile
+    private let onSelectCurrency: (Currency) -> Void
     private let onSignOut: () -> Void
     private let onAccountDeleted: () -> Void
 
     init(
         viewModel: StatsViewModel,
         profile: UserProfile,
+        onSelectCurrency: @escaping (Currency) -> Void,
         onSignOut: @escaping () -> Void,
         onAccountDeleted: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         self.profile = profile
+        self.onSelectCurrency = onSelectCurrency
         self.onSignOut = onSignOut
         self.onAccountDeleted = onAccountDeleted
     }
@@ -48,6 +51,7 @@ struct StatsView: View {
                 case .profile:
                     ProfileView(
                         profile: profile,
+                        onSelectCurrency: onSelectCurrency,
                         onSignOut: onSignOut,
                         onAccountDeleted: onAccountDeleted
                     )
@@ -92,7 +96,7 @@ struct StatsView: View {
         ScrollView {
             VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
                 if let stats = viewModel.stats(currency: currency) {
-                    MonthStatsCards(stats: stats)
+                    MonthStatsCards(stats: stats, onSelectCurrency: onSelectCurrency)
                 } else {
                     ContentUnavailableView {
                         Text("stats.noData")
@@ -143,6 +147,7 @@ struct StatsView: View {
             summaryRepository: FakeMonthlySummaryRepository(summaries: StatsPreviewData.summaries)
         ),
         profile: ProfilePreviewData.profile,
+        onSelectCurrency: { _ in },
         onSignOut: {},
         onAccountDeleted: {}
     )

@@ -1619,6 +1619,70 @@
         }
       }
     },
+    "currency.option.eur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Euro"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Євро"
+          }
+        }
+      }
+    },
+    "currency.option.pln" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Polish złoty"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Польський злотий"
+          }
+        }
+      }
+    },
+    "currency.option.uah" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukrainian hryvnia"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Українська гривня"
+          }
+        }
+      }
+    },
+    "currency.option.usd" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "US dollar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Долар США"
+          }
+        }
+      }
+    },
     "myBookings.cancel.confirm" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2337,6 +2401,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Політика конфіденційності"
+          }
+        }
+      }
+    },
+    "profile.currency.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currency"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Валюта"
           }
         }
       }

@@ -43,6 +43,7 @@ struct MasterRootView: View {
                             StatsView(
                                 viewModel: statsViewModel,
                                 profile: profile,
+                                onSelectCurrency: currencySetting.select,
                                 onSignOut: onSignOut,
                                 onAccountDeleted: onAccountDeleted
                             )

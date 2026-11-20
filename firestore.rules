@@ -79,6 +79,24 @@ service cloud.firestore {
         data.bookedWindows is int && data.bookedWindows >= 0;
     }
 
+    function isMessageTextMap(texts) {
+      return texts is map &&
+        texts.keys().hasOnly(['uk', 'pl', 'en']) &&
+        (!('uk' in texts) || texts.uk is string) &&
+        (!('pl' in texts) || texts.pl is string) &&
+        (!('en' in texts) || texts.en is string);
+    }
+
+    function hasValidMessageTemplate(settingId) {
+      let data = request.resource.data;
+      return settingId == 'sendSchedule' &&
+        data.keys().hasOnly(['style', 'language', 'headers', 'footers']) &&
+        (!('style' in data) || data.style in ['dash', 'weekday', 'list', 'compact']) &&
+        (!('language' in data) || data.language in ['uk', 'pl', 'en']) &&
+        (!('headers' in data) || isMessageTextMap(data.headers)) &&
+        (!('footers' in data) || isMessageTextMap(data.footers));
+    }
+
     // Every master's data lives under her own document; only she can touch it, and only once
     // her email is verified. The one exception is creating the profile at sign-up, which
     // happens before the verification email is even sent.
@@ -116,6 +134,12 @@ service cloud.firestore {
       match /monthlyStats/{monthId} {
         allow read, delete: if isVerifiedOwner(uid);
         allow create: if isVerifiedOwner(uid) && hasValidMonthlySummaryFormat(monthId);
+      }
+
+      // The style and language lists mirror MessageDayStyle and MessageLanguage; change them together.
+      match /settings/{settingId} {
+        allow read, delete: if isVerifiedOwner(uid);
+        allow create, update: if isVerifiedOwner(uid) && hasValidMessageTemplate(settingId);
       }
     }
   }

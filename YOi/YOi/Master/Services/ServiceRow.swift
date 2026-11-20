@@ -5,6 +5,8 @@ struct ServiceRow<Handle: View>: View {
     let onToggleActive: () -> Void
     @ViewBuilder let handle: Handle
 
+    @Environment(\.currency) private var currency
+
     var body: some View {
         HStack(spacing: ServicesMetrics.Spacing.rowContentSpacing) {
             icon
@@ -53,7 +55,7 @@ struct ServiceRow<Handle: View>: View {
     }
 
     private var price: some View {
-        Text(ServiceFormat.price(service.price))
+        Text(ServiceFormat.price(service.price, currency: currency))
             .font(.elmsSans(.bold, 17))
             .foregroundStyle(Color.ink)
             .lineLimit(1)

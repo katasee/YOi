@@ -10,6 +10,7 @@ struct MasterRootView: View {
     @State private var statsViewModel = StatsViewModel()
     @State private var clientListViewModel = ClientListViewModel()
     @State private var tour: OnboardingTour
+    @State private var currencySetting = CurrencySetting(currency: .pln)
     @State private var contentBottomInset: CGFloat = 0
     @State private var homeIndicatorInset: CGFloat = 0
 
@@ -49,6 +50,7 @@ struct MasterRootView: View {
                     }
                     .tint(Color.accentColor)
                     .environment(tour)
+                    .environment(\.currency, currencySetting.currency)
                     .environment(\.popupPresenceChanged) { [tour] isOpen in
                         tour.popupPresenceChanged(isOpen)
                     }

@@ -14,6 +14,7 @@ final class AddPlanViewModel {
     private let slots: [Slot]
     private let now: Date
     private let directory: ClientDirectory
+    private let currency: Currency
 
     init(
         month: Date,
@@ -21,7 +22,8 @@ final class AddPlanViewModel {
         plannedDays: Set<String>,
         slots: [Slot],
         now: Date,
-        directory: ClientDirectory
+        directory: ClientDirectory,
+        currency: Currency
     ) {
         days = MonthDaySelection(
             month: month,
@@ -32,6 +34,7 @@ final class AddPlanViewModel {
         self.slots = slots
         self.now = now
         self.directory = directory
+        self.currency = currency
     }
 
     convenience init(
@@ -40,7 +43,8 @@ final class AddPlanViewModel {
         plannedDays: Set<String>,
         slots: [Slot],
         now: Date,
-        directory: ClientDirectory
+        directory: ClientDirectory,
+        currency: Currency
     ) {
         self.init(
             month: day,
@@ -48,7 +52,8 @@ final class AddPlanViewModel {
             plannedDays: plannedDays,
             slots: slots,
             now: now,
-            directory: directory
+            directory: directory,
+            currency: currency
         )
         days.toggleDay(DateFormat.date.string(from: day))
         isSingleDay = true
@@ -89,7 +94,11 @@ final class AddPlanViewModel {
     var replacement: PlanReplacement? {
         guard days.selected.count == 1 else { return nil }
 
-        return PlanReplacement(conflicts, directory: directory)
+        return PlanReplacement(
+            conflicts,
+            directory: directory,
+            currency: currency
+        )
     }
 
     func startConfirmingReplace() {

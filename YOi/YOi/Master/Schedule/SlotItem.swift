@@ -4,9 +4,17 @@ struct SlotBookingItem {
     let clientName: String
     let serviceText: String
 
-    init(slot: Slot, clientName: String) {
+    init(
+        slot: Slot,
+        clientName: String,
+        currency: Currency
+    ) {
         self.clientName = clientName
-        serviceText = ServiceFormat.summary(name: slot.serviceName, price: slot.servicePrice)
+        serviceText = ServiceFormat.summary(
+            name: slot.serviceName,
+            price: slot.servicePrice,
+            currency: currency
+        )
     }
 }
 
@@ -21,12 +29,19 @@ struct SlotItem: Identifiable {
         slot: Slot,
         clientName: String,
         conflict: PlanConflict?,
-        now: Date
+        now: Date,
+        currency: Currency
     ) {
         id = slot.id ?? Slot.documentId(date: slot.date, time: slot.time)
         timeText = DateFormat.displayTime(slot.time)
         isPast = slot.isPast(now: now)
-        booking = slot.isBooked ? SlotBookingItem(slot: slot, clientName: clientName) : nil
+        booking = slot.isBooked
+            ? SlotBookingItem(
+                slot: slot,
+                clientName: clientName,
+                currency: currency
+            )
+            : nil
         self.conflict = conflict
     }
 }

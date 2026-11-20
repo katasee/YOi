@@ -66,7 +66,8 @@ struct RevenueCard: View {
                     monthStart: StatsCalculator.monthStart(containing: .now),
                     previous: nil,
                     now: .now
-                )
+                ),
+                currency: .pln
             )
         )
 
@@ -77,7 +78,8 @@ struct RevenueCard: View {
                     monthStart: StatsCalculator.monthStart(containing: .now),
                     previous: nil,
                     now: .now
-                )
+                ),
+                currency: .pln
             )
         )
     }

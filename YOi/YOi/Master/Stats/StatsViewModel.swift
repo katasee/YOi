@@ -6,7 +6,7 @@ import Observation
 final class StatsViewModel {
     private static let refreshInterval = 60
 
-    private(set) var stats: MonthlyStats?
+    private var totals: MonthlyTotals?
     private(set) var monthTitle: String
     private(set) var hasLoaded = false
 
@@ -40,13 +40,11 @@ final class StatsViewModel {
         self.summaryRepository = summaryRepository
         self.monthStart = start
         self.monthTitle = DateFormat.monthYear.string(from: start)
-        self.stats = MonthlyStats(
-            totals: StatsCalculator.totals(
-                slots: [],
-                monthStart: start,
-                previous: nil,
-                now: .now
-            )
+        self.totals = StatsCalculator.totals(
+            slots: [],
+            monthStart: start,
+            previous: nil,
+            now: .now
         )
     }
 
@@ -56,6 +54,10 @@ final class StatsViewModel {
 
     var canGoForward: Bool {
         monthStart < StatsCalculator.monthStart(containing: .now)
+    }
+
+    func stats(currency: Currency) -> MonthlyStats? {
+        totals.map { MonthlyStats(totals: $0, currency: currency) }
     }
 
     func observeSlots() async {
@@ -161,18 +163,16 @@ final class StatsViewModel {
             .flatMap { summaries[StatsCalculator.monthId($0)] }
 
         if monthStart >= Slot.liveMonthsStartDate(now: now) {
-            stats = MonthlyStats(
-                totals: StatsCalculator.totals(
-                    slots: slots,
-                    monthStart: monthStart,
-                    previous: previous,
-                    now: now
-                )
+            totals = StatsCalculator.totals(
+                slots: slots,
+                monthStart: monthStart,
+                previous: previous,
+                now: now
             )
         } else if let summary = summaries[StatsCalculator.monthId(monthStart)] {
-            stats = MonthlyStats(totals: StatsCalculator.totals(summary: summary, previous: previous))
+            totals = StatsCalculator.totals(summary: summary, previous: previous)
         } else {
-            stats = nil
+            totals = nil
         }
     }
 }

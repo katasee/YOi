@@ -23,6 +23,7 @@ private enum SchedulePopup: Identifiable {
 }
 
 struct ScheduleView: View {
+    @Environment(\.currency) private var currency
     @State private var viewModel: ScheduleViewModel
     @State private var openRowId: String?
     @State private var popup: SchedulePopup?
@@ -67,7 +68,7 @@ struct ScheduleView: View {
 
                 TimelineView(.everyMinute) { context in
                     content(
-                        viewModel.items(now: context.date),
+                        viewModel.items(now: context.date, currency: currency),
                         canQuickAdd: viewModel.canQuickAdd(now: context.date)
                     )
                 }
@@ -312,11 +313,11 @@ struct ScheduleView: View {
     }
 
     private func openFillMonth() {
-        open(.fillMonth(viewModel.makeFillMonthViewModel(), viewModel.makeAddPlanViewModel()))
+        open(.fillMonth(viewModel.makeFillMonthViewModel(), viewModel.makeAddPlanViewModel(currency: currency)))
     }
 
     private func openQuickAdd() {
-        open(.quickAdd(viewModel.makeQuickBookViewModel(), viewModel.makeQuickAddPlanViewModel()))
+        open(.quickAdd(viewModel.makeQuickBookViewModel(), viewModel.makeQuickAddPlanViewModel(currency: currency)))
     }
 
     private func openSendSchedule() {
@@ -336,7 +337,7 @@ struct ScheduleView: View {
     }
 
     private func openPlanActions(_ item: PlanItem) {
-        open(viewModel.makePlanActionsViewModel(planId: item.id).map(SchedulePopup.planActions))
+        open(viewModel.makePlanActionsViewModel(planId: item.id, currency: currency).map(SchedulePopup.planActions))
     }
 
     private func open(_ popup: SchedulePopup?) {

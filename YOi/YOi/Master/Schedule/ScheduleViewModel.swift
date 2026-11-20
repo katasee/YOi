@@ -50,13 +50,14 @@ final class ScheduleViewModel {
         self.messageTemplateRepository = messageTemplateRepository
     }
 
-    func items(now: Date) -> [ScheduleItem] {
+    func items(now: Date, currency: Currency) -> [ScheduleItem] {
         ScheduleDayItems.make(
             day: selectedDayId,
             slots: slots,
             plans: plans,
             clientName: directory.name(for:),
-            now: now
+            now: now,
+            currency: currency
         )
     }
 
@@ -239,14 +240,15 @@ final class ScheduleViewModel {
         )
     }
 
-    func makeAddPlanViewModel(now: Date = .now) -> AddPlanViewModel {
+    func makeAddPlanViewModel(currency: Currency, now: Date = .now) -> AddPlanViewModel {
         AddPlanViewModel(
             month: selectedDate,
             templates: templates,
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
             now: now,
-            directory: directory
+            directory: directory,
+            currency: currency
         )
     }
 
@@ -268,7 +270,7 @@ final class ScheduleViewModel {
         )
     }
 
-    func makeQuickAddPlanViewModel(now: Date = .now) -> AddPlanViewModel? {
+    func makeQuickAddPlanViewModel(currency: Currency, now: Date = .now) -> AddPlanViewModel? {
         guard selectedDayId >= DateFormat.date.string(from: now) else { return nil }
 
         return AddPlanViewModel(
@@ -277,7 +279,8 @@ final class ScheduleViewModel {
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
             now: now,
-            directory: directory
+            directory: directory,
+            currency: currency
         )
     }
 
@@ -313,7 +316,11 @@ final class ScheduleViewModel {
         )
     }
 
-    func makePlanActionsViewModel(planId: String, now: Date = .now) -> PlanActionsViewModel? {
+    func makePlanActionsViewModel(
+        planId: String,
+        currency: Currency,
+        now: Date = .now
+    ) -> PlanActionsViewModel? {
         guard let plan = plans.first(where: { $0.id == planId }) else { return nil }
 
         return PlanActionsViewModel(
@@ -322,7 +329,8 @@ final class ScheduleViewModel {
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
             now: now,
-            directory: directory
+            directory: directory,
+            currency: currency
         )
     }
 

@@ -71,7 +71,8 @@ enum SchedulePreviewData {
                 slot: slot,
                 clientName: slot.clientId.map(directory.name(for:)) ?? "",
                 conflict: ["slot-0900", "slot-1100"].contains(slot.id) ? .near : nil,
-                now: noon
+                now: noon,
+                currency: .pln
             )
         }
     }
@@ -148,7 +149,8 @@ enum SchedulePreviewData {
             plannedDays: [today],
             slots: dailySlots("11:00"),
             now: .now,
-            directory: ClientDirectory(clients: [], isLoaded: false)
+            directory: ClientDirectory(clients: [], isLoaded: false),
+            currency: .pln
         )
 
         viewModel.days.toggleWeekday(MonthGrid.column(of: .now))
@@ -188,7 +190,8 @@ enum SchedulePreviewData {
             plannedDays: [today],
             slots: dailySlots("11:00"),
             now: .now,
-            directory: ClientDirectory(clients: [], isLoaded: false)
+            directory: ClientDirectory(clients: [], isLoaded: false),
+            currency: .pln
         )
 
         viewModel.selectTemplate("tpl-boxing")
@@ -207,7 +210,8 @@ enum SchedulePreviewData {
             plannedDays: Set(plans.map(\.date)),
             slots: slots,
             now: .now,
-            directory: ClientDirectory(clients: [], isLoaded: false)
+            directory: ClientDirectory(clients: [], isLoaded: false),
+            currency: .pln
         )
 
         viewModel.move.times.start = ClockTime(minutesOfDay: 17 * 60)

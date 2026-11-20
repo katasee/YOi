@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ClientCardView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currency) private var currency
 
     @State private var viewModel: ClientCardViewModel
     @State private var editForm: ClientFormViewModel?
@@ -60,7 +61,7 @@ struct ClientCardView: View {
                 contact(card)
 
                 TimelineView(.everyMinute) { context in
-                    if let visits = viewModel.visits(now: context.date) {
+                    if let visits = viewModel.visits(now: context.date, currency: currency) {
                         visitSections(visits)
                     }
                 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct StatsView: View {
     @State private var viewModel: StatsViewModel
     @State private var path: [StatsRoute] = []
+    @Environment(\.currency) private var currency
 
     private let profile: UserProfile
     private let onSignOut: () -> Void
@@ -90,7 +91,7 @@ struct StatsView: View {
     private var scrollContent: some View {
         ScrollView {
             VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
-                if let stats = viewModel.stats {
+                if let stats = viewModel.stats(currency: currency) {
                     MonthStatsCards(stats: stats)
                 } else {
                     ContentUnavailableView {

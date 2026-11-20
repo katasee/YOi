@@ -25,6 +25,9 @@ the master books them herself.
 - No push notifications, no reminders, no payments, nothing sent automatically to Instagram.
 - Light and dark themes (System / Light / Dark, per device), chosen on the Profile screen, which
   the round person button next to the "Статистика" title opens.
+- One currency per cabinet (Y-72): `PLN`, `UAH`, `USD` or `EUR`, chosen on the Profile screen and
+  stored on the account; a new account starts from the iPhone's region (Ukraine → `UAH`, else
+  `PLN`). Switching relabels every price; nothing converts.
 - An onboarding tour, once, for new accounts only (Y-67/Y-68): welcome → a service → a client →
   free windows → send the schedule → a booking → «Все готово!». Each step waits for its data,
   steps already done are skipped, and it resumes where it stopped on any device. No way to replay
@@ -33,7 +36,8 @@ the master books them herself.
 ## Data model (Firestore)
 
 ```
-users/{uid}              name, email, onboardingStep? (missing = no tour)  — created at sign-up
+users/{uid}              name, email, onboardingStep? (missing = no tour),
+                         currency? (PLN/UAH/USD/EUR, missing = PLN)  — created at sign-up
 … and under it:
 clients/{autoId}         name?, instagram? (lowercased, no "@"), phone? (+48 + 9 digits),
                          createdAt, lastBookedAt?          — name or instagram required
@@ -43,7 +47,7 @@ events/{autoId}          date, startTime, endTime, templateId? + emoji/name snap
                          (no templateId = a one-off plan, typed in place, Y-58)
                          (weekdays[] + fromDate, skippedDates[] with the weekly repeat)
 eventTemplates/{autoId}  emoji, name                                      — "Мої справи"
-services/{autoId}        name, price (whole PLN), isFavorite?
+services/{autoId}        name, price (whole units of the cabinet currency), isFavorite?
 ```
 
 A slot is a **date + start time**; visits have no duration. Booking sets `clientId` and a snapshot
@@ -122,4 +126,5 @@ Three tabs: **Розклад / Клієнтки / Статистика**. "Мо�
 
 Client accounts or a client app; salons or data shared between masters; automatic sending to Instagram; WhatsApp; push notifications and
 reminders; payments; service durations; reviews, portfolio; price ranges;
-no-show status; per-service statistics; a client-facing web page (possible later).
+no-show status; per-service statistics; a client-facing web page (possible later); currency
+conversion and a currency per service or booking.

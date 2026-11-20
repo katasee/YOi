@@ -2799,6 +2799,30 @@ this file is just "what's done, what's next," not a design doc.
   - Reviews: swiftui-pro on the plan and on the code; SOLID/clean code on the branch.
   - Verified: `swiftc` checks of every format and language (16/16), `xcodebuild`; walked by the
     user on a device.
+- **Y-71 — Message template (logic)** (branch `feature/y-71-message-template-logic`; user,
+  2026-11-20). The template survives a reinstall and reaches a second device.
+  - One document `users/{uid}/settings/sendSchedule`: `MessageTemplate: Codable`,
+    `MessageTemplateRepository` (`observe()`, `save(_:)`), `FirestoreMessageTemplateRepository`,
+    `FakeMessageTemplateRepository`; `"settings"` in `FirestoreUserDataRepository.collections`.
+  - `read` returns `MessageTemplate()` for a missing document (`snapshot.exists`, not an error)
+    and for one that does not decode — the master cannot fix it, and her next save overwrites it.
+    A `#if DEBUG` assertion for the broken case was tried and dropped (user).
+  - The save is a plain `setData`, not the spec's `merge: true`: «Скинути» removes a map key,
+    which a merge would keep on the server. Fire-and-forget; skipped when the template equals the
+    last stored one.
+  - The listener lives in `ScheduleViewModel` (a sixth `.task`), not in the popup as the spec
+    said: the popup gets a copy on open, so a snapshot cannot overwrite a header mid-edit and the
+    default never flashes. A listener error keeps the last template. The popup saves on a
+    language pick and on «Готово».
+  - `firestore.rules`: `match /settings/{settingId}`, only `sendSchedule`, keys `hasOnly` the
+    four fields, style and language from their lists, text maps keyed `uk`/`pl`/`en` with string
+    values (`""` allowed — "no header"). Deployed by hand.
+  - Reviews: swiftui-pro and swift-concurrency-pro on the plan (a default for the repository
+    parameter; keep the last template on a listener error).
+  - Verified: `swiftc` Codable check (6/6), `xcodebuild`, Rules Playground; walked by the user on
+    the simulator (language and header persist, «Скинути» removes the key in the Console, an
+    unchanged «Готово» writes nothing, offline returns at once, account deletion removes
+    `settings`).
 
 ## Screens (in order)
 
@@ -3059,14 +3083,7 @@ those items are referred to by name, so the list can grow without renumbering an
    19. ~~**Y-65 Plan history (UI)**~~ — **done** (under "Done").
    20. ~~**Y-66 Plan history (logic)**~~ — **done** (under "Done").
    21. ~~**Y-70 Message template (UI)**~~ — **done** (under "Done").
-   22. **Y-71 Message template (logic)** — persist the template in `users/{uid}/settings/sendSchedule`
-       (spec `docs/superpowers/specs/2026-11-19-message-template-design.md`): `MessageTemplate:
-       Codable`, `MessageTemplateRepository` + Firestore implementation (`observe()`, `save(_:)`,
-       `setData(merge: true)`, fire-and-forget) + a fake, the view model observes it and saves on
-       «Готово» and on a language pick, a `settings` rule in `firestore.rules` (deployed by hand),
-       `"settings"` in `FirestoreUserDataRepository.collections`. Consider moving template editing
-       out of `SendScheduleViewModel` here (SOLID review: it already pages months, picks clients
-       and switches steps).
+   22. ~~**Y-71 Message template (logic)**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 
@@ -3074,6 +3091,10 @@ Not a queue. These accumulate as they're found and get picked up when they block
 something nearby is already being touched. **No numbers on purpose** — cite them by name, since
 numbering drifts every time an item is added or closed (it already did once: PR9's entry pointed at
 "step 9" for what was item 10).
+
+- **`SendScheduleViewModel` does too much** (SOLID review of Y-70, carried past Y-71). It pages
+  months, picks clients, switches steps and edits the template; template editing (header,
+  footer, style, language, `save()`) could move to its own type. Not blocking anything.
 
 - **Week swipe on a long day** (found in Y-56, 2026-11-08). When the day list overflows, a
   horizontal swipe in the gaps between rows rarely turns the week: the `ScrollView`'s pan takes

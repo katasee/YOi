@@ -54,9 +54,9 @@
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
   `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`, and
-  `FirestoreOnboardingRepository`'s `save`** (user decisions: `add` in
+  `FirestoreOnboardingRepository`'s `save`, and `FirestoreMessageTemplateRepository`'s `save`** (user decisions: `add` in
   M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
-  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60, the tour's step in Y-68,
+  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60, the tour's step in Y-68, the message template in Y-71,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
   although the change was already in the local cache and on screen. They now pass
@@ -82,6 +82,10 @@
   for the same reason (Y-66). `templateId` is optional (a
   one-off plan has none, Y-58), and `Firestore.Encoder` omits a `nil`, so `update` writes
   `FieldValue.delete()` for it — otherwise a plan changed to one-off would keep its old id.
+  The message template (Y-71, `users/{uid}/settings/sendSchedule`) is the one plain `setData`
+  without `merge`: the model is the whole document, and «Скинути» removes a language's key from
+  `headers`/`footers` — a merge never deletes a map key it was not given, so the old text would
+  stay on the server. A missing or undecodable document reads as `MessageTemplate()`.
 - Realtime data uses **async/await + `AsyncStream`** (`observeServices()`), not
   Combine. Each Firestore `addSnapshotListener` callback yields the full current array for that
   query; `continuation.onTermination` removes the listener. Listener errors are currently swallowed

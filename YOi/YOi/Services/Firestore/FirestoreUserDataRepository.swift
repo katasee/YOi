@@ -2,7 +2,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 final class FirestoreUserDataRepository: UserDataRepository {
-    static let collections = ["services", "clients", "slots", "eventTemplates", "events", "monthlyStats"]
+    static let collections = ["services", "clients", "slots", "eventTemplates", "events", "monthlyStats", "settings"]
 
     private static let batchLimit = 500
 

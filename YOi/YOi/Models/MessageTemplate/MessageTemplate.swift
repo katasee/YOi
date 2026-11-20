@@ -1,6 +1,6 @@
 import Foundation
 
-struct MessageTemplate: Equatable {
+struct MessageTemplate: Equatable, Codable {
     private(set) var style: String?
     private(set) var language: String?
     private(set) var headers: [String: String]?

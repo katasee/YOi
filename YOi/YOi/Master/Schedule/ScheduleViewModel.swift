@@ -13,12 +13,14 @@ final class ScheduleViewModel {
     private var services: [Service] = []
     private var templates: [EventTemplate] = []
     private var plans: [PlanEvent] = []
+    private var messageTemplate = MessageTemplate()
 
     private let slotRepository: SlotRepository
     private let clientRepository: ClientRepository
     private let serviceRepository: ServiceRepository
     private let templateRepository: EventTemplateRepository
     private let eventRepository: EventRepository
+    private let messageTemplateRepository: MessageTemplateRepository
 
     var monthTitle: String {
         DateFormat.monthYear.string(from: selectedDate).capitalized
@@ -37,13 +39,15 @@ final class ScheduleViewModel {
         clientRepository: ClientRepository = FirestoreClientRepository(),
         serviceRepository: ServiceRepository = FirestoreServiceRepository(),
         templateRepository: EventTemplateRepository = FirestoreEventTemplateRepository(),
-        eventRepository: EventRepository = FirestoreEventRepository()
+        eventRepository: EventRepository = FirestoreEventRepository(),
+        messageTemplateRepository: MessageTemplateRepository = FirestoreMessageTemplateRepository()
     ) {
         self.slotRepository = slotRepository
         self.clientRepository = clientRepository
         self.serviceRepository = serviceRepository
         self.templateRepository = templateRepository
         self.eventRepository = eventRepository
+        self.messageTemplateRepository = messageTemplateRepository
     }
 
     func items(now: Date) -> [ScheduleItem] {
@@ -152,6 +156,14 @@ final class ScheduleViewModel {
         } catch {
             directory = ClientDirectory(clients: [], isLoaded: false)
         }
+    }
+
+    func observeMessageTemplate() async {
+        do {
+            for try await template in messageTemplateRepository.observe() {
+                messageTemplate = template
+            }
+        } catch {}
     }
 
     func observeServices() async {
@@ -327,7 +339,9 @@ final class ScheduleViewModel {
         SendScheduleViewModel(
             slots: slots,
             clients: directory.clients,
-            now: now
+            now: now,
+            template: messageTemplate,
+            repository: messageTemplateRepository
         )
     }
 

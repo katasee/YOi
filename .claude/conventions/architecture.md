@@ -289,13 +289,13 @@
   rather than an auto-generated document ID.
 - `YOi/YOi/Services/Repositories/` — protocols only (`AuthRepository`, `ServiceRepository`,
   `ClientRepository`, `SlotRepository`, `EventTemplateRepository`,
-  `EventRepository`, `UserDataRepository`). These files must **not** import Firebase — that's the whole point: ViewModels
+  `EventRepository`, `MessageTemplateRepository`, `UserDataRepository`). These files must **not** import Firebase — that's the whole point: ViewModels
   depend on these contracts, not on Firestore/Auth directly, so a fake implementation can stand in
   for SwiftUI previews or tests without touching the network.
 - `YOi/YOi/Services/Firestore/` — concrete implementations (`FirebaseAuthRepository`,
   `FirestoreServiceRepository`, `FirestoreClientRepository`,
   `FirestoreSlotRepository`, `FirestoreEventTemplateRepository`, `FirestoreEventRepository`,
-  `FirestoreUserDataRepository`).
+  `FirestoreMessageTemplateRepository`, `FirestoreUserDataRepository`).
   `Firestore.firestore()`/`Auth.auth()`
   are singletons managed by the Firebase SDK itself; that's fine and expected — what we avoid is
   wrapping *our own* repository classes in `.shared` singletons. ViewModels take a repository

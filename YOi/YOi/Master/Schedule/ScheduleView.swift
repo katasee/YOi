@@ -96,6 +96,9 @@ struct ScheduleView: View {
             .task {
                 await viewModel.observeTemplates()
             }
+            .task {
+                await viewModel.observeMessageTemplate()
+            }
             .onChange(of: viewModel.selectedDate, closeOpenRow)
             .onChange(of: tour?.step, showFreeWindowForBooking)
             .onChange(of: onboardingProgress, initial: true) { _, steps in

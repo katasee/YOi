@@ -250,7 +250,8 @@ enum SchedulePreviewData {
         SendScheduleViewModel(
             slots: sendScheduleSlots,
             clients: ClientsPreviewData.clients,
-            now: monthStart
+            now: monthStart,
+            repository: FakeMessageTemplateRepository()
         )
     }
 

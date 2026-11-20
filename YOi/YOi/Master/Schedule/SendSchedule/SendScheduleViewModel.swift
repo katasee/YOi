@@ -16,6 +16,7 @@ final class SendScheduleViewModel: Identifiable {
     private(set) var mode = SendScheduleMode.text
     private(set) var text: String?
     private(set) var template: MessageTemplate
+    private var storedTemplate: MessageTemplate
     private var pager: MonthPager
     private var clientPicker = ClientPicker()
 
@@ -23,19 +24,23 @@ final class SendScheduleViewModel: Identifiable {
     private let clients: [Client]
     private let now: Date
     private let fallbackLanguage: MessageLanguage
+    private let repository: MessageTemplateRepository
 
     init(
         slots: [Slot],
         clients: [Client],
         now: Date,
         template: MessageTemplate = MessageTemplate(),
-        fallbackLanguage: MessageLanguage = .standard(for: .current)
+        fallbackLanguage: MessageLanguage = .standard(for: .current),
+        repository: MessageTemplateRepository = FirestoreMessageTemplateRepository()
     ) {
         self.slots = slots
         self.clients = clients
         self.now = now
         self.template = template
+        storedTemplate = template
         self.fallbackLanguage = fallbackLanguage
+        self.repository = repository
         pager = MonthPager(showing: now, earliest: now)
         updateText()
     }
@@ -58,6 +63,7 @@ final class SendScheduleViewModel: Identifiable {
         set {
             template.setLanguage(newValue)
             updateText()
+            save()
         }
     }
 
@@ -158,8 +164,16 @@ final class SendScheduleViewModel: Identifiable {
         case .contacts:
             mode = .recipient
         case .template:
+            save()
             mode = .text
         }
+    }
+
+    private func save() {
+        guard template != storedTemplate else { return }
+
+        try? repository.save(template)
+        storedTemplate = template
     }
 
     private func updateText() {

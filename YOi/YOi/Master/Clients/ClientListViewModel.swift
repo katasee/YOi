@@ -46,7 +46,11 @@ final class ClientListViewModel {
     }
 
     func makeAddFormViewModel() -> ClientFormViewModel {
-        ClientFormViewModel(takenHandles: clients.takenHandles, clientRepository: clientRepository)
+        ClientFormViewModel(
+            takenHandles: clients.takenHandles,
+            phoneCountry: clients.defaultPhoneCountry(region: Locale.current.region),
+            clientRepository: clientRepository
+        )
     }
 
     func makeCardViewModel(id: String) -> ClientCardViewModel {

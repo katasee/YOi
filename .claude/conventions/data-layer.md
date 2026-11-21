@@ -28,13 +28,15 @@
   ("Серпень 2026"), while a template would produce the genitive "серпня 2026" — wrong for a bare
   month header. Don't "fix" that one.
 - **A phone number goes through `YOi/YOi/Utilities/PhoneFormat.swift`, never a raw string.**
-  Same storage/display split as `DateFormat`: Firestore holds one canonical form
-  (`+48` + exactly 9 digits, e.g. `+48600123456`), the screen shows `+48 600 123 456`, and the edit
-  field holds the spaced text while `phoneDigits` derives the digits from it. `display(_:)` returns
+  Same storage/display split as `DateFormat`: Firestore holds one canonical form per country
+  (`PhoneCountry`, Y-73: `+48` or `+380` + exactly 9 digits, e.g. `+48600123456`), the screen shows
+  `+48 600 123 456` / `+380 50 123 45 67`, and the edit field holds the spaced text while the view
+  model derives the digits from it. A stored phone's country is read from its prefix
+  (`PhoneFormat.parsed(_:)`); nothing else records it. `display(_:)` returns
   anything it cannot parse **verbatim** rather than mangling it, which is what keeps values written
-  before the format existed (or by hand in the Console) readable. The app is Poland-only by
-  deliberate choice; widening it means turning the static `+48` prefix into a picker, not changing
-  the stored form. `firestore.rules` does **not** regex-validate this, unlike `hasValidSlotFormat(_:)` —
+  before the format existed (or by hand in the Console) readable. A new country is one more
+  `PhoneCountry` case (code, length, groups, trunk prefix); the form's `PhoneCountryMenu` lists
+  `allCases`, and a new client's default is the newest client's country, else the region. `firestore.rules` does **not** regex-validate this, unlike `hasValidSlotFormat(_:)` —
   a malformed phone breaks nothing server-side.
 - Firestore's Codable convenience methods — `setData(from:)`, `addDocument(from:)` — have **no
   `async` overload** in this SDK version, only `throws` with an optional completion closure.

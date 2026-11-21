@@ -72,6 +72,7 @@ final class ClientCardViewModel {
 
         return ClientFormViewModel(
             editing: client,
+            fallbackCountry: .regional(Locale.current.region),
             takenHandles: takenHandles,
             clientRepository: clientRepository
         )

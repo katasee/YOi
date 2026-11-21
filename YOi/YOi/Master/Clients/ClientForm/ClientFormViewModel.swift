@@ -4,7 +4,7 @@ import Observation
 @MainActor
 @Observable
 final class ClientFormViewModel: Identifiable {
-    var fields = ClientFormFields()
+    var fields: ClientFormFields
 
     private(set) var isSaving = false
     private(set) var savedClient: Client?
@@ -15,14 +15,20 @@ final class ClientFormViewModel: Identifiable {
     private let takenHandles: Set<String>
     private let clientRepository: ClientRepository
 
-    init(takenHandles: Set<String>, clientRepository: ClientRepository) {
+    init(
+        takenHandles: Set<String>,
+        phoneCountry: PhoneCountry,
+        clientRepository: ClientRepository
+    ) {
         original = nil
+        fields = ClientFormFields(country: phoneCountry)
         self.takenHandles = takenHandles
         self.clientRepository = clientRepository
     }
 
     init(
         editing client: Client,
+        fallbackCountry: PhoneCountry,
         takenHandles: Set<String>,
         clientRepository: ClientRepository
     ) {
@@ -33,7 +39,7 @@ final class ClientFormViewModel: Identifiable {
         }
 
         original = client
-        fields = ClientFormFields(client: client)
+        fields = ClientFormFields(client: client, fallbackCountry: fallbackCountry)
         self.takenHandles = otherHandles
         self.clientRepository = clientRepository
     }
@@ -52,7 +58,7 @@ final class ClientFormViewModel: Identifiable {
 
     func applyMasks() {
         let instagram = Client.normalizedInstagram(fields.instagram)
-        let phone = PhoneFormat.grouped(PhoneFormat.national(from: fields.phone))
+        let phone = PhoneFormat.grouped(nationalPhone, country: fields.country)
 
         if fields.instagram != instagram {
             fields.instagram = instagram
@@ -114,7 +120,7 @@ final class ClientFormViewModel: Identifiable {
     }
 
     private var nationalPhone: String {
-        PhoneFormat.national(from: fields.phone)
+        PhoneFormat.national(from: fields.phone, country: fields.country)
     }
 
     private var instagramError: ClientFormError? {
@@ -128,7 +134,11 @@ final class ClientFormViewModel: Identifiable {
     }
 
     private var phoneError: ClientFormError? {
-        nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone) ? nil : .incompletePhone
+        if nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone, country: fields.country) {
+            nil
+        } else {
+            .incompletePhone
+        }
     }
 
     private func makeClient() -> Client? {
@@ -143,7 +153,7 @@ final class ClientFormViewModel: Identifiable {
         )
         client.name = name
         client.instagram = handle
-        client.phone = PhoneFormat.stored(national: nationalPhone)
+        client.phone = PhoneFormat.stored(national: nationalPhone, country: fields.country)
 
         return client
     }

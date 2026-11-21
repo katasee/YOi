@@ -61,7 +61,11 @@ final class ClientBookingChoice {
     }
 
     func makeNewClientForm() -> ClientFormViewModel {
-        ClientFormViewModel(takenHandles: clients.takenHandles, clientRepository: clientRepository)
+        ClientFormViewModel(
+            takenHandles: clients.takenHandles,
+            phoneCountry: clients.defaultPhoneCountry(region: Locale.current.region),
+            clientRepository: clientRepository
+        )
     }
 
     func select(newClient: Client) {

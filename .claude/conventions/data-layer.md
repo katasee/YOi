@@ -14,7 +14,11 @@
   date *words* (Y-70: `messageWeekday(_:)`, `messageWeekdayDayMonth(_:)`) take the locale of the
   message language the master picked, never `Locale.current` — they are functions, not `static
   let`s, because that locale changes per send. All
-  three keep the salon's fixed `TimeZone`. `firestore.rules` regex-validates the storage format server-side
+  three use the device's zone, `DateFormat.timeZone` (`.autoupdatingCurrent`, Y-74; `Europe/Warsaw`
+  was pinned before). The zone is `private`; the rest of the app reaches it only through
+  `DateFormat.calendar` and the formatters. `.current` would be captured once by
+  these `static let`s and miss a zone change until a relaunch. Stored strings carry no zone, so a
+  change moves nothing stored, only what counts as today and past. `firestore.rules` regex-validates the storage format server-side
   (`hasValidSlotFormat(_:)`) as defense in depth. Times shown on screen must go through
   `DateFormat.displayTime(_:)` rather than printing the stored `HH:mm` string (`SlotItem.timeText`
   does) — it uses `setLocalizedDateFormatFromTemplate("jmm")`, so an English device gets

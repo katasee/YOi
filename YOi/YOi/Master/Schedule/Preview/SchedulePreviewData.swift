@@ -288,7 +288,7 @@ enum SchedulePreviewData {
     }
 
     private static func dayId(_ day: Int) -> String {
-        let date = DateFormat.salonCalendar.date(byAdding: .day, value: day - 1, to: monthStart) ?? monthStart
+        let date = DateFormat.calendar.date(byAdding: .day, value: day - 1, to: monthStart) ?? monthStart
 
         return DateFormat.date.string(from: date)
     }

@@ -2877,6 +2877,24 @@ this file is just "what's done, what's next," not a design doc.
     default). Editing a client with a legacy unparsable phone falls back to the region: the card
     has no client list.
   - Verified: `swiftc` check of `PhoneFormat` / `PhoneCountry` (17/17), `xcodebuild`.
+- **Y-74 — Device time zone** (branch `worktree-feature+y-74-device-time-zone`; user,
+  2026-11-21). The app follows the iPhone's time zone instead of the pinned `Europe/Warsaw`, so
+  for a master in Kyiv "today" in Розклад, a window turning past and a month's boundary in
+  Статистика are no longer an hour late. Third step of unpinning the app from Poland.
+  - `DateFormat.timeZone` is `TimeZone.autoupdatingCurrent` and `private`; the app reaches it
+    through `DateFormat.calendar` and the formatters. `salonTimeZone` / `salonCalendar` were
+    renamed to `timeZone` / `calendar` (12 files, mechanical).
+  - Nothing stored moves: `date` / `time` are zone-less strings and `monthlyStats` is keyed by
+    `yyyy-MM`. No migration, no rules edit.
+  - Rejected: `.current` (captured once by the `static let`s, so a zone change would wait for a
+    relaunch) and a cabinet setting like the currency (a field, a picker and a rules edit for a
+    case no master has — the salon is where her phone is).
+  - An open screen shows the new zone on its next re-render; nothing observes the change.
+  - Verified: `swiftc` check compiled with the real `DateFormat.swift`, run under
+    `TZ=Europe/Warsaw` / `Europe/Kyiv` / `Asia/Kolkata` (the same instant reads 13:00 / 14:00 /
+    17:30; `"09:30"` survives `minutesOfDay` ↔ `storageTime`), `xcodebuild`; `swiftui-pro` and
+    `swift-concurrency-pro` reviews with no findings. Setting `NSTimeZone.default` in a script
+    does not move `TimeZone.current`, so a change while the app runs is checked on a device only.
 
 ## Screens (in order)
 
@@ -3140,6 +3158,7 @@ those items are referred to by name, so the list can grow without renumbering an
    22. ~~**Y-71 Message template (logic)**~~ — **done** (under "Done").
    23. ~~**Y-72 Cabinet currency**~~ — **done** (under "Done").
    24. ~~**Y-73 Phone country code per client**~~ — **done** (under "Done").
+   25. ~~**Y-74 Device time zone**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 
@@ -3148,11 +3167,6 @@ something nearby is already being touched. **No numbers on purpose** — cite th
 numbering drifts every time an item is added or closed (it already did once: PR9's entry pointed at
 "step 9" for what was item 10).
 
-- **The time zone is pinned to `Europe/Warsaw`** (`DateFormat.salonTimeZone`, raised in Y-72).
-  For a master in Ukraine (Kyiv is one hour ahead) "today" in Розклад, a window turning past and
-  a month's boundary in Статистика are one hour late. Stored times are zone-less `"HH:mm"`, so
-  nothing moves; the fix is reading the device's zone. Called Y-74; the user has not decided yet
-  whether it is worth doing.
 - **Currency conversion** (deferred in Y-72, user). Showing revenue in another currency at a rate
   needs a rates source (NBP / NBU, the app's first non-Firebase request), an offline fallback,
   and a choice of rate for past months. Display only — stored amounts never convert. If done,
@@ -3268,6 +3282,10 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   scheduleViewModel = ScheduleViewModel()` and two more); `MonthHeader` takes `@MainActor` methods
   as plain `() -> Void`; and the `Task { @MainActor in }` sites become redundant under Swift 6.2's
   default main-actor isolation — drop them then.
+  Also (Y-74 `swift-concurrency-pro` review): `DateFormat`'s `static let` `DateFormatter`s are
+  non-`Sendable` globals, an error in Swift 6 ("static property is not concurrency-safe"). No race
+  today — `DateFormatter` is thread-safe — so `nonisolated(unsafe)` with that reason, or
+  `FormatStyle`s, when the mode is switched.
 
 - ~~**Verification emails don't reach ukr.net — own sender before release**~~ — **done
   2026-10-31, Console only.** With Firebase's default sender (`noreply@<project>.firebaseapp.com`)

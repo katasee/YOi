@@ -7,7 +7,7 @@ struct RescheduleDays {
     let initialDay: Date
 
     init(dateId: String, now: Date) {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let firstDay = calendar.startOfDay(for: now)
         let day = max(DateFormat.date.date(from: dateId) ?? firstDay, firstDay)
         let lastDay = max(

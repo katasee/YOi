@@ -49,7 +49,7 @@ private struct DayLineFormatter {
     }
 
     private static func week(of day: Date) -> DateComponents {
-        DateFormat.salonCalendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: day)
+        DateFormat.calendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: day)
     }
 }
 

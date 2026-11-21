@@ -11,7 +11,7 @@ struct RescheduleChoice {
 
     var day: Date {
         didSet {
-            guard DateFormat.salonCalendar.isDate(day, inSameDayAs: oldValue) == false else { return }
+            guard DateFormat.calendar.isDate(day, inSameDayAs: oldValue) == false else { return }
 
             selected = nil
             custom = nil

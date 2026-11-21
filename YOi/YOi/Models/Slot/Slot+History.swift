@@ -4,7 +4,7 @@ extension Slot {
     static let historyMonths = 3
 
     static func historyStartDate(now: Date) -> Date {
-        DateFormat.salonCalendar.date(byAdding: .month, value: -historyMonths, to: now) ?? now
+        DateFormat.calendar.date(byAdding: .month, value: -historyMonths, to: now) ?? now
     }
 
     static func historyStart(now: Date) -> String {
@@ -12,7 +12,7 @@ extension Slot {
     }
 
     static func liveMonthsStartDate(now: Date) -> Date {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let historyStart = historyStartDate(now: now)
         let components = calendar.dateComponents([.year, .month], from: historyStart)
         let start = calendar.date(from: components) ?? historyStart

@@ -25,8 +25,8 @@ struct WeekDayStrip: View {
             ForEach(weekDates, id: \.self) { day in
                 WeekDayCell(
                     day: day,
-                    isSelected: DateFormat.salonCalendar.isDate(day, inSameDayAs: selectedDate),
-                    isToday: DateFormat.salonCalendar.isDateInToday(day),
+                    isSelected: DateFormat.calendar.isDate(day, inSameDayAs: selectedDate),
+                    isToday: DateFormat.calendar.isDateInToday(day),
                     namespace: namespace,
                     action: { select(day) }
                 )
@@ -48,7 +48,7 @@ struct WeekDayStrip: View {
         forward: Bool,
         now: Date
     ) -> Date? {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
 
         guard
             let shifted = calendar.date(
@@ -90,8 +90,8 @@ struct WeekDayStrip: View {
     }
 
     private static func weekDates(containing date: Date) -> [Date] {
-        let startOfWeek = DateFormat.salonCalendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
-        return (0..<7).compactMap { DateFormat.salonCalendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+        let startOfWeek = DateFormat.calendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
+        return (0..<7).compactMap { DateFormat.calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
     }
 }
 

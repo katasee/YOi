@@ -128,7 +128,7 @@ final class StatsViewModel {
 
     func showPreviousMonth() {
         guard canGoBack else { return }
-        guard let previous = DateFormat.salonCalendar.date(
+        guard let previous = DateFormat.calendar.date(
             byAdding: .month,
             value: -1,
             to: monthStart
@@ -139,7 +139,7 @@ final class StatsViewModel {
 
     func showNextMonth() {
         guard canGoForward else { return }
-        guard let next = DateFormat.salonCalendar.date(
+        guard let next = DateFormat.calendar.date(
             byAdding: .month,
             value: 1,
             to: monthStart
@@ -158,7 +158,7 @@ final class StatsViewModel {
 
     private func rebuild() {
         let now = Date.now
-        let previous = DateFormat.salonCalendar
+        let previous = DateFormat.calendar
             .date(byAdding: .month, value: -1, to: monthStart)
             .flatMap { summaries[StatsCalculator.monthId($0)] }
 

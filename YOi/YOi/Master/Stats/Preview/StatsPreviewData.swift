@@ -30,7 +30,7 @@ enum StatsPreviewData {
         windows: Int,
         bookedWindows: Int
     ) -> MonthlySummary {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let start = StatsCalculator.monthStart(containing: reference)
         let month = calendar.date(byAdding: .month, value: monthOffset, to: start) ?? start
 
@@ -64,7 +64,7 @@ enum StatsPreviewData {
     }
 
     private static func date(monthOffset: Int, day: Int) -> String {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let start = StatsCalculator.monthStart(containing: reference)
         let month = calendar.date(byAdding: .month, value: monthOffset, to: start) ?? start
         let target = calendar.date(byAdding: .day, value: day - 1, to: month) ?? month

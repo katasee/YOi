@@ -4,11 +4,11 @@ struct MonthGrid: Equatable {
     let start: Date
 
     init(containing date: Date) {
-        start = DateFormat.salonCalendar.dateInterval(of: .month, for: date)?.start ?? date
+        start = DateFormat.calendar.dateInterval(of: .month, for: date)?.start ?? date
     }
 
     var days: [Date] {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let count = calendar.range(
             of: .day,
             in: .month,
@@ -33,7 +33,7 @@ struct MonthGrid: Equatable {
     }
 
     func shifted(by months: Int) -> MonthGrid {
-        let date = DateFormat.salonCalendar.date(
+        let date = DateFormat.calendar.date(
             byAdding: .month,
             value: months,
             to: start
@@ -43,7 +43,7 @@ struct MonthGrid: Equatable {
     }
 
     static func column(of day: Date) -> Int {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let weekday = calendar.component(.weekday, from: day)
 
         return (weekday - calendar.firstWeekday + 7) % 7

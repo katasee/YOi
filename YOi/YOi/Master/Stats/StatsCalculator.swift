@@ -15,7 +15,7 @@ struct MonthlyTotals {
 
 enum StatsCalculator {
     static func monthStart(containing date: Date) -> Date {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let components = calendar.dateComponents([.year, .month], from: date)
 
         return calendar.date(from: components) ?? date
@@ -34,7 +34,7 @@ enum StatsCalculator {
     }
 
     static func missingMonths(storedIds: Set<String>, now: Date) -> [Date] {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let liveStart = Slot.liveMonthsStartDate(now: now)
         let liveStartId = monthId(liveStart)
         let newestFinal = storedIds
@@ -108,7 +108,7 @@ enum StatsCalculator {
         previous: MonthlySummary?,
         now: Date
     ) -> MonthlyTotals {
-        let calendar = DateFormat.salonCalendar
+        let calendar = DateFormat.calendar
         let monthEnd = calendar.date(byAdding: .month, value: 1, to: monthStart) ?? monthStart
         let previousStart = calendar.date(byAdding: .month, value: -1, to: monthStart) ?? monthStart
         let isPreviousLive = previousStart >= Slot.liveMonthsStartDate(now: now)

@@ -16,11 +16,11 @@ enum DateFormat {
     static let messageDay = messageFormatter("d.MM")
     static let messageTime = messageFormatter("H:mm")
 
-    static let salonTimeZone = TimeZone.autoupdatingCurrent
+    private static let timeZone = TimeZone.autoupdatingCurrent
 
-    static let salonCalendar: Calendar = {
+    static let calendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = salonTimeZone
+        calendar.timeZone = timeZone
         calendar.firstWeekday = 2
         return calendar
     }()
@@ -34,7 +34,7 @@ enum DateFormat {
             minute: minutesOfDay % 60
         )
 
-        guard let date = salonCalendar.date(from: components) else { return "" }
+        guard let date = calendar.date(from: components) else { return "" }
 
         return time.string(from: date)
     }
@@ -42,7 +42,7 @@ enum DateFormat {
     static func minutesOfDay(_ storageTime: String) -> Int? {
         guard let date = time.date(from: storageTime) else { return nil }
 
-        let components = salonCalendar.dateComponents([.hour, .minute], from: date)
+        let components = calendar.dateComponents([.hour, .minute], from: date)
 
         guard let hour = components.hour, let minute = components.minute else { return nil }
 
@@ -80,7 +80,7 @@ enum DateFormat {
     private static func templateFormatter(_ template: String, locale: Locale = .current) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = locale
-        formatter.timeZone = salonTimeZone
+        formatter.timeZone = timeZone
         formatter.setLocalizedDateFormatFromTemplate(template)
         return formatter
     }
@@ -89,7 +89,7 @@ enum DateFormat {
         let formatter = DateFormatter()
         formatter.dateFormat = format
         formatter.locale = locale
-        formatter.timeZone = salonTimeZone
+        formatter.timeZone = timeZone
         return formatter
     }
 }

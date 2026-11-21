@@ -43,8 +43,8 @@ struct RescheduleDayScroller: View {
                 ForEach(days, id: \.self) { day in
                     WeekDayCell(
                         day: day,
-                        isSelected: DateFormat.salonCalendar.isDate(day, inSameDayAs: selectedDate),
-                        isToday: DateFormat.salonCalendar.isDateInToday(day),
+                        isSelected: DateFormat.calendar.isDate(day, inSameDayAs: selectedDate),
+                        isToday: DateFormat.calendar.isDateInToday(day),
                         isMarked: markedDays.contains(DateFormat.date.string(from: day)),
                         fillsSelection: false,
                         action: { scroll(to: day) }
@@ -109,11 +109,11 @@ struct RescheduleDayScroller: View {
 
 #if DEBUG
 #Preview {
-    @Previewable @State var selectedDate = DateFormat.salonCalendar.startOfDay(for: .now)
+    @Previewable @State var selectedDate = DateFormat.calendar.startOfDay(for: .now)
 
-    let today = DateFormat.salonCalendar.startOfDay(for: .now)
+    let today = DateFormat.calendar.startOfDay(for: .now)
     let days = (0..<21).compactMap {
-        DateFormat.salonCalendar.date(byAdding: .day, value: $0, to: today)
+        DateFormat.calendar.date(byAdding: .day, value: $0, to: today)
     }
 
     RescheduleDayScroller(

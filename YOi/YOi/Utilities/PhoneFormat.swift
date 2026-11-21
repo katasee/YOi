@@ -41,11 +41,23 @@ enum PhoneFormat {
         return groups.joined(separator: " ")
     }
 
+    static func parsed(_ stored: String?) -> (country: PhoneCountry, national: String)? {
+        guard let stored else { return nil }
+
+        for country in PhoneCountry.allCases where stored.hasPrefix(country.code) {
+            let national = String(stored.dropFirst(country.code.count))
+
+            if isComplete(national, country: country), national.allSatisfy(\.isNumber) {
+                return (country, national)
+            }
+        }
+
+        return nil
+    }
+
     static func display(_ stored: String?) -> String? {
-        guard let stored, let country = PhoneCountry(stored: stored) else { return stored }
+        guard let phone = parsed(stored) else { return stored }
 
-        let national = String(stored.dropFirst(country.code.count))
-
-        return country.code + " " + grouped(national, country: country)
+        return phone.country.code + " " + grouped(phone.national, country: phone.country)
     }
 }

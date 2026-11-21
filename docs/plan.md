@@ -2857,10 +2857,11 @@ this file is just "what's done, what's next," not a design doc.
   - One PR: nothing new is persisted. The stored form stays `+` and digits
     (`+380501234567`), so search, call and SMS are untouched and `firestore.rules` is unchanged.
   - `Models/PhoneCountry.swift`: `poland` (`+48`, 9 digits, `3-3-3`) and `ukraine` (`+380`, 9
-    digits, `2-3-2-2`, `trunkPrefix` `"0"`). `init?(stored:)` reads a stored phone's country
-    from its prefix (code + exactly 9 digits, so `+48380…` is Polish); `regional(_:)` mirrors
-    `Currency.regional`. `PhoneFormat` takes a country everywhere; `display(_:)` finds it itself
-    and still returns an unparsable value verbatim.
+    digits, `2-3-2-2`, `trunkPrefix` `"0"`) is configuration only; `regional(_:)` mirrors
+    `Currency.regional`. `PhoneFormat` owns both directions of the stored form: `stored(national:
+    country:)` builds it, `parsed(_:)` reads it back as country + national digits (code + exactly 9
+    digits, so `+48380…` is Polish) for `display`, the edit form and the default. An unparsable
+    value is still shown verbatim.
   - A Ukrainian number typed with the trunk zero (`050 123 45 67`) has the `0` absorbed (user
     decision), like a pasted country code; the Polish field has no such rule.
   - Form: `PhoneCountryMenu` (`Menu` + `Picker`, `🇵🇱 +48` / `🇺🇦 +380`, label without a

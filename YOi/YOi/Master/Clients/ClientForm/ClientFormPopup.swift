@@ -203,9 +203,13 @@ struct ClientFormPopup: View {
 
 private extension PhoneCountry {
     var placeholder: String {
+        PhoneFormat.grouped(sampleNational, country: self)
+    }
+
+    private var sampleNational: String {
         switch self {
-        case .poland: "600 123 456"
-        case .ukraine: "50 123 45 67"
+        case .poland: "600123456"
+        case .ukraine: "501234567"
         }
     }
 }

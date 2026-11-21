@@ -4,7 +4,7 @@ import Observation
 @MainActor
 @Observable
 final class ClientFormViewModel: Identifiable {
-    var fields = ClientFormFields()
+    var fields: ClientFormFields
 
     private(set) var isSaving = false
     private(set) var savedClient: Client?
@@ -28,6 +28,7 @@ final class ClientFormViewModel: Identifiable {
 
     init(
         editing client: Client,
+        fallbackCountry: PhoneCountry,
         takenHandles: Set<String>,
         clientRepository: ClientRepository
     ) {
@@ -38,7 +39,7 @@ final class ClientFormViewModel: Identifiable {
         }
 
         original = client
-        fields = ClientFormFields(client: client, fallbackCountry: .regional(Locale.current.region))
+        fields = ClientFormFields(client: client, fallbackCountry: fallbackCountry)
         self.takenHandles = otherHandles
         self.clientRepository = clientRepository
     }
@@ -133,7 +134,11 @@ final class ClientFormViewModel: Identifiable {
     }
 
     private var phoneError: ClientFormError? {
-        nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone, country: fields.country) ? nil : .incompletePhone
+        if nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone, country: fields.country) {
+            nil
+        } else {
+            .incompletePhone
+        }
     }
 
     private func makeClient() -> Client? {

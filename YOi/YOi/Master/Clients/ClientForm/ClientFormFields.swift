@@ -2,13 +2,14 @@ struct ClientFormFields: Equatable {
     var instagram = ""
     var name = ""
     var phone = ""
-    var country = PhoneCountry.poland
+    var country: PhoneCountry
 }
 
 extension ClientFormFields {
     init(client: Client, fallbackCountry: PhoneCountry) {
-        let country = PhoneCountry(stored: client.phone) ?? fallbackCountry
-        let national = PhoneFormat.national(from: client.phone ?? "", country: country)
+        let parsed = PhoneFormat.parsed(client.phone)
+        let country = parsed?.country ?? fallbackCountry
+        let national = parsed?.national ?? PhoneFormat.national(from: client.phone ?? "", country: country)
 
         instagram = client.instagram ?? ""
         name = client.name ?? ""

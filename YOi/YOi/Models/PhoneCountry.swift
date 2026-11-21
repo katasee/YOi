@@ -29,22 +29,6 @@ enum PhoneCountry: CaseIterable, Identifiable {
         }
     }
 
-    init?(stored: String?) {
-        guard let stored else { return nil }
-
-        let match = Self.allCases.first { country in
-            let national = stored.dropFirst(country.code.count)
-
-            return stored.hasPrefix(country.code)
-                && national.count == country.nationalLength
-                && national.allSatisfy(\.isNumber)
-        }
-
-        guard let match else { return nil }
-
-        self = match
-    }
-
     static func regional(_ region: Locale.Region?) -> PhoneCountry {
         region == .ukraine ? .ukraine : .poland
     }

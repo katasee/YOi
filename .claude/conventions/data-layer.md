@@ -32,7 +32,7 @@
   (`PhoneCountry`, Y-73: `+48` or `+380` + exactly 9 digits, e.g. `+48600123456`), the screen shows
   `+48 600 123 456` / `+380 50 123 45 67`, and the edit field holds the spaced text while the view
   model derives the digits from it. A stored phone's country is read from its prefix
-  (`PhoneCountry(stored:)`); nothing else records it. `display(_:)` returns
+  (`PhoneFormat.parsed(_:)`); nothing else records it. `display(_:)` returns
   anything it cannot parse **verbatim** rather than mangling it, which is what keeps values written
   before the format existed (or by hand in the Console) readable. A new country is one more
   `PhoneCountry` case (code, length, groups, trunk prefix); the form's `PhoneCountryMenu` lists

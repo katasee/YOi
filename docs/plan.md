@@ -2851,6 +2851,31 @@ this file is just "what's done, what's next," not a design doc.
   - `firestore.rules`: `hasValidProfile()` pins `currency` to the four codes. Deployed by hand.
   - Verified: `swiftc` check of the decode and `regional` (8/8), `xcodebuild`; walked by the user
     on a device.
+- **Y-73 — Phone country code per client** (branch `feature/y-73-phone-code`; user, 2026-11-21).
+  A client's phone is `+48` or `+380`, picked in the client form. Second step of unpinning the
+  app from Poland.
+  - One PR: nothing new is persisted. The stored form stays `+` and digits
+    (`+380501234567`), so search, call and SMS are untouched and `firestore.rules` is unchanged.
+  - `Models/PhoneCountry.swift`: `poland` (`+48`, 9 digits, `3-3-3`) and `ukraine` (`+380`, 9
+    digits, `2-3-2-2`, `trunkPrefix` `"0"`). `init?(stored:)` reads a stored phone's country
+    from its prefix (code + exactly 9 digits, so `+48380…` is Polish); `regional(_:)` mirrors
+    `Currency.regional`. `PhoneFormat` takes a country everywhere; `display(_:)` finds it itself
+    and still returns an unparsable value verbatim.
+  - A Ukrainian number typed with the trunk zero (`050 123 45 67`) has the `0` absorbed (user
+    decision), like a pasted country code; the Polish field has no such rule.
+  - Form: `PhoneCountryMenu` (`Menu` + `Picker`, `🇵🇱 +48` / `🇺🇦 +380`, label without a
+    `Button`) replaces the static prefix, inside the field beside the `TextField`. The flag and
+    the per-country placeholder (`600 123 456` / `50 123 45 67`) are `private extension`s in
+    their views; the `clients.form.phone.placeholder` key was removed. `country` lives in
+    `ClientFormFields`, so the existing `.onChange(of: fields)` re-masks the digits on a switch.
+  - Default for a new client (user: "switch once, not every time"): the country of the newest
+    client whose phone parses (`defaultPhoneCountry(region:)`, `Client+PhoneCountry.swift`),
+    else the iPhone's region. Nothing is stored — the choice sticks once a client is saved with
+    it, and follows the account because the client list syncs. Rejected: `@AppStorage` (resets
+    on reinstall, leaks into a second account) and a profile field (rules + a write for a
+    default). Editing a client with a legacy unparsable phone falls back to the region: the card
+    has no client list.
+  - Verified: `swiftc` check of `PhoneFormat` / `PhoneCountry` (17/17), `xcodebuild`.
 
 ## Screens (in order)
 
@@ -3088,8 +3113,8 @@ those items are referred to by name, so the list can grow without renumbering an
             age rating questionnaire, Support URL (required — `https://katasee.github.io/yoi-site/support/`,
             Y-45), Privacy Policy URL (`…/privacy/`), copyright.
          3. Screenshots, at least 6.9" iPhone, from demo data, never real clients.
-         4. Availability: phones are Poland-only (`+48`, `PhoneFormat`) — limit the countries or
-            say so in the description.
+         4. Availability: phones are Polish or Ukrainian (`+48` / `+380`, `PhoneCountry`, Y-73) —
+            limit the countries or say so in the description.
          5. Final device pass on iOS 18 and 26, light and dark, plus the beta masters' feedback.
        - **Not blocking, pick up if the beta asks for it:** "Error handling pass over the whole
          app". The missing translation is closed (Y-49); same-name
@@ -3113,11 +3138,7 @@ those items are referred to by name, so the list can grow without renumbering an
    21. ~~**Y-70 Message template (UI)**~~ — **done** (under "Done").
    22. ~~**Y-71 Message template (logic)**~~ — **done** (under "Done").
    23. ~~**Y-72 Cabinet currency**~~ — **done** (under "Done").
-   24. **Y-73 Phone country code per client** (branch `feature/y-73-phone-code`, worktree
-       `.claude/worktrees/feature+y-73-phone-code`). `+48` or `+380` chosen on each client's
-       form (Polish masters have Ukrainian clients and back), defaulting from the iPhone's region
-       like the currency. Both have 9 national digits; `PhoneFormat` keeps one canonical stored
-       form per country. Not designed yet.
+   24. ~~**Y-73 Phone country code per client**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 

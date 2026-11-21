@@ -39,7 +39,7 @@ the master books them herself.
 users/{uid}              name, email, onboardingStep? (missing = no tour),
                          currency? (PLN/UAH/USD/EUR, missing = PLN)  — created at sign-up
 … and under it:
-clients/{autoId}         name?, instagram? (lowercased, no "@"), phone? (+48 + 9 digits),
+clients/{autoId}         name?, instagram? (lowercased, no "@"), phone? (+48 or +380 + 9 digits),
                          createdAt, lastBookedAt?          — name or instagram required
 slots/{yyyy-MM-dd_HHmm}  date, time, clientId?, serviceId?, serviceName?, servicePrice?
                          — no client = free window; id from date+time, so no duplicates

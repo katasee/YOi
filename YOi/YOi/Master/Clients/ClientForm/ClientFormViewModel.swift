@@ -15,8 +15,13 @@ final class ClientFormViewModel: Identifiable {
     private let takenHandles: Set<String>
     private let clientRepository: ClientRepository
 
-    init(takenHandles: Set<String>, clientRepository: ClientRepository) {
+    init(
+        takenHandles: Set<String>,
+        phoneCountry: PhoneCountry,
+        clientRepository: ClientRepository
+    ) {
         original = nil
+        fields = ClientFormFields(country: phoneCountry)
         self.takenHandles = takenHandles
         self.clientRepository = clientRepository
     }

@@ -16,7 +16,7 @@ enum DateFormat {
     static let messageDay = messageFormatter("d.MM")
     static let messageTime = messageFormatter("H:mm")
 
-    static let salonTimeZone = TimeZone(identifier: "Europe/Warsaw") ?? .current
+    static let salonTimeZone = TimeZone.autoupdatingCurrent
 
     static let salonCalendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)

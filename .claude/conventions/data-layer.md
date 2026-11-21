@@ -54,9 +54,9 @@
   `FirestoreEventTemplateRepository`'s `add`, `update` and `delete`, and
   `FirestoreEventRepository`'s `add`, `update` and `delete`, and
   `FirestoreMonthlySummaryRepository`'s `add` and `delete(ids:)`, and
-  `FirestoreOnboardingRepository`'s `save`, and `FirestoreMessageTemplateRepository`'s `save`** (user decisions: `add` in
+  `FirestoreOnboardingRepository`'s `save`, and `FirestoreMessageTemplateRepository`'s `save`, and `FirestoreCurrencyRepository`'s `save`** (user decisions: `add` in
   M-32.4, `update`/`delete` in M-32.5, slots in M-33.2, booking in M-34.1, `addBooked` in Y-53, templates in M-37.2,
-  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60, the tour's step in Y-68, the message template in Y-71,
+  plans in M-37.4 and their `update` in M-37.6, the month archive in M-38.1 and its `delete(ids:)` in Y-61, a service's `add` in Y-58, the service order in Y-60, the tour's step in Y-68, the message template in Y-71, the currency in Y-72,
   where the protocol itself declares them plain `throws`). Awaiting a write waits
   for the *server* acknowledgement, so offline the client popups spun forever with Cancel disabled,
   although the change was already in the local cache and on screen. They now pass
@@ -132,7 +132,7 @@
   reads instead. Write the field explicitly on create so only legacy documents rely on the fallback.
   Optional `var`s also keep the memberwise initializer source-compatible (they default to `nil`),
   so existing call sites don't need touching.
-- **Money is `Int`, never `Double`.** `Service.price` is whole PLN; `ServiceFormat` renders it with
+- **Money is `Int`, never `Double`.** `Service.price` is whole units of the cabinet currency (Y-72); `ServiceFormat` renders it with
   `.fractionLength(0)` and the input field uses `.numberPad`. `Double` accumulates rounding error
   once values get summed (the Stats screen does exactly that), and `.numberPad` has no decimal-
   separator key at all, which removes the whole class of locale-parsing bugs — no `FormatStyle`,
@@ -182,7 +182,11 @@
   build does not know reads as no tour instead of failing the profile decode — which would lock the
   master out. `writeProfile` writes `welcome` (sign-up and a recreated profile). `firestore.rules`
   pins the value to the seven steps in `hasValidProfile()`, so a new step is a rules edit in the
-  same PR.
+  same PR. `UserProfile.currency: String?` (Y-72) follows the same rule: read as
+  `selectedCurrency`, a missing or unknown code is `PLN`, `writeProfile` stores
+  `Currency.regional(Locale.current.region)`, and `hasValidProfile()` pins the four codes.
+  Prices carry no currency of their own — `servicePrice` and `monthlyStats` are plain `Int`s in
+  whatever the cabinet currency is, so a switch relabels history too.
 - **Every collection under `users/{uid}/` is listed in `FirestoreUserDataRepository.collections`.**
   Account deletion wipes only what is listed, so a collection added without it silently survives
   "Видалити акаунт" — an App Store 5.1.1(v) problem with no visible failure. Add the name in the

@@ -307,7 +307,13 @@
   `Root/`: `Appearance/` holds `AppAppearance` (System / Light / Dark, stored in
   `@AppStorage("appearance")` and applied by `RootView`) and `AppearancePicker`, the rows shown in
   the Profile screen (`Master/Profile/`). It has no view model — the picker only reads and writes
-  `@AppStorage`. `LargeTitleHeader` takes an optional trailing view: Статистика puts the round
+  `@AppStorage`. `Currency/` (Y-72) is the second one, with one difference: the currency belongs to
+  the account, not the device, so it is stored on `users/{uid}` (an `@AppStorage` value would reset
+  on a reinstall and leak into a second account on the same phone). `CurrencySetting` is owned by
+  `MasterRootView` like `OnboardingTour` and published as `EnvironmentValues.currency`; a view
+  reads it and passes it into the view-model call that builds a price string, the same way it
+  passes `now:` — a string stored in a view model would keep the old currency until the next
+  snapshot. `LargeTitleHeader` takes an optional trailing view: Статистика puts the round
   person button there, which opens Profile.
 - One `PBXFileSystemSynchronizedRootGroup`, `YOi/YOi/`, feeds the `YOi` target — app source and
   build resources alike (the fonts sit in `YOi/YOi/Assets/Font/`). It is auto-picked-up like the

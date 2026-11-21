@@ -22,6 +22,7 @@ final class PlanActionsViewModel: Identifiable {
     private let slots: [Slot]
     private let now: Date
     private let directory: ClientDirectory
+    private let currency: Currency
 
     init(
         plan: PlanEvent,
@@ -29,12 +30,14 @@ final class PlanActionsViewModel: Identifiable {
         plannedDays: Set<String>,
         slots: [Slot],
         now: Date,
-        directory: ClientDirectory
+        directory: ClientDirectory,
+        currency: Currency
     ) {
         self.plan = plan
         self.slots = slots
         self.now = now
         self.directory = directory
+        self.currency = currency
         initialChoice = PlanChoice(templates: templates, pinning: plan)
         planChoice = initialChoice
         initialMove = PlanMove(
@@ -81,7 +84,11 @@ final class PlanActionsViewModel: Identifiable {
     }
 
     var replacement: PlanReplacement? {
-        PlanReplacement(conflicts, directory: directory)
+        PlanReplacement(
+            conflicts,
+            directory: directory,
+            currency: currency
+        )
     }
 
     var canReschedule: Bool {

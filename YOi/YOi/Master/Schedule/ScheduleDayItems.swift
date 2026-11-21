@@ -11,7 +11,8 @@ enum ScheduleDayItems {
         slots: [Slot],
         plans: [PlanEvent],
         clientName: (String) -> String,
-        now: Date
+        now: Date,
+        currency: Currency
     ) -> [ScheduleItem] {
         let daySlots = slots.filter { $0.date == day }
         let dayPlans = plans.filter { $0.date == day }
@@ -29,7 +30,8 @@ enum ScheduleDayItems {
                             slot: slot,
                             clientName: slot.clientId.map(clientName) ?? "",
                             conflict: conflicts[Slot.documentId(date: slot.date, time: slot.time)],
-                            now: now
+                            now: now,
+                            currency: currency
                         )
                     )
                 )

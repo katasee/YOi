@@ -37,8 +37,10 @@ struct ProfileView: View {
 
     @State private var popup: Popup?
     @Environment(\.openURL) private var openURL
+    @Environment(\.currency) private var currency
 
     let profile: UserProfile
+    let onSelectCurrency: (Currency) -> Void
     let onSignOut: () -> Void
     let onAccountDeleted: () -> Void
 
@@ -48,6 +50,7 @@ struct ProfileView: View {
                 VStack(alignment: .leading, spacing: ProfileMetrics.Spacing.sectionSpacing) {
                     profileCard
                     themeSection
+                    currencySection
                     accountSection
                     aboutSection
                 }
@@ -105,6 +108,20 @@ struct ProfileView: View {
                 .padding(.vertical, ProfileMetrics.Spacing.listVerticalPadding)
                 .cardSurface(padding: 0, cornerRadius: ProfileMetrics.Size.cardCornerRadius)
         }
+    }
+
+    private var currencySection: some View {
+        HStack(spacing: ProfileMetrics.Spacing.rowSpacing) {
+            Text("profile.currency.title")
+                .font(.elmsSans(.semiBold, 15))
+                .foregroundStyle(Color.ink)
+
+            Spacer(minLength: 0)
+
+            CurrencyPicker(selected: currency, onSelect: onSelectCurrency)
+        }
+        .padding(.horizontal, ProfileMetrics.Spacing.cardPadding)
+        .cardSurface(padding: 0, cornerRadius: ProfileMetrics.Size.cardCornerRadius)
     }
 
     private var accountSection: some View {
@@ -205,6 +222,7 @@ struct ProfileView: View {
     NavigationStack {
         ProfileView(
             profile: ProfilePreviewData.profile,
+            onSelectCurrency: { _ in },
             onSignOut: {},
             onAccountDeleted: {}
         )

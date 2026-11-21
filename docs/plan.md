@@ -2823,6 +2823,34 @@ this file is just "what's done, what's next," not a design doc.
     the simulator (language and header persist, «Скинути» removes the key in the Console, an
     unchanged «Готово» writes nothing, offline returns at once, account deletion removes
     `settings`).
+- **Y-72 — Cabinet currency** (branch `feature/y-72-currency`; user, 2026-11-21). The master picks
+  `PLN`, `UAH`, `USD` or `EUR`; every price relabels, nothing converts. First of the steps that
+  unpin the app from Poland (masters are mostly in Ukraine and Poland).
+  - One PR, not the usual UI + logic pair (user: ~350 lines fit one).
+  - `Models/Currency.swift` (ISO raw values, `regional(_:)`: `.ukraine` → `UAH`, else `PLN`).
+    `UserProfile.currency: String?`, read as `selectedCurrency` — missing or unknown reads as
+    `PLN`, never fails the profile decode. `writeProfile` stores the regional currency for a new
+    or recreated profile.
+  - `Currency/` (app-wide setting, like `Appearance/`): `CurrencySetting` (`@Observable`, owned
+    by `MasterRootView` like `OnboardingTour`, seeded from the profile), `CurrencyPicker`,
+    `EnvironmentValues.currency`. `CurrencyRepository` / `FirestoreCurrencyRepository`:
+    `updateData(["currency": …])`, fire-and-forget; selecting the current value writes nothing.
+  - `ServiceFormat.price(_:currency:)` / `summary(name:price:currency:)` replace the `PLN`
+    constant. Views read `@Environment(\.currency)` and pass it into the view-model calls that
+    build strings, like `now:` (`items(now:currency:)`, `visits(now:currency:)`,
+    `stats(currency:)`); `StatsViewModel` keeps `MonthlyTotals`, not `MonthlyStats`, so a switch
+    relabels at once. Popup view models take it once at creation — it cannot change while one is
+    open.
+  - Profile: one «Валюта» plate with a system wheel of the four codes on the trailing side (user,
+    after a list of rows was too tall). The wheel keeps its own `@State` and reports through
+    `onChange` — no `Binding(get:set:)`.
+  - Tried and dropped (user): a currency menu on the «Дохід» card. Without conversion it changed
+    the whole cabinet's prices from the Statistics screen, could not be discovered without a
+    chevron, and was easy to hit while scrolling. It makes sense again only with conversion
+    ("show my revenue in UAH").
+  - `firestore.rules`: `hasValidProfile()` pins `currency` to the four codes. Deployed by hand.
+  - Verified: `swiftc` check of the decode and `regional` (8/8), `xcodebuild`; walked by the user
+    on a device.
 
 ## Screens (in order)
 
@@ -3084,6 +3112,12 @@ those items are referred to by name, so the list can grow without renumbering an
    20. ~~**Y-66 Plan history (logic)**~~ — **done** (under "Done").
    21. ~~**Y-70 Message template (UI)**~~ — **done** (under "Done").
    22. ~~**Y-71 Message template (logic)**~~ — **done** (under "Done").
+   23. ~~**Y-72 Cabinet currency**~~ — **done** (under "Done").
+   24. **Y-73 Phone country code per client** (branch `feature/y-73-phone-code`, worktree
+       `.claude/worktrees/feature+y-73-phone-code`). `+48` or `+380` chosen on each client's
+       form (Polish masters have Ukrainian clients and back), defaulting from the iPhone's region
+       like the currency. Both have 9 national digits; `PhoneFormat` keeps one canonical stored
+       form per country. Not designed yet.
 
 ## Backlog and tech debt (unordered)
 
@@ -3092,6 +3126,15 @@ something nearby is already being touched. **No numbers on purpose** — cite th
 numbering drifts every time an item is added or closed (it already did once: PR9's entry pointed at
 "step 9" for what was item 10).
 
+- **The time zone is pinned to `Europe/Warsaw`** (`DateFormat.salonTimeZone`, raised in Y-72).
+  For a master in Ukraine (Kyiv is one hour ahead) "today" in Розклад, a window turning past and
+  a month's boundary in Статистика are one hour late. Stored times are zone-less `"HH:mm"`, so
+  nothing moves; the fix is reading the device's zone. Called Y-74; the user has not decided yet
+  whether it is worth doing.
+- **Currency conversion** (deferred in Y-72, user). Showing revenue in another currency at a rate
+  needs a rates source (NBP / NBU, the app's first non-Firebase request), an offline fallback,
+  and a choice of rate for past months. Display only — stored amounts never convert. If done,
+  the «Дохід» card is its natural entry point.
 - **`SendScheduleViewModel` does too much** (SOLID review of Y-70, carried past Y-71). It pages
   months, picks clients, switches steps and edits the template; template editing (header,
   footer, style, language, `save()`) could move to its own type. Not blocking anything.

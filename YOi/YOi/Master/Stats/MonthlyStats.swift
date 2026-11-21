@@ -11,11 +11,11 @@ struct MonthlyStats {
     let freeSlotsLabel: String
     let isMonthFinished: Bool
 
-    init(totals: MonthlyTotals) {
-        revenueLabel = ServiceFormat.price(totals.revenue)
+    init(totals: MonthlyTotals, currency: Currency) {
+        revenueLabel = ServiceFormat.price(totals.revenue, currency: currency)
         expectedLabel = totals.isMonthFinished
             ? nil
-            : ServiceFormat.price(totals.expected)
+            : ServiceFormat.price(totals.expected, currency: currency)
         revenueTrend = totals.previousRevenue.flatMap {
             StatsTrend.percent(current: totals.revenue, previous: $0)
         }

@@ -4,7 +4,11 @@ struct PlanReplacement: ScheduleReplacement {
     let windowIds: [String]
     let entries: [ConflictEntry]
 
-    init?(_ conflicts: [WindowConflict], directory: ClientDirectory) {
+    init?(
+        _ conflicts: [WindowConflict],
+        directory: ClientDirectory,
+        currency: Currency
+    ) {
         var seen = Set<String>()
         let windows = conflicts
             .filter { $0.level == .overlap }
@@ -15,7 +19,14 @@ struct PlanReplacement: ScheduleReplacement {
 
         windowIds = windows.map(Self.id(of:))
         entries = windows.map { window in
-            ConflictEntry(id: Self.id(of: window), text: Self.text(of: window, directory: directory))
+            ConflictEntry(
+                id: Self.id(of: window),
+                text: Self.text(
+                    of: window,
+                    directory: directory,
+                    currency: currency
+                )
+            )
         }
     }
 
@@ -23,11 +34,19 @@ struct PlanReplacement: ScheduleReplacement {
         String(localized: "schedule.replace.windowsMessage")
     }
 
-    private static func text(of window: Slot, directory: ClientDirectory) -> String {
+    private static func text(
+        of window: Slot,
+        directory: ClientDirectory,
+        currency: Currency
+    ) -> String {
         let details = window.clientId.map { clientId in
             [
                 directory.name(for: clientId),
-                ServiceFormat.summary(name: window.serviceName, price: window.servicePrice)
+                ServiceFormat.summary(
+                    name: window.serviceName,
+                    price: window.servicePrice,
+                    currency: currency
+                )
             ]
         } ?? [String(localized: "schedule.replace.freeWindow")]
 

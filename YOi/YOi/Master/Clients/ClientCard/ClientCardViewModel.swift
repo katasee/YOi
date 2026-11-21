@@ -47,8 +47,14 @@ final class ClientCardViewModel {
         }
     }
 
-    func visits(now: Date) -> ClientVisits? {
-        visitSlots.map { ClientVisits(slots: $0, now: now) }
+    func visits(now: Date, currency: Currency) -> ClientVisits? {
+        visitSlots.map {
+            ClientVisits(
+                slots: $0,
+                now: now,
+                currency: currency
+            )
+        }
     }
 
     func observeVisits() async {

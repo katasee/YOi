@@ -157,7 +157,8 @@ final class FirebaseAuthRepository: AuthRepository {
             uid: uid,
             name: name,
             email: email,
-            onboardingStep: OnboardingStep.welcome.rawValue
+            onboardingStep: OnboardingStep.welcome.rawValue,
+            currency: Currency.regional(Locale.current.region).rawValue
         )
         let encoded = try Firestore.Encoder().encode(profile)
         try await db.collection("users")

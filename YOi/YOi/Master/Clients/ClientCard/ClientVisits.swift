@@ -8,15 +8,19 @@ struct ClientVisits {
         history.isEmpty == false || planned.isEmpty
     }
 
-    init(slots: [Slot], now: Date) {
+    init(
+        slots: [Slot],
+        now: Date,
+        currency: Currency
+    ) {
         let sorted = slots.sorted(by: Slot.chronologically)
 
         planned = sorted
             .filter { $0.isPast(now: now) == false }
-            .map(ClientVisitItem.init)
+            .map { ClientVisitItem(slot: $0, currency: currency) }
         history = sorted
             .filter { $0.isPast(now: now) }
             .reversed()
-            .map(ClientVisitItem.init)
+            .map { ClientVisitItem(slot: $0, currency: currency) }
     }
 }

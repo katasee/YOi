@@ -2341,6 +2341,22 @@
         }
       }
     },
+    "profile.currency.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Currency"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Валюта"
+          }
+        }
+      }
+    },
     "profile.section.about" : {
       "localizations" : {
         "en" : {

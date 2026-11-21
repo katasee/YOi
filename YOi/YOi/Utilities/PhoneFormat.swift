@@ -1,37 +1,37 @@
 import Foundation
 
 enum PhoneFormat {
-    static let countryCode = "+48"
-    static let nationalLength = 9
-
-    private static let countryDigits = "48"
-
-    private static let groupSizes = [3, 3, 3]
-
-    static func national(from text: String) -> String {
+    static func national(from text: String, country: PhoneCountry) -> String {
         var digits = text.filter(\.isNumber)
+        let countryDigits = String(country.code.dropFirst())
 
-        if digits.count == nationalLength + countryDigits.count, digits.hasPrefix(countryDigits) {
+        if digits.count == country.nationalLength + countryDigits.count, digits.hasPrefix(countryDigits) {
             digits.removeFirst(countryDigits.count)
+        } else if
+            let trunk = country.trunkPrefix,
+            digits.count == country.nationalLength + trunk.count,
+            digits.hasPrefix(trunk)
+        {
+            digits.removeFirst(trunk.count)
         }
 
-        return String(digits.prefix(nationalLength))
+        return String(digits.prefix(country.nationalLength))
     }
 
-    static func isComplete(_ national: String) -> Bool {
-        national.count == nationalLength
+    static func isComplete(_ national: String, country: PhoneCountry) -> Bool {
+        national.count == country.nationalLength
     }
 
-    static func stored(national: String) -> String? {
-        guard isComplete(national) else { return nil }
+    static func stored(national: String, country: PhoneCountry) -> String? {
+        guard isComplete(national, country: country) else { return nil }
 
-        return countryCode + national
+        return country.code + national
     }
 
-    static func grouped(_ national: String) -> String {
+    static func grouped(_ national: String, country: PhoneCountry) -> String {
         var rest = Substring(national)
 
-        let groups = groupSizes.compactMap { size -> String? in
+        let groups = country.groupSizes.compactMap { size -> String? in
             let group = rest.prefix(size)
             rest = rest.dropFirst(size)
 
@@ -42,12 +42,10 @@ enum PhoneFormat {
     }
 
     static func display(_ stored: String?) -> String? {
-        guard let stored else { return nil }
+        guard let stored, let country = PhoneCountry(stored: stored) else { return stored }
 
-        let national = national(from: stored)
+        let national = String(stored.dropFirst(country.code.count))
 
-        guard stored == countryCode + national, isComplete(national) else { return stored }
-
-        return countryCode + " " + grouped(national)
+        return country.code + " " + grouped(national, country: country)
     }
 }

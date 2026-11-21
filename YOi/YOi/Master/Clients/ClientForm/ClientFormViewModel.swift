@@ -33,7 +33,7 @@ final class ClientFormViewModel: Identifiable {
         }
 
         original = client
-        fields = ClientFormFields(client: client)
+        fields = ClientFormFields(client: client, fallbackCountry: .regional(Locale.current.region))
         self.takenHandles = otherHandles
         self.clientRepository = clientRepository
     }
@@ -52,7 +52,7 @@ final class ClientFormViewModel: Identifiable {
 
     func applyMasks() {
         let instagram = Client.normalizedInstagram(fields.instagram)
-        let phone = PhoneFormat.grouped(PhoneFormat.national(from: fields.phone))
+        let phone = PhoneFormat.grouped(nationalPhone, country: fields.country)
 
         if fields.instagram != instagram {
             fields.instagram = instagram
@@ -114,7 +114,7 @@ final class ClientFormViewModel: Identifiable {
     }
 
     private var nationalPhone: String {
-        PhoneFormat.national(from: fields.phone)
+        PhoneFormat.national(from: fields.phone, country: fields.country)
     }
 
     private var instagramError: ClientFormError? {
@@ -128,7 +128,7 @@ final class ClientFormViewModel: Identifiable {
     }
 
     private var phoneError: ClientFormError? {
-        nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone) ? nil : .incompletePhone
+        nationalPhone.isEmpty || PhoneFormat.isComplete(nationalPhone, country: fields.country) ? nil : .incompletePhone
     }
 
     private func makeClient() -> Client? {
@@ -143,7 +143,7 @@ final class ClientFormViewModel: Identifiable {
         )
         client.name = name
         client.instagram = handle
-        client.phone = PhoneFormat.stored(national: nationalPhone)
+        client.phone = PhoneFormat.stored(national: nationalPhone, country: fields.country)
 
         return client
     }

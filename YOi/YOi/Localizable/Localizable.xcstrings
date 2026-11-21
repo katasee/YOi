@@ -1347,22 +1347,6 @@
         }
       }
     },
-    "clients.form.phone.placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "600 123 456"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "600 123 456"
-          }
-        }
-      }
-    },
     "clients.loadFailed.message" : {
       "localizations" : {
         "en" : {

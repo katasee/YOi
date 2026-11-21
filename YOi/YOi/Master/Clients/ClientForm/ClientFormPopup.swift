@@ -100,14 +100,14 @@ struct ClientFormPopup: View {
     }
 
     private var phoneInput: some View {
-        inputRow(
-            "clients.form.phone.label",
-            prefix: "+48",
-            error: errors.phone
-        ) {
-            TextField("clients.form.phone.placeholder", text: $fields.phone)
-                .keyboardType(.numberPad)
-                .focused($focusedField, equals: .phone)
+        inputRow("clients.form.phone.label", error: errors.phone) {
+            HStack(spacing: ClientsMetrics.Spacing.fieldPrefixSpacing) {
+                PhoneCountryMenu(country: $fields.country)
+
+                TextField(fields.country.placeholder, text: $fields.phone)
+                    .keyboardType(.numberPad)
+                    .focused($focusedField, equals: .phone)
+            }
         }
     }
 
@@ -201,12 +201,22 @@ struct ClientFormPopup: View {
     }
 }
 
+private extension PhoneCountry {
+    var placeholder: String {
+        switch self {
+        case .poland: "600 123 456"
+        case .ukraine: "50 123 45 67"
+        }
+    }
+}
+
 #if DEBUG
 #Preview {
     @Previewable @State var fields = ClientFormFields(
         instagram: "olya.nails",
         name: "Оля",
-        phone: "600 12"
+        phone: "50 123",
+        country: .ukraine
     )
 
     Color.background

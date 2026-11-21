@@ -19,6 +19,7 @@ enum ClientsMetrics {
         static let visitDate: CGFloat = 16
         static let visitService: CGFloat = 14
         static let visitTime: CGFloat = 15
+        static let countryChevron: CGFloat = 11
     }
 
     enum Spacing {
@@ -34,6 +35,7 @@ enum ClientsMetrics {
         static let rowVerticalPadding: CGFloat = 12
         static let fieldLabelSpacing: CGFloat = 8
         static let fieldPrefixSpacing: CGFloat = 4
+        static let countryMenuSpacing: CGFloat = 4
         static let cardTopPadding: CGFloat = 24
         static let cardProfileSpacing: CGFloat = 10
         static let cardSectionSpacing: CGFloat = 20

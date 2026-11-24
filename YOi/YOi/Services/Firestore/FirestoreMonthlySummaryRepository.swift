@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreMonthlySummaryRepository: MonthlySummaryRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeSummaries() -> AsyncThrowingStream<[MonthlySummary], Error> {
         .listening { try db.userCollection("monthlyStats").addSnapshotListener($0) } read: { snapshot in

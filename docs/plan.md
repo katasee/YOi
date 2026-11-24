@@ -2914,6 +2914,36 @@ this file is just "what's done, what's next," not a design doc.
   - Verified: `xcodebuild`, the built `Info.plist`, launch sequence screenshots on the iPhone 16
     simulator (launch → `LaunchView` → Auth with the wordmark in place); `swiftui-pro` review
     with no findings.
+- **Y-76 — Security hardening** (branch `feature/y-76-security-hardening`; user, 2026-11-24). From
+  a security audit (2026-11-23) that found no cross-cabinet leak: the rules now accept only known
+  fields of bounded size, a sign-out leaves no client data on the phone, and a new password is at
+  least 8 characters.
+  - `firestore.rules`: `writesOnly(keys)` (whole document on create, added and changed keys on
+    update) and `isWritten(key)` for per-field caps, so legacy keys and values never block an
+    update; caps 200 / 20 / 128 / 16 / 1000 (names / phone / ids / emoji / message texts), server
+    only — the forms got no limits. The profile's `email` equals the token's, `.lower()` on both
+    sides, whenever it is written; `uid` must equal the path.
+  - Found on a device after publishing: the profile's list missed `uid`, which `UserProfile`
+    encodes, so every sign-up failed (account created, profile denied, then "already exists" on
+    retry). Fixed and republished the same day; an account left without a profile gets one from
+    `RootViewModel` on its next sign-in.
+  - `signOut()` is `async` and runs `terminate()` + `clearPersistence()`; all 11 repositories'
+    `db` became a computed property, since a terminated instance cannot be used again.
+  - `Models/PasswordPolicy` (`minimumLength = 8`) for sign-up and Change password; sign-in is
+    unchecked, so 6-character passwords keep working. `passwordDoesNotMeetRequirements` reads as
+    "weak password". Composition rules (digits, symbols) rejected (user): NIST advises against
+    them, and length matters more.
+  - Console, same day: the `yoi-fb372` iOS API key is restricted to the iOS app `app.yoi.kate`
+    (its 25 API restrictions were already set by Firebase); the old `manik-5a2b8` project, whose
+    key is in the public git history, is shut down; the Firebase Auth password policy is
+    "Require", minimum 8, no composition rules, "Force upgrade on sign-in" off.
+  - Rejected: length caps in the forms (a much larger PR for no practical gain); writing
+    `result.user.email` at sign-up (the `.lower()` comparison made it unneeded).
+  - Verified: Rules Playground (profile create allow / foreign email deny / extra key deny;
+    service name 200 allow / 201 deny; slot booking allow / extra key deny; slot delete allow),
+    `xcodebuild`, on the simulator sign-out → sign-in, delete account → sign-up again with the
+    same email, the 8-character minimum; `swiftui-pro` review of the plan (one missed
+    sign-out call site, fixed).
 
 ## Screens (in order)
 
@@ -3179,6 +3209,10 @@ those items are referred to by name, so the list can grow without renumbering an
    24. ~~**Y-73 Phone country code per client**~~ — **done** (under "Done").
    25. ~~**Y-74 Device time zone**~~ — **done** (under "Done").
    26. ~~**Y-75 Launch screen**~~ — **done** (under "Done").
+   27. ~~**Y-76 Security hardening**~~ — **done** (under "Done").
+   28. **Y-77 App Check** — add the App Check SDK with App Attest (a debug provider for the
+       simulator) and ship it in monitor mode; turn on enforcement for Firestore and Auth in the
+       Console only once nearly all requests show as verified, or older app versions stop working.
 
 ## Backlog and tech debt (unordered)
 

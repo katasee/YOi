@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreMessageTemplateRepository: MessageTemplateRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observe() -> AsyncThrowingStream<MessageTemplate, Error> {
         .listening { try document().addSnapshotListener($0) } read: { snapshot in

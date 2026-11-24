@@ -152,6 +152,27 @@
   hasValidServiceFormat()` silently breaks deletion. `services`, `clients`, `slots`,
   `eventTemplates` and `events` are all split this way. `monthlyStats` (M-38.1) has `create` and
   `delete` but no `update`: a month's summary is written once and never rewritten.
+- **Every collection's rules list the fields a write may set, and cap string sizes** (Y-76).
+  `writesOnly(keys)` checks the whole document on create and only the added and changed keys on
+  update — never `affectedKeys()`, which also counts removed keys, so a whole-document rewrite that
+  drops a legacy key (an old service field, `role` on a pre-M-30 profile) would be rejected.
+  Per-field checks go through `isWritten(key)`, true only when this write sets or changes the
+  field, so a legacy value never blocks an unrelated update. Caps are generous on purpose (names
+  200, phone 20, ids 128, emoji 16, message texts 1000), because the fire-and-forget writes would
+  hide a rejection: the forms have no length limits. **The list is what the model encodes, not
+  what the form shows** — `UserProfile` stores `uid` as a field, and leaving it out of the list
+  broke every sign-up in production until it was found on a device (the Playground test document
+  had been built by hand without it). A new stored property is a rules edit in the same PR. The
+  profile's `email` must equal the token's, compared `.lower()` on both sides, whenever it is
+  written. The Rules Playground cannot check `clients`: its own timestamp type reads as
+  "not a timestamp", so every client create is denied there.
+- **Sign-out wipes the Firestore cache** (Y-76): `FirebaseAuthRepository.signOut()` calls
+  `terminate()` and `clearPersistence()` after `Auth.signOut()`, so a client base does not stay on
+  a phone after sign-out or account deletion (`reset()` runs `signOut()` too). A terminated
+  instance is dead, so every repository reaches Firestore through a computed
+  `private var db: Firestore { Firestore.firestore() }` — a stored `let` in `RootViewModel`'s
+  repository, which outlives the sign-out, would keep the dead one. Unsynced fire-and-forget writes
+  are dropped with the cache when the master signs out offline; waiting for them would hang.
 - **A month is archived only once it leaves the live window** (Y-61). Розклад books back to
   `Slot.liveMonthsStartDate(now:)` (`Slot+History.swift`, the 1st of the oldest whole month the
   bounded listener reads), and Статистика computes every month from there on live. So

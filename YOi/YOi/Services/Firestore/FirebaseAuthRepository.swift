@@ -2,7 +2,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 final class FirebaseAuthRepository: AuthRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     var currentUserId: String? { Auth.auth().currentUser?.uid }
 
@@ -41,8 +41,12 @@ final class FirebaseAuthRepository: AuthRepository {
         }
     }
 
-    func signOut() throws {
+    func signOut() async throws {
         try Auth.auth().signOut()
+
+        let db = Firestore.firestore()
+        try? await db.terminate()
+        try? await db.clearPersistence()
     }
 
     func fetchProfile() async throws -> UserProfile {
@@ -175,7 +179,7 @@ final class FirebaseAuthRepository: AuthRepository {
         switch code {
         case .wrongPassword, .invalidCredential, .userMismatch:
             return .wrongPassword
-        case .weakPassword:
+        case .weakPassword, .passwordDoesNotMeetRequirements:
             return .weakPassword
         case .requiresRecentLogin:
             return .requiresRecentLogin

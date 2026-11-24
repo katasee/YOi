@@ -51,15 +51,15 @@ final class RootViewModel {
         }
     }
 
-    func reset() {
-        try? repository.signOut()
+    func reset() async {
+        try? await repository.signOut()
         failure = nil
         state = .signedOut
     }
 
-    func signOut() {
+    func signOut() async {
         do {
-            try repository.signOut()
+            try await repository.signOut()
             failure = nil
             state = .signedOut
         } catch {

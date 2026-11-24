@@ -4,7 +4,7 @@ protocol AuthRepository {
     var isEmailVerified: Bool { get }
     func signUp(email: String, password: String, name: String) async throws
     func signIn(email: String, password: String) async throws
-    func signOut() throws
+    func signOut() async throws
     func fetchProfile() async throws -> UserProfile
     func createProfile(name: String) async throws
     func reloadUser() async throws

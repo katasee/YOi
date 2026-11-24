@@ -4,8 +4,6 @@ import Observation
 @MainActor
 @Observable
 final class ChangePasswordViewModel {
-    static let minimumLength = 6
-
     var currentPassword = ""
     var newPassword = ""
     var repeatedPassword = ""
@@ -35,7 +33,7 @@ final class ChangePasswordViewModel {
             return
         }
 
-        guard newPassword.count >= Self.minimumLength else {
+        guard newPassword.count >= PasswordPolicy.minimumLength else {
             failure = .weak
 
             return

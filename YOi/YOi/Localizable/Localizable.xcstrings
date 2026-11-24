@@ -137,13 +137,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Password must be at least 6 characters."
+            "value" : "Password must be at least 8 characters."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пароль має містити щонайменше 6 символів."
+            "value" : "Пароль має містити щонайменше 8 символів."
           }
         }
       }

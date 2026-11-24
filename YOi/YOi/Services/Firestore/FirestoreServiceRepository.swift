@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreServiceRepository: ServiceRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeServices() -> AsyncStream<[Service]> {
         AsyncStream { continuation in

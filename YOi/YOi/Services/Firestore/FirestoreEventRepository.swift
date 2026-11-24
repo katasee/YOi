@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreEventRepository: EventRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeEvents() -> AsyncThrowingStream<[PlanEvent], Error> {
         .listening {

@@ -30,7 +30,7 @@ final class FakeAuthRepository: AuthRepository {
 
     func signIn(email: String, password: String) async throws {}
 
-    func signOut() throws {}
+    func signOut() async throws {}
 
     func fetchProfile() async throws -> UserProfile {
         guard isDeleted == false else { throw AccountError.profileNotFound }

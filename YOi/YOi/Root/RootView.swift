@@ -8,7 +8,7 @@ struct RootView: View {
         Group {
             switch viewModel.state {
             case .loading:
-                ProgressView()
+                LaunchView()
             case .signedOut:
                 VStack(spacing: 0) {
                     if let failure = viewModel.failure {

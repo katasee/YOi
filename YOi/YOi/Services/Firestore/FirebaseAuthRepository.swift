@@ -179,7 +179,7 @@ final class FirebaseAuthRepository: AuthRepository {
         switch code {
         case .wrongPassword, .invalidCredential, .userMismatch:
             return .wrongPassword
-        case .weakPassword:
+        case .weakPassword, .passwordDoesNotMeetRequirements:
             return .weakPassword
         case .requiresRecentLogin:
             return .requiresRecentLogin

@@ -40,6 +40,11 @@ final class AuthViewModel {
     }
 
     func submit() async -> Bool {
+        if mode == .signUp, password.count < PasswordPolicy.minimumLength {
+            failure = .weakPassword
+            return false
+        }
+
         isLoading = true
         failure = nil
         defer { isLoading = false }

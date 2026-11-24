@@ -9,5 +9,12 @@
 		<string>ElmsSans-Medium.ttf</string>
 		<string>ElmsSans-Bold.ttf</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>Background</string>
+		<key>UIImageName</key>
+		<string>LaunchWordmark</string>
+	</dict>
 </dict>
 </plist>

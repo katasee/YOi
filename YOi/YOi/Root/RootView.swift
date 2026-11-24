@@ -25,14 +25,14 @@ struct RootView: View {
                 VerifyEmailView(
                     viewModel: VerifyEmailViewModel(email: email),
                     onVerified: { await viewModel.refresh() },
-                    onSignOut: viewModel.signOut
+                    onSignOut: { Task { await viewModel.signOut() } }
                 )
                 .id(email)
             case .signedIn(let profile):
                 MasterRootView(
                     profile: profile,
-                    onSignOut: viewModel.signOut,
-                    onAccountDeleted: viewModel.reset
+                    onSignOut: { Task { await viewModel.signOut() } },
+                    onAccountDeleted: { Task { await viewModel.reset() } }
                 )
                 .id(profile.uid)
             }

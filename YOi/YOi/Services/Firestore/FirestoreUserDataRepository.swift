@@ -6,7 +6,7 @@ final class FirestoreUserDataRepository: UserDataRepository {
 
     private static let batchLimit = 500
 
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func deleteAllData() async throws {
         for name in Self.collections {

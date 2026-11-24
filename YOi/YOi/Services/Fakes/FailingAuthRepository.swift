@@ -26,7 +26,7 @@ final class FailingAuthRepository: AuthRepository {
         throw error
     }
 
-    func signOut() throws {
+    func signOut() async throws {
         throw error
     }
 

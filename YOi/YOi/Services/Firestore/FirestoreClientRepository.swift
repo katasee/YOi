@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreClientRepository: ClientRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeClients() -> AsyncThrowingStream<[Client], Error> {
         .listening { try db.userCollection("clients").addSnapshotListener($0) } read: { snapshot in

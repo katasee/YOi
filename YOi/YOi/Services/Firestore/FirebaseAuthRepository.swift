@@ -2,7 +2,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 final class FirebaseAuthRepository: AuthRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     var currentUserId: String? { Auth.auth().currentUser?.uid }
 
@@ -41,8 +41,12 @@ final class FirebaseAuthRepository: AuthRepository {
         }
     }
 
-    func signOut() throws {
+    func signOut() async throws {
         try Auth.auth().signOut()
+
+        let db = Firestore.firestore()
+        try? await db.terminate()
+        try? await db.clearPersistence()
     }
 
     func fetchProfile() async throws -> UserProfile {

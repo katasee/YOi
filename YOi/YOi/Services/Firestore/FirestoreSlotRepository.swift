@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreSlotRepository: SlotRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeSlots() -> AsyncThrowingStream<[Slot], Error> {
         .listening {

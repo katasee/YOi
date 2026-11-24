@@ -1,7 +1,7 @@
 import FirebaseFirestore
 
 final class FirestoreEventTemplateRepository: EventTemplateRepository {
-    private let db = Firestore.firestore()
+    private var db: Firestore { Firestore.firestore() }
 
     func observeTemplates() -> AsyncThrowingStream<[EventTemplate], Error> {
         .listening { try db.userCollection("eventTemplates").addSnapshotListener($0) } read: { snapshot in

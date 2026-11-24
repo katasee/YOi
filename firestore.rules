@@ -12,9 +12,31 @@ service cloud.firestore {
       return isOwner(uid) && request.auth.token.email_verified == true;
     }
 
+    // A field is checked only when this write sets or changes it, so a legacy key or value
+    // already on a document never blocks an update; removing a legacy key is always allowed.
+    function isWritten(key) {
+      return key in request.resource.data &&
+        (resource == null || key in request.resource.data.diff(resource.data).affectedKeys());
+    }
+
+    function writesOnly(keys) {
+      return resource == null
+        ? request.resource.data.keys().hasOnly(keys)
+        : request.resource.data.diff(resource.data).addedKeys()
+            .union(request.resource.data.diff(resource.data).changedKeys())
+            .hasOnly(keys);
+    }
+
+    function isShortString(value, max) {
+      return value is string && value.size() <= max;
+    }
+
     function hasValidProfile() {
-      return request.resource.data.name is string &&
-        request.resource.data.email is string &&
+      let data = request.resource.data;
+      return writesOnly(['name', 'email', 'onboardingStep', 'currency']) &&
+        isShortString(data.name, 200) &&
+        isShortString(data.email, 254) &&
+        (!isWritten('email') || data.email.lower() == request.auth.token.email.lower()) &&
         (!('onboardingStep' in request.resource.data) ||
           request.resource.data.onboardingStep in [
             'welcome', 'services', 'client', 'windows', 'sendSchedule', 'booking', 'finished'
@@ -24,11 +46,14 @@ service cloud.firestore {
     }
 
     function hasValidServiceFormat() {
-      return request.resource.data.name is string &&
-        request.resource.data.name.size() > 0 &&
-        request.resource.data.price is int &&
-        request.resource.data.price >= 0 &&
-        (!('position' in request.resource.data) || request.resource.data.position is int);
+      let data = request.resource.data;
+      return writesOnly(['name', 'price', 'isActive', 'position']) &&
+        isShortString(data.name, 200) &&
+        data.name.size() > 0 &&
+        data.price is int &&
+        data.price >= 0 &&
+        (!isWritten('isActive') || data.isActive is bool) &&
+        (!('position' in data) || data.position is int);
     }
 
     // A client needs a handle or a name; an absent field is left out, never stored empty.
@@ -37,15 +62,24 @@ service cloud.firestore {
       let data = request.resource.data;
       let hasInstagram = 'instagram' in data;
       let hasName = 'name' in data;
-      return (hasInstagram || hasName) &&
+      return writesOnly(['name', 'instagram', 'phone', 'createdAt', 'lastBookedAt']) &&
+        (hasInstagram || hasName) &&
         (!hasInstagram || (data.instagram is string && data.instagram.matches('^[a-z0-9._]{1,30}$'))) &&
         (!hasName || (data.name is string && data.name.size() > 0)) &&
+        (!isWritten('name') || isShortString(data.name, 200)) &&
+        (!isWritten('phone') || isShortString(data.phone, 20)) &&
+        (!isWritten('lastBookedAt') || data.lastBookedAt is timestamp) &&
         data.createdAt is timestamp;
     }
 
     function hasValidSlotFormat(slotId) {
       let data = request.resource.data;
-      return data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
+      return writesOnly(['date', 'time', 'clientId', 'serviceId', 'serviceName', 'servicePrice']) &&
+        (!isWritten('clientId') || isShortString(data.clientId, 128)) &&
+        (!isWritten('serviceId') || isShortString(data.serviceId, 128)) &&
+        (!isWritten('serviceName') || isShortString(data.serviceName, 200)) &&
+        (!isWritten('servicePrice') || (data.servicePrice is int && data.servicePrice >= 0)) &&
+        data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') &&
         data.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
         slotId == data.date + '_' + data.time.replace(':', '');
     }
@@ -53,8 +87,8 @@ service cloud.firestore {
     function hasValidEventTemplateFormat() {
       let data = request.resource.data;
       return data.keys().hasOnly(['emoji', 'name', 'isActive']) &&
-        data.emoji is string && data.emoji.size() > 0 &&
-        data.name is string && data.name.size() > 0 &&
+        isShortString(data.emoji, 16) && data.emoji.size() > 0 &&
+        isShortString(data.name, 200) && data.name.size() > 0 &&
         (!('isActive' in data) || data.isActive is bool);
     }
 
@@ -65,9 +99,9 @@ service cloud.firestore {
         data.startTime is string && data.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
         data.endTime is string && data.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
         data.startTime < data.endTime &&
-        (!('templateId' in data) || (data.templateId is string && data.templateId.size() > 0)) &&
-        data.emoji is string && data.emoji.size() > 0 &&
-        data.name is string && data.name.size() > 0;
+        (!('templateId' in data) || (isShortString(data.templateId, 128) && data.templateId.size() > 0)) &&
+        isShortString(data.emoji, 16) && data.emoji.size() > 0 &&
+        isShortString(data.name, 200) && data.name.size() > 0;
     }
 
     function hasValidMonthlySummaryFormat(monthId) {
@@ -84,9 +118,9 @@ service cloud.firestore {
     function isMessageTextMap(texts) {
       return texts is map &&
         texts.keys().hasOnly(['uk', 'pl', 'en']) &&
-        (!('uk' in texts) || texts.uk is string) &&
-        (!('pl' in texts) || texts.pl is string) &&
-        (!('en' in texts) || texts.en is string);
+        (!('uk' in texts) || isShortString(texts.uk, 1000)) &&
+        (!('pl' in texts) || isShortString(texts.pl, 1000)) &&
+        (!('en' in texts) || isShortString(texts.en, 1000));
     }
 
     function hasValidMessageTemplate(settingId) {

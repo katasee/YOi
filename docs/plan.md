@@ -2944,6 +2944,26 @@ this file is just "what's done, what's next," not a design doc.
     `xcodebuild`, on the simulator sign-out → sign-in, delete account → sign-up again with the
     same email, the 8-character minimum; `swiftui-pro` review of the plan (one missed
     sign-out call site, fixed).
+- **Y-77 — App Check** (branch `feature/y-77-app-check`; user, 2026-11-24). Every Firestore and
+  Auth request now carries an App Check token, so the Console can tell YOi's own requests from
+  scripted ones; shipped in monitor mode, nothing is rejected yet.
+  - `FirebaseAppCheck` linked from the existing `firebase-ios-sdk` package. A private
+    `AppCheckFactory` in `YOiApp.swift` returns `AppCheckDebugProvider` under
+    `#if targetEnvironment(simulator)` and `AppAttestProvider` otherwise, so a Debug build on a
+    device takes the same path as the App Store one. It is installed before
+    `FirebaseApp.configure()`, which creates App Check with whatever factory is set at that moment.
+    Firestore and Auth attach the token themselves; no repository changed.
+  - `YOi/YOi.entitlements` with `appattest-environment` = `production` in both configurations:
+    TestFlight and the App Store always attest in production, and a device Debug build with
+    `development` would read as unverified.
+  - Console, same day: App Check registered for `app.yoi.kate` with App Attest (Team ID
+    `78HWZYA4DR`, token TTL 1 h); the simulator's debug token registered by hand. The token is
+    never committed — the scheme is shared, and a debug token passes App Check for anyone holding
+    it. Enforcement is off (item 29).
+  - Verified: `xcodebuild` for the simulator and Release for `generic/platform=iOS`; on the
+    simulator the debug token was printed, failed to exchange before registration (the app still
+    worked) and exchanged after it; on an iPhone no App Check or attestation errors in the log;
+    `swiftui-pro` review of the plan (two small fixes folded in).
 
 ## Screens (in order)
 
@@ -3210,9 +3230,11 @@ those items are referred to by name, so the list can grow without renumbering an
    25. ~~**Y-74 Device time zone**~~ — **done** (under "Done").
    26. ~~**Y-75 Launch screen**~~ — **done** (under "Done").
    27. ~~**Y-76 Security hardening**~~ — **done** (under "Done").
-   28. **Y-77 App Check** — add the App Check SDK with App Attest (a debug provider for the
-       simulator) and ship it in monitor mode; turn on enforcement for Firestore and Auth in the
-       Console only once nearly all requests show as verified, or older app versions stop working.
+   28. ~~**Y-77 App Check**~~ — **done** (under "Done").
+   29. **Y-78 Enforce App Check** — turn on enforcement for Cloud Firestore and Authentication in
+       Console → App Check → APIs once the verified share is near 100% and builds from before
+       Y-77 are no longer in use: they send no token, so they stop working the moment it is on.
+       Before that, delete the simulator debug tokens used so far and register fresh ones.
 
 ## Backlog and tech debt (unordered)
 

@@ -303,6 +303,11 @@
   Every master's data lives under her own `users/{uid}/`; the Firestore repositories reach it
   through `Firestore.userCollection(_:)` (`Firestore+UserCollection.swift`), never a hard-coded
   top-level `collection(...)`, so protocols and view models never see the uid.
+- **The launch screen and `RootView`'s `.loading` draw one picture** (Y-75): `LaunchWordmark` on
+  `Background`, centred on the full screen, so the system frame hands off to `LaunchView` without a
+  jump. The asset is a baked copy of the wordmark in `Wine` — a launch screen takes only a colorset
+  and an image — so a change to either regenerates the two PDFs. `.loading` shows no spinner for
+  the first second, and nothing is preloaded there.
 - **App-wide settings get a top-level feature folder**, like `Auth/` and
   `Root/`: `Appearance/` holds `AppAppearance` (System / Light / Dark, stored in
   `@AppStorage("appearance")` and applied by `RootView`) and `AppearancePicker`, the rows shown in

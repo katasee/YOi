@@ -2895,6 +2895,25 @@ this file is just "what's done, what's next," not a design doc.
     17:30; `"09:30"` survives `minutesOfDay` ↔ `storageTime`), `xcodebuild`; `swiftui-pro` and
     `swift-concurrency-pro` reviews with no findings. Setting `NSTimeZone.default` in a script
     does not move `TimeZone.current`, so a change while the app runs is checked on a device only.
+- **Y-75 — Launch screen** (branch `feature/y-75-launch-screen`; user, 2026-11-24). From tap to the
+  first screen the master sees one frame — the "YOi" wordmark in wine on `Background` — instead of
+  an empty generated launch screen, then a bare spinner, then content.
+  - `LaunchWordmark` (asset catalog): two vector PDFs, `#7D2E3E` and `#D7ADB5` for dark — a baked
+    copy of `Wine`, since a launch screen shows only a colour and an image. ElmsSans Bold 50 pt,
+    page 1:1 with a text line, so it shows at its natural size with no `.resizable()`.
+  - `Info.plist` `UILaunchScreen` (`UIColorName` `Background`, `UIImageName` `LaunchWordmark`);
+    `INFOPLIST_KEY_UILaunchScreen_Generation` removed, it nested an empty `UILaunchScreen` in ours.
+  - `Root/LaunchView` replaces `ProgressView()` in `RootView`'s `.loading`: the same image centred
+    on the full screen, so the hand-off from the launch screen is invisible, and a spinner that
+    fades in under it only after 1 s (an overlay, so the wordmark does not move).
+  - Nothing is preloaded: screens read Firestore's cache through their own listeners, and a
+    splash that waited for the server would hang offline. No separate splash or artificial delay.
+  - Rejected (mockups): a wine page (the hand-off to the white/black app flashed) and a wine dot
+    on the `i` only. Accepted: with the system light and the app set to Dark, the launch frame is
+    white and `.loading` dark — iOS gives the launch screen no access to app settings.
+  - Verified: `xcodebuild`, the built `Info.plist`, launch sequence screenshots on the iPhone 16
+    simulator (launch → `LaunchView` → Auth with the wordmark in place); `swiftui-pro` review
+    with no findings.
 
 ## Screens (in order)
 
@@ -3159,6 +3178,7 @@ those items are referred to by name, so the list can grow without renumbering an
    23. ~~**Y-72 Cabinet currency**~~ — **done** (under "Done").
    24. ~~**Y-73 Phone country code per client**~~ — **done** (under "Done").
    25. ~~**Y-74 Device time zone**~~ — **done** (under "Done").
+   26. ~~**Y-75 Launch screen**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 

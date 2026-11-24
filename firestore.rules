@@ -31,9 +31,10 @@ service cloud.firestore {
       return value is string && value.size() <= max;
     }
 
-    function hasValidProfile() {
+    function hasValidProfile(uid) {
       let data = request.resource.data;
-      return writesOnly(['name', 'email', 'onboardingStep', 'currency']) &&
+      return writesOnly(['uid', 'name', 'email', 'onboardingStep', 'currency']) &&
+        (!isWritten('uid') || data.uid == uid) &&
         isShortString(data.name, 200) &&
         isShortString(data.email, 254) &&
         (!isWritten('email') || data.email.lower() == request.auth.token.email.lower()) &&
@@ -137,8 +138,8 @@ service cloud.firestore {
     // her email is verified. The one exception is creating the profile at sign-up, which
     // happens before the verification email is even sent.
     match /users/{uid} {
-      allow create: if isOwner(uid) && hasValidProfile();
-      allow update: if isVerifiedOwner(uid) && hasValidProfile();
+      allow create: if isOwner(uid) && hasValidProfile(uid);
+      allow update: if isVerifiedOwner(uid) && hasValidProfile(uid);
       allow read, delete: if isVerifiedOwner(uid);
 
       match /services/{serviceId} {

@@ -2933,6 +2933,10 @@ this file is just "what's done, what's next," not a design doc.
     unchecked, so 6-character passwords keep working. `passwordDoesNotMeetRequirements` reads as
     "weak password". Composition rules (digits, symbols) rejected (user): NIST advises against
     them, and length matters more.
+  - Console, same day: the `yoi-fb372` iOS API key is restricted to the iOS app `app.yoi.kate`
+    (its 25 API restrictions were already set by Firebase); the old `manik-5a2b8` project, whose
+    key is in the public git history, is shut down; the Firebase Auth password policy is
+    "Require", minimum 8, no composition rules, "Force upgrade on sign-in" off.
   - Rejected: length caps in the forms (a much larger PR for no practical gain); writing
     `result.user.email` at sign-up (the `.lower()` comparison made it unneeded).
   - Verified: Rules Playground (profile create allow / foreign email deny / extra key deny;

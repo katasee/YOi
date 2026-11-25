@@ -4,7 +4,7 @@ A free iPhone calendar for any master who works by appointment — nails, hair, 
 massage, trainers, tutors. Clients write to her in Instagram; she books them in YOi in a few taps,
 sends her free windows as a ready message, and sees her month's income.
 
-[App Store](https://apps.apple.com/app/id6830248587) · [Website](https://yoi-app.github.io/)
+[App Store](https://apps.apple.com/app/id6830248587) · [Website](https://katasee.github.io/yoi-site/)
 
 ## Features
 

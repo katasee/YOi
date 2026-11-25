@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		6E49ACFE3009806500DBFE02 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6E49ACFD3009806500DBFE02 /* FirebaseAuth */; };
 		6E49AD003009806500DBFE02 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6E49ACFF3009806500DBFE02 /* FirebaseFirestore */; };
+		6E77A0C1300F000000000001 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E77A0C2300F000000000001 /* FirebaseAppCheck */; };
 		6EC62ABD300E18F200D42FE1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6EC62ABC300E18F200D42FE1 /* FirebaseAuth */; };
 		6EC62ABF300E18F200D42FE1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6EC62ABE300E18F200D42FE1 /* FirebaseFirestore */; };
-		6E77A0C1300F000000000001 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E77A0C2300F000000000001 /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -286,7 +286,7 @@
 				CODE_SIGN_ENTITLEMENTS = YOi/YOi.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"YOi/Preview Content\"";
 				DEVELOPMENT_TEAM = 78HWZYA4DR;
 				ENABLE_PREVIEWS = YES;
@@ -303,7 +303,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.yoi.kate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -325,7 +325,7 @@
 				CODE_SIGN_ENTITLEMENTS = YOi/YOi.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"YOi/Preview Content\"";
 				DEVELOPMENT_TEAM = 78HWZYA4DR;
 				ENABLE_PREVIEWS = YES;
@@ -342,7 +342,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.yoi.kate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -399,6 +399,11 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseFirestore;
 		};
+		6E77A0C2300F000000000001 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6EC62ABB300E18F200D42FE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
 		6EC62ABC300E18F200D42FE1 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6EC62ABB300E18F200D42FE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -408,11 +413,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6EC62ABB300E18F200D42FE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
-		};
-		6E77A0C2300F000000000001 /* FirebaseAppCheck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6EC62ABB300E18F200D42FE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAppCheck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

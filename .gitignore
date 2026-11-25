@@ -23,3 +23,6 @@ docs/superpowers/specs/*
 
 # macOS
 .DS_Store
+
+# Claude Code MCP servers are personal tools, configured at user scope, not in the repo.
+.mcp.json

@@ -2964,6 +2964,33 @@ this file is just "what's done, what's next," not a design doc.
     simulator the debug token was printed, failed to exchange before registration (the app still
     worked) and exchanged after it; on an iPhone no App Check or attestation errors in the log;
     `swiftui-pro` review of the plan (two small fixes folded in).
+- **Y-79 — Error handling pass** (user, 2026-11-26). No failure the code can know about is shown
+  as empty data or swallowed: a failed listener shows the screen's load-failed state, a
+  user-initiated write that throws shows a failure toast.
+  - Reads: `observeServices()` is an `AsyncThrowingStream` through `.listening`, the last plain
+    `AsyncStream` listener; Мої послуги shows `services.loadFailed`. Статистика shows a
+    `stats.loadFailed` card instead of zeros when its slots or summaries listener fails. Розклад
+    treats a failure of any of its six listeners as a schedule failure — a `Set` of failed
+    listeners, so a re-attached one clears only its own — and shows no day at all
+    ("Не вдалося завантажити розклад", was "…вікна"): a day that lost its plans invites a double
+    booking. Every `catch` clears the data it owned.
+  - Writes: one `ToastCenter` (`Assets/UICommons/`) owned by `MasterRootView`, given to view
+    models through `init` and to views through the environment, drawn with the haptic over the
+    `TabView`. It holds a toast while a popup is open (the tour's `popupPresenceChanged` count) and
+    never lets a success replace a pending failure. View models call `reportSaveFailure()`
+    ("Не вдалося зберегти зміни. Спробуйте ще раз.") instead of `try?`: Розклад's delete, plan
+    update / delete / move / cuts, "Записати", "Змінити послугу", "Скасувати запис",
+    "Перенести", the service reorder in both popups, the message template `save` (a failed one is
+    retried on the next exit from the step) and the cabinet currency. Fill month and quick add keep
+    their `AddedNotice`, which turns `.failed` when the follow-up window delete or plan cut fails.
+    Розклад's own "Додано…" toasts moved to `ToastCenter` too, so a success and a failure never
+    overlap; their haptic now plays when the popup closes, not on the tap.
+  - Rejected: per-popup `hasWriteFailed` flags read by `ScheduleView` (built first, replaced in
+    the same PR: one rule spread over four view models, the popup enum and the screen); surfacing
+    server rejections of fire-and-forget writes (completion handlers for a case the forms already
+    prevent). Silent on purpose: token refresh, `reloadUser`, the sign-out cache wipe, the
+    onboarding step `save`, the `monthlyStats` archive, decode `try?` in repositories.
+  - Verified: `xcodebuild` after each task.
 
 ## Screens (in order)
 
@@ -3204,8 +3231,8 @@ those items are referred to by name, so the list can grow without renumbering an
          4. Availability: phones are Polish or Ukrainian (`+48` / `+380`, `PhoneCountry`, Y-73) —
             limit the countries or say so in the description.
          5. Final device pass on iOS 18 and 26, light and dark, plus the beta masters' feedback.
-       - **Not blocking, pick up if the beta asks for it:** "Error handling pass over the whole
-         app". The missing translation is closed (Y-49); same-name
+       - **Not blocking, pick up if the beta asks for it:** ~~"Error handling pass over the whole
+         app"~~ — done as Y-79. The missing translation is closed (Y-49); same-name
          clients are done (Y-48); the sign-in button was already fixed by Y-42. Everything else in
          the backlog waits until after the release.
    13. ~~**Y-56 Day list does not scroll on a long day**~~ — **done** (under "Done").
@@ -3235,6 +3262,7 @@ those items are referred to by name, so the list can grow without renumbering an
        Console → App Check → APIs once the verified share is near 100% and builds from before
        Y-77 are no longer in use: they send no token, so they stop working the moment it is on.
        Before that, delete the simulator debug tokens used so far and register fresh ones.
+   30. ~~**Y-79 Error handling pass**~~ — **done** (under "Done").
 
 ## Backlog and tech debt (unordered)
 
@@ -3281,16 +3309,6 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   today). The pivot spec's layout A: the same lines as the M-35 text, 9:16, rendered with
   `ImageRenderer` at 1080×1920 in the app's fonts and colours, shared with `ShareLink`. Natural
   place: a third step or button in the "Надіслати графік" popup.
-
-- **Error handling pass over the whole app** (requested 2026-10-24, after M-36.2's review). Walk
-  every write and listener and decide, case by case, what the master sees when it fails — today
-  most failures are silent. Known spots: the slot writes in Розклад ("Записати", "Змінити
-  послугу", "Скасувати запис", "Перенести", delete) are `try?` — "Перенести" only skips its
-  message step on a thrown error (M-36.2), the others just close the popup; the fire-and-forget
-  writes (`data-layer.md`) never see a server rejection at all; `observeServices` swallows
-  listener errors and yields `[]`, so a permissions failure reads as "Поки що немає послуг" — the
-  fix is the `AsyncThrowingStream` switch `observeClients` already made. Agree one pattern (an alert, an inline line in the popup, or a shared
-  error banner) and apply it everywhere in one PR, rather than per screen.
 
 - **Editor for the texts sent to clients** (requested 2026-10-24, during M-36.2). The master's
   own wording of the messages the app copies for her — today the reschedule message ("Перенесла

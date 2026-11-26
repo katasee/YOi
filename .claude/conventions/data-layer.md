@@ -92,23 +92,27 @@
   without `merge`: the model is the whole document, and «Скинути» removes a language's key from
   `headers`/`footers` — a merge never deletes a map key it was not given, so the old text would
   stay on the server. A missing or undecodable document reads as `MessageTemplate()`.
-- Realtime data uses **async/await + `AsyncStream`** (`observeServices()`), not
-  Combine. Each Firestore `addSnapshotListener` callback yields the full current array for that
-  query; `continuation.onTermination` removes the listener. Listener errors are currently swallowed
-  (`{ snapshot, _ in ... }`) — if that needs to surface to the UI, switch to `AsyncThrowingStream`
-  rather than bolting an error side-channel onto `AsyncStream`. `observeClients()` already has:
-  a swallowed error yields `[]`, and an empty client base after a failed listener reads as lost
-  data. It builds the stream with `makeStream(of:bufferingPolicy: .bufferingNewest(1))` — every
-  snapshot is the full list, so only the latest one matters — and `FakeClientRepository` keeps its
-  state in a `Mutex` so `onTermination` can drop a finished continuation without a data race.
+- Realtime data uses **async/await + `AsyncThrowingStream`**, not Combine. Each Firestore
+  `addSnapshotListener` callback yields the full current array for that query;
+  `continuation.onTermination` removes the listener. **A failed listener is never shown as empty
+  data** (Y-79): a swallowed error yields `[]`, and an empty client base or day after a failed
+  listener reads as lost data. Every consumer catches the error, clears what it owned (a listener
+  can fail after a good snapshot, when access is revoked mid-session) and shows its screen's
+  load-failed state — `hasFailed` with `ListStatusOverlay`'s "loadFailed" keys in Мої послуги,
+  Мої плани and Клієнтки, a "loadFailed" card in Статистика. Розклад counts a failure of **any** of
+  its six listeners as a schedule failure and shows no day at all: a day without its plans invites
+  a double booking. Each listener there owns one entry of a `Set`, so a listener that re-attaches
+  on a tab return clears only its own failure. `observeClients()` builds the stream with
+  `makeStream(of:bufferingPolicy: .bufferingNewest(1))` — every snapshot is the full list, so
+  only the latest one matters — and `FakeClientRepository` keeps its state in a `Mutex` so
+  `onTermination` can drop a finished continuation without a data race.
   `observeClient(id:)` (M-32.5) listens to one document and yields `nil` when it does not exist
   (`try? snapshot.data(as:)`). Every throwing stream goes through
   `AsyncThrowingStream.listening(_:read:)` (`Services/Firestore/AsyncThrowingStream+Listener.swift`,
   moved out of `FirestoreClientRepository` in M-33.2 when `slots` became the second user): the
   caller says what to listen to and how to read a snapshot, the helper owns the stream, the error
   and `onTermination`. The fakes keep their own observer dictionary (`observe(_:)` in
-  `FakeClientRepository`). `observeServices` stays as it is (`observeBlocks` went with `Block` in
-  M-38).
+  `FakeClientRepository`).
 - **A listener reads its whole result again** whenever it re-attaches more than ~30 minutes after
   the last one, and a tab's `.task` re-attaches on every return to the tab. So a collection that
   only grows (`slots`, and `events` since M-37.4) is queried with a lower bound

@@ -6,9 +6,15 @@ import Observation
 final class CurrencySetting {
     private(set) var currency: Currency
     private let repository: CurrencyRepository
+    private let toastCenter: ToastCenter
 
-    init(currency: Currency, repository: CurrencyRepository = FirestoreCurrencyRepository()) {
+    init(
+        currency: Currency,
+        toastCenter: ToastCenter,
+        repository: CurrencyRepository = FirestoreCurrencyRepository()
+    ) {
         self.currency = currency
+        self.toastCenter = toastCenter
         self.repository = repository
     }
 
@@ -16,6 +22,10 @@ final class CurrencySetting {
         guard currency != self.currency else { return }
 
         self.currency = currency
-        try? repository.save(currency)
+        do {
+            try repository.save(currency)
+        } catch {
+            toastCenter.reportSaveFailure()
+        }
     }
 }

@@ -104,8 +104,20 @@
   Y-54): a `ToastMessage` (text + `.success`/`.failure`, whose style also picks the haptic) shown
   at the top of the screen for 2 s, touches passing through. The popup only reports what happened
   (`AddedNotice` in Розклад, built by the view model that did the write, never by the view); the
-  screen parks it in a pending state and shows the toast from `onDismiss`, so it appears over the
-  screen once the popup is gone. A failed write shows a failure toast — never a success one.
+  screen hands it to `ToastCenter`. A failed write shows a failure toast — never a success one.
+  **Every toast goes through one `ToastCenter`** (`Assets/UICommons/`, Y-79), owned by
+  `MasterRootView` like `OnboardingTour`, given to view models through `init` and to views through
+  the environment; the root draws it with `.toast(_:)` over the `TabView` and plays the haptic. It
+  holds a toast while any popup is open (counted through `popupPresenceChanged`, as the tour
+  does), so the toast appears once the cover is gone, and a pending failure is never replaced by a
+  success. A user-initiated write that throws calls `reportSaveFailure()`
+  (`ToastMessage.saveFailed`) from the view model that did the write — no `try?` on a write the
+  master started, and no per-popup failure flags: they spread one rule over every popup. A write
+  whose result is an `AddedNotice` reports through the notice instead (a failed follow-up write
+  turns it into `.failed`), so one action never shows two toasts. Silent on purpose, because a
+  retry happens by itself or the master cannot act on it: token refresh, `reloadUser`, the
+  sign-out cache wipe, the onboarding step `save`, the `monthlyStats` archive, decode `try?` inside
+  repositories. Server rejections of fire-and-forget writes stay invisible (`data-layer.md`).
 - **The routers are a system `TabView`** (`Tab(_:systemImage:value:)` over `MasterTab`),
   which renders Liquid Glass on iOS 26 and the standard bar on 18 from the same code, with no
   `#available`. It owns the bottom safe area, including inside a screen's own `NavigationStack`, so

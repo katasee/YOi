@@ -27,7 +27,9 @@ struct MasterRootView: View {
         _toastCenter = State(initialValue: toastCenter)
         _scheduleViewModel = State(initialValue: ScheduleViewModel(toastCenter: toastCenter))
         _tour = State(initialValue: OnboardingTour(step: profile.tourStep))
-        _currencySetting = State(initialValue: CurrencySetting(currency: profile.selectedCurrency))
+        _currencySetting = State(
+            initialValue: CurrencySetting(currency: profile.selectedCurrency, toastCenter: toastCenter)
+        )
     }
 
     var body: some View {

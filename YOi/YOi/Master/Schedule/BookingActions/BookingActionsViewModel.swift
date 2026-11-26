@@ -15,6 +15,7 @@ final class BookingActionsViewModel: Identifiable {
     let id = UUID()
 
     private(set) var mode = BookingActionsMode.actions
+    private(set) var hasWriteFailed = false
     private var rescheduleChoice: RescheduleChoice
     private var serviceChoice: ServiceChoice
 
@@ -105,7 +106,11 @@ final class BookingActionsViewModel: Identifiable {
     }
 
     func commitServiceOrder() {
-        try? serviceRepository.reorder(ids: serviceChoice.orderedIds)
+        do {
+            try serviceRepository.reorder(ids: serviceChoice.orderedIds)
+        } catch {
+            hasWriteFailed = true
+        }
     }
 
     func makeNewServiceForm() -> ServiceFormViewModel {
@@ -122,7 +127,11 @@ final class BookingActionsViewModel: Identifiable {
 
         let booking = SlotBooking(clientId: clientId, service: serviceChoice.selectedService)
 
-        try? slotRepository.book(slotId: slotId, booking)
+        do {
+            try slotRepository.book(slotId: slotId, booking)
+        } catch {
+            hasWriteFailed = true
+        }
     }
 
     var rescheduleDay: Date {
@@ -212,6 +221,7 @@ final class BookingActionsViewModel: Identifiable {
                 time: target.time
             )
         } catch {
+            hasWriteFailed = true
             return nil
         }
 
@@ -233,7 +243,11 @@ final class BookingActionsViewModel: Identifiable {
     func cancelBooking() {
         guard let slotId = slot.id else { return }
 
-        try? slotRepository.clearBooking(slotId: slotId)
+        do {
+            try slotRepository.clearBooking(slotId: slotId)
+        } catch {
+            hasWriteFailed = true
+        }
     }
 
     private var clientName: String {

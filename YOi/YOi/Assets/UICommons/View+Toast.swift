@@ -17,6 +17,12 @@ struct ToastMessage: Equatable {
     let style: Style
 }
 
+extension ToastMessage {
+    static var saveFailed: ToastMessage {
+        ToastMessage(text: String(localized: "common.failure.save"), style: .failure)
+    }
+}
+
 private struct ToastLabel: View {
     let message: ToastMessage
 

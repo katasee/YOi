@@ -4,6 +4,7 @@ import Observation
 @MainActor
 @Observable
 final class ClientBookingChoice {
+    private(set) var hasWriteFailed = false
     private var picker = ClientPicker()
     private var clients: [Client]
     private var serviceChoice: ServiceChoice
@@ -57,7 +58,11 @@ final class ClientBookingChoice {
     }
 
     func commitServiceOrder() {
-        try? serviceRepository.reorder(ids: serviceChoice.orderedIds)
+        do {
+            try serviceRepository.reorder(ids: serviceChoice.orderedIds)
+        } catch {
+            hasWriteFailed = true
+        }
     }
 
     func makeNewClientForm() -> ClientFormViewModel {

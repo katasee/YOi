@@ -20,6 +20,17 @@ private enum SchedulePopup: Identifiable {
         case .quickAdd(let viewModel, _): viewModel.id
         }
     }
+
+    @MainActor
+    var hasWriteFailed: Bool {
+        switch self {
+        case .sendSchedule(let viewModel): viewModel.hasWriteFailed
+        case .bookClient(let viewModel): viewModel.hasWriteFailed
+        case .bookingActions(let viewModel): viewModel.hasWriteFailed
+        case .quickAdd(let viewModel, _): viewModel.choice.hasWriteFailed
+        case .fillMonth, .jumpToDate, .planActions: false
+        }
+    }
 }
 
 struct ScheduleView: View {
@@ -30,6 +41,7 @@ struct ScheduleView: View {
     @State private var pendingCardClientId: String?
     @State private var pendingDayId: String?
     @State private var pendingNotice: AddedNotice?
+    @State private var pendingToast: ToastMessage?
     @State private var toast: ToastMessage?
     @State private var openCardClientId: String?
     @State private var pendingDelete: SlotItem?
@@ -157,20 +169,18 @@ struct ScheduleView: View {
                 viewModel: bookingActions,
                 onOpenCard: { pendingCardClientId = $0 },
                 onRescheduled: { pendingDayId = $0 },
-                onCutPlans: viewModel.cutPlans,
+                onCutPlans: cutPlans,
                 onDismiss: closePopup
             )
         case .planActions(let planActions):
             PlanActionsPopup(
                 viewModel: planActions,
                 onUpdate: { plan in
-                    viewModel.updatePlan(plan)
-                    pendingDayId = plan.date
+                    note(viewModel.updatePlan(plan), dayId: plan.date)
                 },
-                onDelete: viewModel.deletePlan(id:),
+                onDelete: { note(viewModel.deletePlan(id: $0)) },
                 onReplace: { windowIds, plan in
-                    viewModel.replaceWindows(windowIds, moving: plan)
-                    pendingDayId = plan.date
+                    note(viewModel.replaceWindows(windowIds, moving: plan), dayId: plan.date)
                 },
                 onDismiss: closePopup
             )
@@ -347,6 +357,10 @@ struct ScheduleView: View {
     }
 
     private func closePopup() {
+        if popup?.hasWriteFailed == true {
+            noteFailed()
+        }
+
         withoutPresentationAnimation {
             popup = nil
         }
@@ -370,7 +384,36 @@ struct ScheduleView: View {
 
             toast = pendingNotice.toast
             self.pendingNotice = nil
+        } else if let pendingToast {
+            toast = pendingToast
         }
+
+        pendingToast = nil
+    }
+
+    private func note(_ succeeded: Bool, dayId: String? = nil) {
+        guard succeeded else {
+            noteFailed()
+            return
+        }
+
+        if let dayId {
+            pendingDayId = dayId
+        }
+    }
+
+    private func noteFailed() {
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+
+        if popup == nil {
+            toast = .saveFailed
+        } else {
+            pendingToast = .saveFailed
+        }
+    }
+
+    private func cutPlans(_ replacement: WindowReplacement) {
+        note(viewModel.cutPlans(replacement))
     }
 
     private func noteAdded(_ notice: AddedNotice?) {
@@ -391,10 +434,10 @@ struct ScheduleView: View {
     }
 
     private func delete(_ item: SlotItem) {
-        viewModel.delete(id: item.id)
+        note(viewModel.delete(id: item.id))
     }
 
     private func deletePlan(_ item: PlanItem) {
-        viewModel.deletePlan(id: item.id)
+        note(viewModel.deletePlan(id: item.id))
     }
 }

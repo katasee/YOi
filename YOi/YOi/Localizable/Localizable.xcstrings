@@ -1603,6 +1603,22 @@
         }
       }
     },
+    "common.failure.save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the changes. Try again."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося зберегти зміни. Спробуйте ще раз."
+          }
+        }
+      }
+    },
     "myBookings.cancel.confirm" : {
       "extractionState" : "stale",
       "localizations" : {

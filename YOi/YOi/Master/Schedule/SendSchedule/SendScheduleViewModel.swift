@@ -14,6 +14,7 @@ final class SendScheduleViewModel: Identifiable {
     let id = UUID()
 
     private(set) var mode = SendScheduleMode.text
+    private(set) var hasWriteFailed = false
     private(set) var text: String?
     private(set) var template: MessageTemplate
     private var storedTemplate: MessageTemplate
@@ -172,8 +173,12 @@ final class SendScheduleViewModel: Identifiable {
     private func save() {
         guard template != storedTemplate else { return }
 
-        try? repository.save(template)
-        storedTemplate = template
+        do {
+            try repository.save(template)
+            storedTemplate = template
+        } catch {
+            hasWriteFailed = true
+        }
     }
 
     private func updateText() {

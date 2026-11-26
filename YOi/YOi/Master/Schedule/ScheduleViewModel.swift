@@ -85,43 +85,53 @@ final class ScheduleViewModel {
     func replaceWindows(_ windowIds: [String], with newPlans: [PlanEvent]) -> AddedNotice? {
         let notice = addPlans(newPlans)
 
-        if notice?.isSaved == true {
-            deleteWindows(windowIds)
-        }
+        guard let notice, notice.isSaved else { return notice }
 
-        return notice
+        return deleteWindows(windowIds) ? notice : AddedNotice(kind: notice.kind, outcome: .failed)
     }
 
     func applyingCuts(_ replacement: WindowReplacement, to notice: AddedNotice?) -> AddedNotice? {
-        if notice?.isSaved == true {
-            cutPlans(replacement)
+        guard let notice, notice.isSaved else { return notice }
+
+        return cutPlans(replacement) ? notice : AddedNotice(kind: notice.kind, outcome: .failed)
+    }
+
+    func cutPlans(_ replacement: WindowReplacement) -> Bool {
+        var succeeded = true
+
+        for plan in replacement.trimmedPlans where updatePlan(plan) == false {
+            succeeded = false
         }
 
-        return notice
-    }
-
-    func cutPlans(_ replacement: WindowReplacement) {
-        for plan in replacement.trimmedPlans {
-            updatePlan(plan)
+        for id in replacement.deletedPlanIds where deletePlan(id: id) == false {
+            succeeded = false
         }
 
-        for id in replacement.deletedPlanIds {
-            deletePlan(id: id)
+        return succeeded
+    }
+
+    func updatePlan(_ plan: PlanEvent) -> Bool {
+        do {
+            try eventRepository.update(plan)
+            return true
+        } catch {
+            return false
         }
     }
 
-    func updatePlan(_ plan: PlanEvent) {
-        try? eventRepository.update(plan)
+    func replaceWindows(_ windowIds: [String], moving plan: PlanEvent) -> Bool {
+        guard updatePlan(plan) else { return false }
+
+        return deleteWindows(windowIds)
     }
 
-    func replaceWindows(_ windowIds: [String], moving plan: PlanEvent) {
-        guard (try? eventRepository.update(plan)) != nil else { return }
-
-        deleteWindows(windowIds)
-    }
-
-    func deletePlan(id: String) {
-        try? eventRepository.delete(id: id)
+    func deletePlan(id: String) -> Bool {
+        do {
+            try eventRepository.delete(id: id)
+            return true
+        } catch {
+            return false
+        }
     }
 
     func observeSlots() async {
@@ -251,14 +261,23 @@ final class ScheduleViewModel {
         return steps
     }
 
-    func delete(id: String) {
-        try? slotRepository.delete(id: id)
+    func delete(id: String) -> Bool {
+        do {
+            try slotRepository.delete(id: id)
+            return true
+        } catch {
+            return false
+        }
     }
 
-    private func deleteWindows(_ ids: [String]) {
-        for id in ids {
-            delete(id: id)
+    private func deleteWindows(_ ids: [String]) -> Bool {
+        var succeeded = true
+
+        for id in ids where delete(id: id) == false {
+            succeeded = false
         }
+
+        return succeeded
     }
 
     func makeFillMonthViewModel(now: Date = .now) -> FillMonthViewModel {

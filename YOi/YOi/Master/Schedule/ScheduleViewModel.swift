@@ -4,10 +4,14 @@ import Observation
 @MainActor
 @Observable
 final class ScheduleViewModel {
+    private enum Listener {
+        case slots, plans, templates, clients, services, messageTemplate
+    }
+
     var selectedDate = Date.now
 
     private(set) var hasLoaded = false
-    private(set) var hasFailed = false
+    private var failedListeners: Set<Listener> = []
     private var slots: [Slot] = []
     private var directory = ClientDirectory(clients: [], isLoaded: false)
     private var services: [Service] = []
@@ -24,6 +28,10 @@ final class ScheduleViewModel {
 
     var monthTitle: String {
         DateFormat.monthYear.string(from: selectedDate).capitalized
+    }
+
+    var hasFailed: Bool {
+        failedListeners.isEmpty == false
     }
 
     var areSlotsReady: Bool {
@@ -51,7 +59,9 @@ final class ScheduleViewModel {
     }
 
     func items(now: Date, currency: Currency) -> [ScheduleItem] {
-        ScheduleDayItems.make(
+        guard hasFailed == false else { return [] }
+
+        return ScheduleDayItems.make(
             day: selectedDayId,
             slots: slots,
             plans: plans,
@@ -115,7 +125,7 @@ final class ScheduleViewModel {
     }
 
     func observeSlots() async {
-        hasFailed = false
+        failedListeners.remove(.slots)
 
         do {
             for try await updatedSlots in slotRepository.observeSlots() {
@@ -124,56 +134,73 @@ final class ScheduleViewModel {
             }
         } catch {
             slots = []
-            hasFailed = true
+            failedListeners.insert(.slots)
             hasLoaded = true
         }
     }
 
     func observePlans() async {
+        failedListeners.remove(.plans)
+
         do {
             for try await updatedPlans in eventRepository.observeEvents() {
                 plans = updatedPlans
             }
         } catch {
             plans = []
+            failedListeners.insert(.plans)
         }
     }
 
     func observeTemplates() async {
+        failedListeners.remove(.templates)
+
         do {
             for try await updatedTemplates in templateRepository.observeTemplates() {
                 templates = updatedTemplates
             }
         } catch {
             templates = []
+            failedListeners.insert(.templates)
         }
     }
 
     func observeClients() async {
+        failedListeners.remove(.clients)
+
         do {
             for try await clients in clientRepository.observeClients() {
                 directory = ClientDirectory(clients: clients, isLoaded: true)
             }
         } catch {
             directory = ClientDirectory(clients: [], isLoaded: false)
+            failedListeners.insert(.clients)
         }
     }
 
     func observeMessageTemplate() async {
+        failedListeners.remove(.messageTemplate)
+
         do {
             for try await template in messageTemplateRepository.observe() {
                 messageTemplate = template
             }
-        } catch {}
+        } catch {
+            messageTemplate = MessageTemplate()
+            failedListeners.insert(.messageTemplate)
+        }
     }
 
     func observeServices() async {
+        failedListeners.remove(.services)
+
         do {
             for try await updatedServices in serviceRepository.observeServices() {
                 services = updatedServices
             }
         } catch {
             services = []
+            failedListeners.insert(.services)
         }
     }
 

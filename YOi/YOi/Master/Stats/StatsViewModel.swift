@@ -9,6 +9,12 @@ final class StatsViewModel {
     private var totals: MonthlyTotals?
     private(set) var monthTitle: String
     private(set) var hasLoaded = false
+    private var slotsFailed = false
+    private var summariesFailed = false
+
+    var hasFailed: Bool {
+        slotsFailed || summariesFailed
+    }
 
     private let slotRepository: SlotRepository
     private let summaryRepository: MonthlySummaryRepository
@@ -61,17 +67,23 @@ final class StatsViewModel {
     }
 
     func observeSlots() async {
+        slotsFailed = false
+
         do {
             for try await updatedSlots in slotRepository.observeSlots() {
                 slots = updatedSlots
                 hasLoaded = true
             }
         } catch {
+            slots = []
+            slotsFailed = true
             hasLoaded = true
         }
     }
 
     func observeSummaries() async {
+        summariesFailed = false
+
         do {
             for try await updatedSummaries in summaryRepository.observeSummaries() {
                 oldestStoredMonth = updatedSummaries
@@ -84,7 +96,10 @@ final class StatsViewModel {
                     byId[id] = summary
                 }
             }
-        } catch {}
+        } catch {
+            summaries = [:]
+            summariesFailed = true
+        }
     }
 
     func syncMonthArchive() async {

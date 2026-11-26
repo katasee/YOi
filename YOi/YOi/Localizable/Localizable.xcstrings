@@ -3364,13 +3364,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't load windows"
+            "value" : "Couldn't load the schedule"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Не вдалося завантажити вікна"
+            "value" : "Не вдалося завантажити розклад"
           }
         }
       }
@@ -4554,6 +4554,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Візити"
+          }
+        }
+      }
+    },
+    "stats.loadFailed.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and come back to this tab."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перевірте з'єднання й поверніться на цю вкладку."
+          }
+        }
+      }
+    },
+    "stats.loadFailed.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load statistics"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося завантажити статистику"
           }
         }
       }

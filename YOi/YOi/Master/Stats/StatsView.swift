@@ -95,7 +95,17 @@ struct StatsView: View {
     private var scrollContent: some View {
         ScrollView {
             VStack(spacing: StatsMetrics.Spacing.cardSpacing) {
-                if let stats = viewModel.stats(currency: currency) {
+                if viewModel.hasFailed {
+                    ContentUnavailableView {
+                        Text("stats.loadFailed.title")
+                            .font(.elmsSans(.bold, 18))
+                            .foregroundStyle(Color.ink)
+                    } description: {
+                        Text("stats.loadFailed.message")
+                            .font(.elmsSans(.regular, 14))
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                } else if let stats = viewModel.stats(currency: currency) {
                     MonthStatsCards(stats: stats)
                 } else {
                     ContentUnavailableView {

@@ -3,18 +3,22 @@ import Foundation
 #if DEBUG
 final class FakeServiceRepository: ServiceRepository {
     private var services: [Service]
-    private var continuations: [UUID: AsyncStream<[Service]>.Continuation] = [:]
+    private var continuations: [UUID: AsyncThrowingStream<[Service], Error>.Continuation] = [:]
 
     init(services: [Service] = []) {
         self.services = services
     }
 
-    func observeServices() -> AsyncStream<[Service]> {
-        AsyncStream { continuation in
-            let id = UUID()
-            continuations[id] = continuation
-            continuation.yield(services)
-        }
+    func observeServices() -> AsyncThrowingStream<[Service], Error> {
+        let (stream, continuation) = AsyncThrowingStream.makeStream(
+            of: [Service].self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        continuations[UUID()] = continuation
+        continuation.yield(services)
+
+        return stream
     }
 
     func add(_ service: Service) async throws -> String {

@@ -3251,13 +3251,6 @@ numbering drifts every time an item is added or closed (it already did once: PR9
   months, picks clients, switches steps and edits the template; template editing (header,
   footer, style, language, `save()`) could move to its own type. Not blocking anything.
 
-- **Week swipe on a long day** (found in Y-56, 2026-11-08). When the day list overflows, a
-  horizontal swipe in the gaps between rows rarely turns the week: the `ScrollView`'s pan takes
-  the slightly diagonal drag before `.weekSwipe`. A short day is fine (`.scrollBounceBehavior(.basedOnSize)`).
-  Likely fix: move `.weekSwipe` onto the same horizontal-only pan as `SwipeToDelete`, which makes
-  `HorizontalPan` a shared `Assets/UICommons/` component; recheck that a row swipe still does not
-  turn the week.
-
 - ~~**Gender-neutral wording for the master**~~ — **done as Y-44** (under "Done").
 
 - ~~**Sign-in / sign-up button reacts only on its text**~~ — **closed by Y-42** (checked in code

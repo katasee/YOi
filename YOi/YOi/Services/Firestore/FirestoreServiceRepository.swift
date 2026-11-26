@@ -3,18 +3,9 @@ import FirebaseFirestore
 final class FirestoreServiceRepository: ServiceRepository {
     private var db: Firestore { Firestore.firestore() }
 
-    func observeServices() -> AsyncStream<[Service]> {
-        AsyncStream { continuation in
-            guard let services = try? db.userCollection("services") else {
-                continuation.finish()
-                return
-            }
-
-            let listener = services.addSnapshotListener { snapshot, _ in
-                let services = snapshot?.documents.compactMap { try? $0.data(as: Service.self) } ?? []
-                continuation.yield(services)
-            }
-            continuation.onTermination = { _ in listener.remove() }
+    func observeServices() -> AsyncThrowingStream<[Service], Error> {
+        .listening { try db.userCollection("services").addSnapshotListener($0) } read: { snapshot in
+            snapshot.documents.compactMap { try? $0.data(as: Service.self) }
         }
     }
 

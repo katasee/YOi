@@ -168,8 +168,12 @@ final class ScheduleViewModel {
     }
 
     func observeServices() async {
-        for await updatedServices in serviceRepository.observeServices() {
-            services = updatedServices
+        do {
+            for try await updatedServices in serviceRepository.observeServices() {
+                services = updatedServices
+            }
+        } catch {
+            services = []
         }
     }
 

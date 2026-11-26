@@ -6,6 +6,7 @@ import Observation
 final class MyServicesViewModel {
     private(set) var services: [Service] = []
     private(set) var hasLoaded = false
+    private(set) var hasFailed = false
     private(set) var failure: ServicesFailure?
 
     var hasFailure: Bool {
@@ -27,14 +28,22 @@ final class MyServicesViewModel {
     }
 
     func observeServices() async {
-        for await updatedServices in serviceRepository.observeServices() {
-            let sorted = updatedServices.sortedByOrder()
+        hasFailed = false
 
-            if isReordering {
-                deferred = sorted
-            } else {
-                services = sorted
+        do {
+            for try await updatedServices in serviceRepository.observeServices() {
+                let sorted = updatedServices.sortedByOrder()
+
+                if isReordering {
+                    deferred = sorted
+                } else {
+                    services = sorted
+                }
+                hasLoaded = true
             }
+        } catch {
+            services = []
+            hasFailed = true
             hasLoaded = true
         }
     }

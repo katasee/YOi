@@ -1,5 +1,5 @@
 protocol ServiceRepository {
-    func observeServices() -> AsyncStream<[Service]>
+    func observeServices() -> AsyncThrowingStream<[Service], Error>
     @discardableResult
     func add(_ service: Service) async throws -> String
     func update(_ service: Service) async throws

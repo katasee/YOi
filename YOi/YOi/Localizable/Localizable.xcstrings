@@ -4398,6 +4398,38 @@
         }
       }
     },
+    "services.loadFailed.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and open this screen again."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перевірте з'єднання й відкрийте екран ще раз."
+          }
+        }
+      }
+    },
+    "services.loadFailed.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load your services"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося завантажити послуги"
+          }
+        }
+      }
+    },
     "services.section.all" : {
       "localizations" : {
         "en" : {

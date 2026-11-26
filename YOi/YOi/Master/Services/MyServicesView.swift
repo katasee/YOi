@@ -116,10 +116,18 @@ struct MyServicesView: View {
             ListStatusOverlay(
                 hasLoaded: viewModel.hasLoaded,
                 isEmpty: viewModel.services.isEmpty,
-                titleKey: "services.empty.title",
-                messageKey: "services.empty.message"
+                titleKey: emptyTitleKey,
+                messageKey: emptyMessageKey
             )
         }
+    }
+
+    private var emptyTitleKey: LocalizedStringKey {
+        viewModel.hasFailed ? "services.loadFailed.title" : "services.empty.title"
+    }
+
+    private var emptyMessageKey: LocalizedStringKey {
+        viewModel.hasFailed ? "services.loadFailed.message" : "services.empty.message"
     }
 
     private func delete(_ service: Service) {

@@ -25,6 +25,7 @@ final class ScheduleViewModel {
     private let templateRepository: EventTemplateRepository
     private let eventRepository: EventRepository
     private let messageTemplateRepository: MessageTemplateRepository
+    private let toastCenter: ToastCenter
 
     var monthTitle: String {
         DateFormat.monthYear.string(from: selectedDate).capitalized
@@ -43,6 +44,7 @@ final class ScheduleViewModel {
     }
 
     init(
+        toastCenter: ToastCenter,
         slotRepository: SlotRepository = FirestoreSlotRepository(),
         clientRepository: ClientRepository = FirestoreClientRepository(),
         serviceRepository: ServiceRepository = FirestoreServiceRepository(),
@@ -56,6 +58,7 @@ final class ScheduleViewModel {
         self.templateRepository = templateRepository
         self.eventRepository = eventRepository
         self.messageTemplateRepository = messageTemplateRepository
+        self.toastCenter = toastCenter
     }
 
     func items(now: Date, currency: Currency) -> [ScheduleItem] {
@@ -87,50 +90,58 @@ final class ScheduleViewModel {
 
         guard let notice, notice.isSaved else { return notice }
 
-        return deleteWindows(windowIds) ? notice : AddedNotice(kind: notice.kind, outcome: .failed)
+        return saved(notice) { try deleteWindows(windowIds) }
     }
 
     func applyingCuts(_ replacement: WindowReplacement, to notice: AddedNotice?) -> AddedNotice? {
         guard let notice, notice.isSaved else { return notice }
 
-        return cutPlans(replacement) ? notice : AddedNotice(kind: notice.kind, outcome: .failed)
+        return saved(notice) { try cut(replacement) }
     }
 
-    func cutPlans(_ replacement: WindowReplacement) -> Bool {
-        var succeeded = true
-
-        for plan in replacement.trimmedPlans where updatePlan(plan) == false {
-            succeeded = false
-        }
-
-        for id in replacement.deletedPlanIds where deletePlan(id: id) == false {
-            succeeded = false
-        }
-
-        return succeeded
+    func cutPlans(_ replacement: WindowReplacement) {
+        reportingFailure { try cut(replacement) }
     }
 
-    func updatePlan(_ plan: PlanEvent) -> Bool {
-        do {
+    func updatePlan(_ plan: PlanEvent) {
+        reportingFailure { try eventRepository.update(plan) }
+    }
+
+    func replaceWindows(_ windowIds: [String], moving plan: PlanEvent) {
+        reportingFailure {
             try eventRepository.update(plan)
-            return true
-        } catch {
-            return false
+            try deleteWindows(windowIds)
         }
     }
 
-    func replaceWindows(_ windowIds: [String], moving plan: PlanEvent) -> Bool {
-        guard updatePlan(plan) else { return false }
-
-        return deleteWindows(windowIds)
+    func deletePlan(id: String) {
+        reportingFailure { try eventRepository.delete(id: id) }
     }
 
-    func deletePlan(id: String) -> Bool {
-        do {
+    private func cut(_ replacement: WindowReplacement) throws {
+        for plan in replacement.trimmedPlans {
+            try eventRepository.update(plan)
+        }
+
+        for id in replacement.deletedPlanIds {
             try eventRepository.delete(id: id)
-            return true
+        }
+    }
+
+    private func saved(_ notice: AddedNotice, after write: () throws -> Void) -> AddedNotice {
+        do {
+            try write()
+            return notice
         } catch {
-            return false
+            return AddedNotice(kind: notice.kind, outcome: .failed)
+        }
+    }
+
+    private func reportingFailure(of write: () throws -> Void) {
+        do {
+            try write()
+        } catch {
+            toastCenter.reportSaveFailure()
         }
     }
 
@@ -261,23 +272,14 @@ final class ScheduleViewModel {
         return steps
     }
 
-    func delete(id: String) -> Bool {
-        do {
-            try slotRepository.delete(id: id)
-            return true
-        } catch {
-            return false
-        }
+    func delete(id: String) {
+        reportingFailure { try slotRepository.delete(id: id) }
     }
 
-    private func deleteWindows(_ ids: [String]) -> Bool {
-        var succeeded = true
-
-        for id in ids where delete(id: id) == false {
-            succeeded = false
+    private func deleteWindows(_ ids: [String]) throws {
+        for id in ids {
+            try slotRepository.delete(id: id)
         }
-
-        return succeeded
     }
 
     func makeFillMonthViewModel(now: Date = .now) -> FillMonthViewModel {
@@ -316,7 +318,8 @@ final class ScheduleViewModel {
             now: now,
             slotRepository: slotRepository,
             clientRepository: clientRepository,
-            serviceRepository: serviceRepository
+            serviceRepository: serviceRepository,
+            toastCenter: toastCenter
         )
     }
 
@@ -343,7 +346,8 @@ final class ScheduleViewModel {
             services: services,
             slotRepository: slotRepository,
             clientRepository: clientRepository,
-            serviceRepository: serviceRepository
+            serviceRepository: serviceRepository,
+            toastCenter: toastCenter
         )
     }
 
@@ -362,7 +366,8 @@ final class ScheduleViewModel {
             plans: plans,
             now: now,
             slotRepository: slotRepository,
-            serviceRepository: serviceRepository
+            serviceRepository: serviceRepository,
+            toastCenter: toastCenter
         )
     }
 
@@ -398,6 +403,7 @@ final class ScheduleViewModel {
             slots: slots,
             clients: directory.clients,
             now: now,
+            toastCenter: toastCenter,
             template: messageTemplate,
             repository: messageTemplateRepository
         )

@@ -7,9 +7,9 @@ final class BookClientViewModel: Identifiable {
     let id = UUID()
     let choice: ClientBookingChoice
 
-    private var hasBookingFailed = false
     private let slot: Slot
     private let slotRepository: SlotRepository
+    private let toastCenter: ToastCenter
 
     init(
         slot: Slot,
@@ -17,24 +17,23 @@ final class BookClientViewModel: Identifiable {
         services: [Service],
         slotRepository: SlotRepository,
         clientRepository: ClientRepository,
-        serviceRepository: ServiceRepository
+        serviceRepository: ServiceRepository,
+        toastCenter: ToastCenter
     ) {
         self.slot = slot
         choice = ClientBookingChoice(
             clients: clients,
             services: services,
             clientRepository: clientRepository,
-            serviceRepository: serviceRepository
+            serviceRepository: serviceRepository,
+            toastCenter: toastCenter
         )
         self.slotRepository = slotRepository
+        self.toastCenter = toastCenter
     }
 
     var subtitle: String {
         SlotWhen.text(for: slot)
-    }
-
-    var hasWriteFailed: Bool {
-        hasBookingFailed || choice.hasWriteFailed
     }
 
     var canBook: Bool {
@@ -49,7 +48,7 @@ final class BookClientViewModel: Identifiable {
         do {
             try slotRepository.book(slotId: slotId, booking)
         } catch {
-            hasBookingFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 }

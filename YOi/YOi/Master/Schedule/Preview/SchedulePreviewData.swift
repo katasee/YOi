@@ -95,7 +95,8 @@ enum SchedulePreviewData {
             services: ServicesPreviewData.services,
             slotRepository: FakeSlotRepository(slots: slots),
             clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients),
-            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services),
+            toastCenter: ToastCenter()
         )
 
         viewModel.choice.searchText = "о"
@@ -115,7 +116,8 @@ enum SchedulePreviewData {
             plans: plans,
             now: .now,
             slotRepository: FakeSlotRepository(slots: slots),
-            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services),
+            toastCenter: ToastCenter()
         )
 
         viewModel.addCustomRescheduleTime(ClockTime(minutesOfDay: 13 * 60 + 30))
@@ -173,7 +175,8 @@ enum SchedulePreviewData {
             now: noon,
             slotRepository: FakeSlotRepository(slots: slots),
             clientRepository: FakeClientRepository(clients: ClientsPreviewData.clients),
-            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services)
+            serviceRepository: FakeServiceRepository(services: ServicesPreviewData.services),
+            toastCenter: ToastCenter()
         )
 
         viewModel.time = ClockTime(minutesOfDay: 11 * 60)
@@ -255,6 +258,7 @@ enum SchedulePreviewData {
             slots: sendScheduleSlots,
             clients: ClientsPreviewData.clients,
             now: monthStart,
+            toastCenter: ToastCenter(),
             repository: FakeMessageTemplateRepository()
         )
     }

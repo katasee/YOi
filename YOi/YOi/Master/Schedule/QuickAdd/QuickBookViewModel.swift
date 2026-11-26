@@ -25,7 +25,8 @@ final class QuickBookViewModel: Identifiable {
         now: Date,
         slotRepository: SlotRepository,
         clientRepository: ClientRepository,
-        serviceRepository: ServiceRepository
+        serviceRepository: ServiceRepository,
+        toastCenter: ToastCenter
     ) {
         self.day = day
         dayId = DateFormat.date.string(from: day)
@@ -41,7 +42,8 @@ final class QuickBookViewModel: Identifiable {
             clients: clients,
             services: services,
             clientRepository: clientRepository,
-            serviceRepository: serviceRepository
+            serviceRepository: serviceRepository,
+            toastCenter: toastCenter
         )
     }
 

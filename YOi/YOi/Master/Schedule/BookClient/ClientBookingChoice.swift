@@ -4,24 +4,26 @@ import Observation
 @MainActor
 @Observable
 final class ClientBookingChoice {
-    private(set) var hasWriteFailed = false
     private var picker = ClientPicker()
     private var clients: [Client]
     private var serviceChoice: ServiceChoice
 
     private let clientRepository: ClientRepository
     private let serviceRepository: ServiceRepository
+    private let toastCenter: ToastCenter
 
     init(
         clients: [Client],
         services: [Service],
         clientRepository: ClientRepository,
-        serviceRepository: ServiceRepository
+        serviceRepository: ServiceRepository,
+        toastCenter: ToastCenter
     ) {
         self.clients = clients
         serviceChoice = ServiceChoice(services: services)
         self.clientRepository = clientRepository
         self.serviceRepository = serviceRepository
+        self.toastCenter = toastCenter
     }
 
     var searchText: String {
@@ -61,7 +63,7 @@ final class ClientBookingChoice {
         do {
             try serviceRepository.reorder(ids: serviceChoice.orderedIds)
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 

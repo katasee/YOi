@@ -6,7 +6,8 @@ struct MasterRootView: View {
     let onAccountDeleted: () -> Void
 
     @State private var selectedTab: MasterTab = .schedule
-    @State private var scheduleViewModel = ScheduleViewModel()
+    @State private var toastCenter: ToastCenter
+    @State private var scheduleViewModel: ScheduleViewModel
     @State private var statsViewModel = StatsViewModel()
     @State private var clientListViewModel = ClientListViewModel()
     @State private var tour: OnboardingTour
@@ -22,6 +23,9 @@ struct MasterRootView: View {
         self.profile = profile
         self.onSignOut = onSignOut
         self.onAccountDeleted = onAccountDeleted
+        let toastCenter = ToastCenter()
+        _toastCenter = State(initialValue: toastCenter)
+        _scheduleViewModel = State(initialValue: ScheduleViewModel(toastCenter: toastCenter))
         _tour = State(initialValue: OnboardingTour(step: profile.tourStep))
         _currencySetting = State(initialValue: CurrencySetting(currency: profile.selectedCurrency))
     }
@@ -52,9 +56,11 @@ struct MasterRootView: View {
                     }
                     .tint(Color.accentColor)
                     .environment(tour)
+                    .environment(toastCenter)
                     .environment(\.currency, currencySetting.currency)
-                    .environment(\.popupPresenceChanged) { [tour] isOpen in
+                    .environment(\.popupPresenceChanged) { [tour, toastCenter] isOpen in
                         tour.popupPresenceChanged(isOpen)
+                        toastCenter.popupPresenceChanged(isOpen)
                     }
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.safeAreaInsets.bottom
@@ -77,6 +83,12 @@ struct MasterRootView: View {
                 contentBottomInset: contentBottomInset,
                 homeIndicatorInset: homeIndicatorInset
             )
+        }
+        .toast($toastCenter.message)
+        .onChange(of: toastCenter.message) { _, message in
+            guard let message else { return }
+
+            UINotificationFeedbackGenerator().notificationOccurred(message.style.feedback)
         }
         .task {
             await statsViewModel.syncMonthArchive()

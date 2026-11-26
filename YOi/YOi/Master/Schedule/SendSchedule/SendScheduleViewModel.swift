@@ -14,7 +14,6 @@ final class SendScheduleViewModel: Identifiable {
     let id = UUID()
 
     private(set) var mode = SendScheduleMode.text
-    private(set) var hasWriteFailed = false
     private(set) var text: String?
     private(set) var template: MessageTemplate
     private var storedTemplate: MessageTemplate
@@ -26,11 +25,13 @@ final class SendScheduleViewModel: Identifiable {
     private let now: Date
     private let fallbackLanguage: MessageLanguage
     private let repository: MessageTemplateRepository
+    private let toastCenter: ToastCenter
 
     init(
         slots: [Slot],
         clients: [Client],
         now: Date,
+        toastCenter: ToastCenter,
         template: MessageTemplate = MessageTemplate(),
         fallbackLanguage: MessageLanguage = .standard(for: .current),
         repository: MessageTemplateRepository = FirestoreMessageTemplateRepository()
@@ -42,6 +43,7 @@ final class SendScheduleViewModel: Identifiable {
         storedTemplate = template
         self.fallbackLanguage = fallbackLanguage
         self.repository = repository
+        self.toastCenter = toastCenter
         pager = MonthPager(showing: now, earliest: now)
         updateText()
     }
@@ -177,7 +179,7 @@ final class SendScheduleViewModel: Identifiable {
             try repository.save(template)
             storedTemplate = template
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 

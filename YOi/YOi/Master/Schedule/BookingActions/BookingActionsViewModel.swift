@@ -15,7 +15,6 @@ final class BookingActionsViewModel: Identifiable {
     let id = UUID()
 
     private(set) var mode = BookingActionsMode.actions
-    private(set) var hasWriteFailed = false
     private var rescheduleChoice: RescheduleChoice
     private var serviceChoice: ServiceChoice
 
@@ -27,6 +26,7 @@ final class BookingActionsViewModel: Identifiable {
     private let now: Date
     private let slotRepository: SlotRepository
     private let serviceRepository: ServiceRepository
+    private let toastCenter: ToastCenter
 
     init(
         slot: Slot,
@@ -36,7 +36,8 @@ final class BookingActionsViewModel: Identifiable {
         plans: [PlanEvent],
         now: Date,
         slotRepository: SlotRepository,
-        serviceRepository: ServiceRepository
+        serviceRepository: ServiceRepository,
+        toastCenter: ToastCenter
     ) {
         self.slot = slot
         self.plans = plans
@@ -44,6 +45,7 @@ final class BookingActionsViewModel: Identifiable {
         self.client = client
         self.slotRepository = slotRepository
         self.serviceRepository = serviceRepository
+        self.toastCenter = toastCenter
         let choice = ServiceChoice(services: services, pinning: slot)
         initialChoice = choice
         serviceChoice = choice
@@ -109,7 +111,7 @@ final class BookingActionsViewModel: Identifiable {
         do {
             try serviceRepository.reorder(ids: serviceChoice.orderedIds)
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 
@@ -130,7 +132,7 @@ final class BookingActionsViewModel: Identifiable {
         do {
             try slotRepository.book(slotId: slotId, booking)
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 
@@ -221,7 +223,7 @@ final class BookingActionsViewModel: Identifiable {
                 time: target.time
             )
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
             return nil
         }
 
@@ -246,7 +248,7 @@ final class BookingActionsViewModel: Identifiable {
         do {
             try slotRepository.clearBooking(slotId: slotId)
         } catch {
-            hasWriteFailed = true
+            toastCenter.reportSaveFailure()
         }
     }
 
